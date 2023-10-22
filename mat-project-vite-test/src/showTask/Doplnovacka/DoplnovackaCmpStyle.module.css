@@ -1,0 +1,10 @@
+.cmpsContainer{
+    width:100%;
+    min-height:fit-content;
+}
+
+.textCmp{
+    min-width:fit-content;
+    white-space:pre;
+    word-wrap:break-word;
+}
