@@ -14,7 +14,7 @@ import {
 //import axios from 'axios';
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../utils/api';
+import { logIn } from '../utils/auth';
 
 interface Props {
 }
@@ -38,27 +38,11 @@ const Login: FC<Props> = () => {
 
     const submitLogin = async ()=>{
         console.log("Login submit\n");
-        const response = await api().get('/sanctum/csrf-cookie');
-         //const response = await api().post('/login');
-         console.log(`Response: ${JSON.stringify(response)}\n`);
-         if(response.data.error){
-             console.log(`Error: ${response.data.error}`);
-         }
-         else{
-            const data = {
-                email:state.email.get(),
-                password:state.password.get()
-            };
-            console.log(`Data: ${JSON.stringify(data)}\n`);
-            const resp = await api().post('/app/login',data);
-            if(resp.data.error){
-             console.log(`Error: ${resp.data.error}`);
-            }
-            else{
-             console.log("Navigating to home.\n");
-            }
-             //navigate('/home');
-         }
+        const email = state.email.get();
+        const password = state.password.get();
+        if(email && password){
+       logIn(email,password);
+        }
     }
 
     return (
