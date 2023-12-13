@@ -1,0 +1,1 @@
+export type JSObjectType = {[P in PropertyKey]?:unknown|undefined|null};

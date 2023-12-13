@@ -6,8 +6,13 @@ interface InputBeh{
     inputDataset?:Dataset
 }
 
-interface BasicStyledCmpProps {
-    style?:React.CSSProperties
+interface BasicProps{
+    key?:React.Key,
+}
+
+interface BasicStyledCmpProps extends BasicProps {
+    style?:React.CSSProperties,
+    className?:string;
 }
 
 interface BasicStyledWChildrenCmpProps extends React.PropsWithChildren, BasicStyledCmpProps {
@@ -23,5 +28,5 @@ const defaultHiddenSpanStyle:React.CSSProperties = {
     overflow: 'hidden'
 };
 
-export {type Dataset, type InputBeh,type BasicStyledCmpProps,type BasicStyledWChildrenCmpProps,defaultHiddenSpanStyle};
+export {type BasicProps,type Dataset, type InputBeh,type BasicStyledCmpProps,type BasicStyledWChildrenCmpProps,defaultHiddenSpanStyle};
 
