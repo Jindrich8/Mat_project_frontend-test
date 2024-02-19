@@ -15,6 +15,12 @@ import {
 } from "react-router-dom";
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { ConfigProps as SanctumConfigProps, Sanctum} from 'react-sanctum';
+import { env } from './utils/vite';
+import axios from 'axios';
+import { Create } from './pages/task/Create';
+import { Csrf } from './pages/Csrf';
+import { Take } from './pages/task/Take';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -39,7 +45,10 @@ const router = createBrowserRouter(
       <Route path="/login" 
       element={<Login/>}
       />
+      <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/register" element={<Register/>}/>
+      <Route path="/task/create" element={<Create/>}/>
+      <Route path="/task/:taskId/take" element={<Take/>}/>
      <Route index
      element={<Home />}
      />
@@ -47,11 +56,24 @@ const router = createBrowserRouter(
   )
 );
 
-function App() {
+const sanctumConfig:SanctumConfigProps = {
+  apiUrl: env.VITE_SANCTUM_API_URL,
+  csrfCookieRoute: env.VITE_SANCTUM_CSRF_COOKIE_ROUTE,
+  signInRoute: env.VITE_SIGN_IN_ROUTE,
+  signOutRoute: env.VITE_SIGN_OUT_ROUTE,
+  userObjectRoute: env.VITE_USER_OBJECT_ROUTE
+};
 
-  return <MantineProvider theme={theme}>
+function App() {
+  axios.defaults.withCredentials = true;
+  axios.defaults.withXSRFToken = true;
+  return <Sanctum config={sanctumConfig} checkOnInit={false}>
+    <MantineProvider theme={theme}>
     <RouterProvider router={router}/>
-    </MantineProvider>;
+   </MantineProvider>
+   </Sanctum>;
 }
+
+
 
 export default App
