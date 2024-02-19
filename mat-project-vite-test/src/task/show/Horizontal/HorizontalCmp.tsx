@@ -1,4 +1,4 @@
-import { Box, Button,Group,Stack,Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button,Stack,Text, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { Exercise } from "../Exercise/ExerciseTypes";
@@ -42,14 +42,14 @@ const HorizontalCmp: FC<Props> = ({ task:taskArg,order }) => {
         }
     }, []);
     return (
-        <Stack h={'100%'} style={{boxSizing:'border-box',maxHeight:'100vh'}} px={'xl'}>
-        <Group justify={'space-between'}>
-        <Box mb={'xs'}>
+        <Stack h={'100%'} style={{boxSizing:'border-box',maxHeight:'100vh',padding:0}} px={'xl'}>
+        <Box>
+        <Box mb={'xs'} style={{float:'left'}}>
          <Title order={order}>{task.name}</Title>
             <Text>{task.description}</Text>
             </Box>
-            <Button type={'submit'} onClick={onSubmit} >Odeslat</Button>
-            </Group>
+            <Button type={'submit'} style={{float:'right'}} onClick={onSubmit} >Odeslat</Button>
+            </Box>
             <Box style={{flexGrow:1,overflowY:'auto'}}>
                 {task.entries[currentIndex].renderCmp({ 
                     num:  currentIndex + 1 as PositiveInt,

@@ -32,18 +32,22 @@ const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num
             <Title mb={'xs'} order={order}>{`Zdroje k cvičením ${num} - ${num + group.numOfExercises - 1}`}</Title>
                 <ResourcesCmp order={addOneToOrder(order)} resources={group.resources} />
             <Stack>
-                {group.members.map((member, i) =>
-                    member.type === 'exercise' ?
+                {group.members.map((member, i) =>{
+
+                    const cmp = member.type === 'exercise' ?
                         renderExercise(member, {
                             key: i,
                             order,
-                            num: PositiveIntHelper.addOne(num)
+                            num: num
                         })
                         : renderGroup(group, {
                             key: i,
                             order: addOneToOrder(order),
-                            num: PositiveIntHelper.addOne(num)
-                        }))}
+                            num: num
+                        });
+                        num = PositiveIntHelper.addOne(num);
+                        return cmp;
+                        })}
             </Stack>
         </Box>);
 }
@@ -54,7 +58,8 @@ const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
     const onSubmit = React.useCallback(() => {
         console.log(`DataForServer: ${JSON.stringify(task.getFilledDataForServer(),null,2)}`);
     },[task]);
-    let exerNum = 1 as PositiveInt;
+    
+    let  exerNum = 1 as PositiveInt;
     return (
         <>
             <Title order={order}>{task.name}</Title>
@@ -63,20 +68,25 @@ const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
                 <Stack>
                     {task.entries.map((entry, i) => {
                         if (entry.type === 'group') {
+                            console.log(`Group: exerNum: ${exerNum}`);
                             const cmp = renderGroup(entry, {
                                 order: addOneToOrder(order),
                                 num: exerNum,
                                 key: i
                             });
                             exerNum = exerNum + entry.numOfExercises as PositiveInt;
+                            console.log(`Group end: exerNum: ${exerNum}`);
                             return cmp;
                         }
                         else {
-                            return renderExercise(entry, {
+                            console.log(`exerNum: ${exerNum}`);
+                            const cmp =  renderExercise(entry, {
                                 order: addOneToOrder(order),
-                                num: PositiveIntHelper.addOne(exerNum),
+                                num: exerNum,
                                 key: i
                             });
+                            exerNum = PositiveIntHelper.addOne(exerNum);
+                           return cmp;
                         }
                     })}
                 </Stack>

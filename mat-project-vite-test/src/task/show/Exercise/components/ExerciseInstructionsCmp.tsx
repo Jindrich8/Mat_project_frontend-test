@@ -1,6 +1,6 @@
 import { Text } from "@mantine/core";
 import { FC } from "react"
-import { ExerciseInstructions } from "../ExerciseCmp";
+import { ExerciseInstructions } from "../ExerciseTypes";
 
 interface Props {
    instructions:ExerciseInstructions

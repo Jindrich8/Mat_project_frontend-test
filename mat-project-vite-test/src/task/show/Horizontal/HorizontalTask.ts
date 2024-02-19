@@ -1,4 +1,4 @@
-import { TaskResponse, OutShowResource, OutShowTaskDisplay, OutShowTaskEntryType } from "../../../api/task/show/get";
+import { OutShowResource} from "../../../api/task/take/get";
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { BasicProps } from "../../../types/props/props";
 import { createExercise } from "../Exercise/Exercise";
@@ -8,6 +8,7 @@ import { createResource } from "../Resource/Resource";
 import { Resource } from "../Resource/ResourceTypes";
 import { TaskDisplay, RenderCmp, BaseTask } from "../Task";
 import { TitleOrder } from "@mantine/core";
+import { TakeTaskResponse } from "../../../api/dtos/task/take/response";
 
 interface HorizontalTask extends BaseTask{
 entries:HorizontalTaskEntry[],
@@ -21,8 +22,8 @@ interface HorizontalTaskEntry{
     getFilledDataForServer:Exercise['getFilledDataForServer']
 }
 
- const toHorizontalEntryInner = (entry:TaskResponse['entries'][0],resources:OutShowResource[]):HorizontalTaskEntry|HorizontalTaskEntry[] => {
-    if(entry.type === OutShowTaskEntryType.Exercise){
+ const toHorizontalEntryInner = (entry:TakeTaskResponse['task']['entries'][0],resources:OutShowResource[]):HorizontalTaskEntry|HorizontalTaskEntry[] => {
+    if(entry.type === "exercise"){
      return {
          resources:resources.map((resource) => createResource(resource)),
          exercise:createExercise(entry),
@@ -45,13 +46,13 @@ interface HorizontalTaskEntry{
     }
  }
 
-const toHorizontalEntry = (entry:TaskResponse['entries'][0]) => {
+const toHorizontalEntry = (entry:TakeTaskResponse['task']['entries'][0]) => {
    return toHorizontalEntryInner(entry,[]);
 }
 
-const toHorizontalTask = (task:TaskResponse & {display:OutShowTaskDisplay.Horizontal}):HorizontalTask =>{
+const toHorizontalTask = (task:(TakeTaskResponse['task'] & {display:'horizontal'}),taskId:string):HorizontalTask =>{
 return {
-    id:task.id,
+    id:taskId,
     name:task.name,
     display:TaskDisplay.Horizontal,
     description:task.description,

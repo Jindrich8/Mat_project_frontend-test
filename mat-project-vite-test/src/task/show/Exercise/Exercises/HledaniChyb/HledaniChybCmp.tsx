@@ -1,28 +1,47 @@
 import React, { FC } from "react";
-import { Box, Textarea } from "@mantine/core";
+import { Accordion, AccordionControl, AccordionItem, AccordionPanel, Box, Textarea } from "@mantine/core";
 
 
 interface HledaniChybCmpProps {
-  state:{data?:string;}
+  defaultText: string,
+  state: {
+    data: string|undefined,
+  }
 }
 
 
 
-const HledaniChybCmp: FC<HledaniChybCmpProps> = ({ state }) => {
-    const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = React.useCallback((e) => {
-        const element = (e.target as HTMLTextAreaElement);
-       state.data = element.value;
-    }, [state]);
-
-    return (
-        <Box w={'auto'}>
-            <Textarea
-            defaultValue={state.data}
-            minRows={2}
+const HledaniChybCmp: FC<HledaniChybCmpProps> = ({ defaultText, state }) => {
+  const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = React.useCallback((e) => {
+    const element = (e.target as HTMLTextAreaElement);
+    state.data = element.value;
+  }, [state]);
+  const defaultTextLabel = 'Původní text';
+  return (
+    <Box w={'auto'}>
+      <Accordion defaultChecked={false}>
+        <AccordionItem value={defaultText}>
+          <AccordionControl>
+            {defaultTextLabel}
+          </AccordionControl>
+          <AccordionPanel>
+          <Textarea
+            aria-label={defaultTextLabel}
+            readOnly={true}
             autosize
-            onChange={onChange}
-             />
-        </Box>);
+            value={defaultText}
+          />
+          </AccordionPanel>
+         
+        </AccordionItem>
+      </Accordion>
+      <Textarea
+        defaultValue={state.data ?? defaultText}
+        minRows={2}
+        autosize
+        onChange={onChange}
+      />
+    </Box>);
 }
 
 export { HledaniChybCmp, type HledaniChybCmpProps }

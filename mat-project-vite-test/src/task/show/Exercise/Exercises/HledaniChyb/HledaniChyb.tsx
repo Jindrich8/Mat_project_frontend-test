@@ -1,15 +1,15 @@
-import { ExerciseContentFromDTO } from "../../ExerciseTypes";
+import { TakeTaskResponse } from "../../../../../api/dtos/task/take/response";
 import { HledaniChybCmp } from "./HledaniChybCmp";
-import { HledaniChybContent } from "./HledaniChybTypes";
 
-
-const createHledaniChyb:ExerciseContentFromDTO = (content) => {
+type Content = ((TakeTaskResponse['task']['entries'][0]&{type:'exercise'})['details']&{exerType:'FixErrors'})['content'];
+const createHledaniChyb = (content:Content) => {
 // check content
-const parsedContent = content as HledaniChybContent;
-const state = parsedContent;
+const parsedContent = content;
+const state = {data:parsedContent.text};
 return {
     renderCmp:() => 
     (<HledaniChybCmp 
+        defaultText={parsedContent.defaultText}
         state={state} />),
         getFilledDataForServer:() => state.data
     };

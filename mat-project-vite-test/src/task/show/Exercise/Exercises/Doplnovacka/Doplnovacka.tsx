@@ -1,16 +1,24 @@
-import { ExerciseContentFromDTO } from "../../ExerciseTypes";
-import { DoplnovackaCmp, DoplnovackaCmpProps } from "./DoplnovackaCmp";
-import { DoplnovackaContent } from "./DoplnovackaTypes";
+import { TakeTaskResponse } from "../../../../../api/dtos/task/take/response";
+import { DoplnovackaCmp} from "./DoplnovackaCmp";
 
 
+type Content = ((TakeTaskResponse['task']['entries'][0]&{type:'exercise'})['details']&{exerType:'FillInBlanks'})['content'];
 
-
-const createDoplnovacka:ExerciseContentFromDTO = (content) => {
+const createDoplnovacka = (content:Content) => {
 // check exercise type
-const parsedContent = content as DoplnovackaContent;
+const parsedContent = content;
 
-const state:DoplnovackaCmpProps['state'] = {data:parsedContent.filledData ?? []};
-const parsedUIData = parsedContent.uiData;
+const data = [];
+for(const part of parsedContent){
+    if(typeof part !== 'string'){
+       data.push(part.type === 'cmb' ?
+            part.selectedIndex
+            : part.text);
+        
+    }
+}
+const state = {data:data};
+const parsedUIData = parsedContent;
 return {
     renderCmp:() => 
     (<DoplnovackaCmp 

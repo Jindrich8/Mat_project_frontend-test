@@ -142,7 +142,7 @@ onFocus(){
 
 const onBlur = React.useCallback(() => {
   combobox.closeDropdown();
-  setSearch((selectedOptionIndex !== undefined ? objOptions[selectedOptionIndex].name : ''));
+  setSearch((selectedOptionIndex !== undefined && selectedOptionIndex >= 0 && selectedOptionIndex < objOptions.length ? objOptions[selectedOptionIndex].name : ''));
 },[combobox,objOptions,selectedOptionIndex]);
 
 console.log(`Combobox rerendering...${Date.now()}`);
