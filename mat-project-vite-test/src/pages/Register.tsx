@@ -10,8 +10,10 @@ import {
 } from '@mantine/core';
 //import axios from 'axios';
 import { FC } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../utils/auth';
+import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
+import { ApiError } from '../types/composed/apiError';
 
 interface Props {
 }
@@ -26,20 +28,30 @@ interface Props {
 
 const Register: FC<Props> = () => {
     
-    const state = useHookstate<{name:string,email:string,password:string}>({
+    const state = useHookstate({
         name:"",
         email:"",
-        password:""
+        password:"",
+        passwordConfirm:"",
+        validationError:undefined as ApiError|undefined
     });
- //   const navigate = useNavigate();
+ const navigateTo = useNavigate();
+ const navigate = () => navigateTo('/login');
 
     const submitLogin = async ()=>{
-        register(
+       const error = await register(
             state.name.get(),
             state.email.get(),
-            state.password.get()
+            state.password.get(),
+            state.passwordConfirm.get()
             );
-    }
+            if(error){
+                state.validationError.set(error);
+            }
+            else{
+                navigate();
+            }
+    };
 
     return (
         <Container size={420} my={40}>
@@ -50,7 +62,7 @@ const Register: FC<Props> = () => {
                 ALready have an account?{' \n'}
                 <Link to={"/login"}>Sign in</Link>
             </Text>
-
+        {state.validationError.value && <ApiErrorAlertCmp error={state.validationError.value} />}
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
             <TextInput 
                 type={'name'}
@@ -72,6 +84,12 @@ const Register: FC<Props> = () => {
                 placeholder="Your password"
                 value={state.password.get()}
                 onChange={(e)=>state.password.set(e.target.value)}
+                required mt="md" />
+                    <PasswordInput 
+                label="Password confirmation" 
+                placeholder="Your password again"
+                value={state.passwordConfirm.get()}
+                onChange={(e)=>state.passwordConfirm.set(e.target.value)}
                 required mt="md" />
                 <Button fullWidth mt="xl" onClick={submitLogin}>
                     Sign up

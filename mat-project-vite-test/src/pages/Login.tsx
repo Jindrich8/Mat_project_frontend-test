@@ -13,7 +13,8 @@ import {
 } from '@mantine/core';
 //import axios from 'axios';
 import { FC } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ErrorAlertCmp } from '../components/ErrorAlertCmp';
 import { logIn } from '../utils/auth';
 
 interface Props {
@@ -29,19 +30,30 @@ interface Props {
 
 const Login: FC<Props> = () => {
     
-    const state = useHookstate<{email?:string,password?:string,rememberMe:boolean}>({
+    //const { signIn } = useSanctum();
+    const signIn = logIn;
+    const state = useHookstate({
         email:"",
         password:"",
         rememberMe:false,
+        validationError:undefined as string | undefined
     });
-   // const navigate = useNavigate();
+
+    
+   const navigateTo = useNavigate();
+
+   const navigate = () => navigateTo('/');
 
     const submitLogin = async ()=>{
         console.log("Login submit\n");
         const email = state.email.get();
         const password = state.password.get();
-        if(email && password){
-       logIn(email,password);
+        const signedIn = await signIn(email,password/*,rememberMe*/);
+        if(signedIn){
+            navigate();
+        }
+        else{
+            state.validationError.set("Incorrect email or password!");
         }
     }
 
@@ -54,7 +66,10 @@ const Login: FC<Props> = () => {
                 Do not have an account yet?{' \n'}
                 <Link to={'/register'} >Create account</Link>
             </Text>
-
+           {
+           state.validationError.get() && 
+           <ErrorAlertCmp>{state.validationError.get()}</ErrorAlertCmp>
+           }
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <TextInput 
                 type={'email'}
