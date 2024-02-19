@@ -1,0 +1,6 @@
+/mat-project-vite-test/src/api/dtos
+*.lock
+/node_modules/.package-lock.json
+/mat-project-vite-test/package-lock.json
+/node_modules/.yarn-integrity
+/mat-project-vite-test/.env
