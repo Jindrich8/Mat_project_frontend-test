@@ -1,6 +1,43 @@
 import { TitleOrder } from "@mantine/core";
 import { Int } from "../types/primitives/Integer";
+import { Immutable, ImmutableObject } from "@hookstate/core";
 
+const tryGetLastArrayValue = <T>(arr:T[]|ImmutableObject<T[]>):T|Immutable<T>|undefined =>{
+  return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}
+
+const dump = (obj:object, indent:number = 2) => {
+ const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+};
+  const retVal = JSON.stringify(
+    obj,
+   getCircularReplacer,
+    indent
+  );
+  return retVal;
+};
+
+const isObjectEmpty = <T extends  object>(object:T): object is Record<PropertyKey,never> => {
+  for (const _property in object) {
+    // if any enumerable property is found object is not empty
+    return false;
+  }
+
+  return true;
+}
+const narrowArray = <T,N extends T>(arr:readonly T[],narrower:(item:T) => item is N):arr is N[] => {
+  return arr.length === 0 || narrower(arr[0]);
+}
 
 const hasOwnProperty = <X extends object, Y extends PropertyKey>
   (obj: X, prop: Y): obj is X & Record<Y, unknown> => {
@@ -100,4 +137,22 @@ const toTitleOrder = (value:number):TitleOrder => {
     return names.join(" > ");
 }
 
-export {getCssSelector,clamp,addOneToOrder,subsOneFromOrder, intToTitleOrder,toTitleOrder,addIntToOrder, hasOwnProperty,resizeInput,resizeInput31,getResizerValue,isNullOrUndef, isNotNullNorUndef};
+export {
+  tryGetLastArrayValue,
+  dump,
+  narrowArray,
+  isObjectEmpty,
+  getCssSelector,
+  clamp,
+  addOneToOrder,
+  subsOneFromOrder, 
+  intToTitleOrder,
+  toTitleOrder,
+  addIntToOrder, 
+  hasOwnProperty,
+  resizeInput,
+  resizeInput31,
+  getResizerValue
+  ,isNullOrUndef, 
+  isNotNullNorUndef
+};

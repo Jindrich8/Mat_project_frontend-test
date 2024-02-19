@@ -1,9 +1,14 @@
 import { AxiosResponse } from "axios";
 import { User } from "../types/composed/user";
 import { api } from "./api";
+import { ApiError } from "../types/composed/apiError";
 
-const register = async (username: string, email: string, password: string) => {
-    const response = await csrf();
+const register = async (username: string, email: string, password: string,passwordConfirm:string) => {
+    let response;
+    try{
+    response = await csrf();
+    }
+    catch{ /* empty */ }
     if (response) {
         // TODO: error message
         console.warn(
@@ -12,26 +17,38 @@ const register = async (username: string, email: string, password: string) => {
             `Status text: ${response.statusText}\n` +
             `Response: ${JSON.stringify(response)}\n`
         );
-        return false;
+        return {status:response.status,
+            statusText:response.statusText,
+            message:'CSRF failed.',
+            description:'Please try it again later.'
+        } as ApiError;
     }
     const registerResponse = await api().post('/api/register', 
     { 
-        username: username, 
+        name: username, 
         email: email, 
-        password: password
+        password: password,
+        password_confirmation: passwordConfirm
     });
     if(registerResponse.status === 200){
         console.log('Registration was succesfull');
-        return true;
+        return undefined;
     }
     else{
+        const myError = registerResponse.data.error;
         console.warn(
             'Registration failed\n' +
             `Status: ${registerResponse.status}\n` +
             `Status text: ${registerResponse.statusText}\n` +
             `Response: ${JSON.stringify(response)}\n`
         )
-        return false;
+        return {
+            status:registerResponse.status,
+            statusText:registerResponse.statusText,
+            message: myError?.message ?? "Registration failed.",
+            description: myError?.description ?? "Please try it again later.",
+            code:myError?.code ?? undefined
+        } as ApiError;
     }
 }
 
@@ -90,4 +107,4 @@ else{
 }
 };
 
-export {logIn,logOut,register};
+export {logIn,logOut,register,csrf};
