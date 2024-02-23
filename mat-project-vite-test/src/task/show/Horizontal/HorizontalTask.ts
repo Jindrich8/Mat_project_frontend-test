@@ -1,36 +1,35 @@
-import { OutShowResource} from "../../../api/task/take/get";
-import { PositiveInt } from "../../../types/primitives/PositiveInteger";
-import { BasicProps } from "../../../types/props/props";
-import { createExercise } from "../Exercise/Exercise";
-import { Exercise } from "../Exercise/ExerciseTypes";
 import { renderHorizontalEntry } from "./HorizontalEntry/HorizontalEntry";
 import { createResource } from "../Resource/Resource";
 import { Resource } from "../Resource/ResourceTypes";
-import { TaskDisplay, RenderCmp, BaseTask } from "../Task";
+import { TaskDisplay, BaseTask } from "../Task";
+import { TakeExercise } from "../../Exercise/ExerciseTypes";
+import { createTakeExercise } from "../../Exercise/Exercise";
+import { TakeTaskDto, TakeTaskEntryDto } from "../types";
 import { TitleOrder } from "@mantine/core";
-import { TakeTaskResponse } from "../../../api/dtos/task/take/response";
+import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 
 interface HorizontalTask extends BaseTask{
 entries:HorizontalTaskEntry[],
 display:typeof TaskDisplay.Horizontal
 }
 
-interface HorizontalTaskEntry{
-    resources:Resource[],
-    exercise:Exercise,
-    renderCmp:RenderCmp<{num:PositiveInt,order:TitleOrder} & BasicProps>,
-    getFilledDataForServer:Exercise['getFilledDataForServer']
+interface HorizontalTaskEntry {
+    resources:Resource[]
+    exercise:TakeExercise,
+    renderCmp(props:{num:PositiveInt,order:TitleOrder}): JSX.Element;
+    getFilledDataForServer:TakeExercise['getFilledDataForServer']
 }
 
- const toHorizontalEntryInner = (entry:TakeTaskResponse['task']['entries'][0],resources:OutShowResource[]):HorizontalTaskEntry|HorizontalTaskEntry[] => {
+type TakeHorizontalTaskDto = TakeTaskDto & {display:'horizontal'};
+
+ const toHorizontalEntryInner = (entry:TakeTaskEntryDto,resources:string[]):HorizontalTaskEntry|HorizontalTaskEntry[] => {
     if(entry.type === "exercise"){
      return {
          resources:resources.map((resource) => createResource(resource)),
-         exercise:createExercise(entry),
-         renderCmp({num,key,order}) {
+         exercise:createTakeExercise(entry),
+         renderCmp({num,order}) {
              return renderHorizontalEntry({
              exercise:this.exercise,
-             key:key,
              resources:this.resources,
              num:num,
              order:order
@@ -42,20 +41,22 @@ interface HorizontalTaskEntry{
     } satisfies HorizontalTaskEntry;
 }
     else{
-    return entry.entries.flatMap(e => toHorizontalEntryInner(e,[...resources, ...entry.resources]));
+    return entry.entries.flatMap(e => 
+        toHorizontalEntryInner(e,[...resources, ...entry.resources.map(r=>r.content)])
+        );
     }
  }
 
-const toHorizontalEntry = (entry:TakeTaskResponse['task']['entries'][0]) => {
+const toHorizontalEntry = (entry:TakeTaskEntryDto) => {
    return toHorizontalEntryInner(entry,[]);
 }
 
-const toHorizontalTask = (task:(TakeTaskResponse['task'] & {display:'horizontal'}),taskId:string):HorizontalTask =>{
+const toHorizontalTask = (task:TakeHorizontalTaskDto,taskId:string):HorizontalTask =>{
 return {
     id:taskId,
-    name:task.name,
+    name:task.task_detail.name,
     display:TaskDisplay.Horizontal,
-    description:task.description,
+    description:task.task_detail.description ?? '',
     entries:task.entries.flatMap(entry => toHorizontalEntry(entry)),
         getFilledDataForServer() {
             return this.entries.map(entry => entry.getFilledDataForServer());

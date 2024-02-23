@@ -193,5 +193,5 @@ useEffect(() => {
     </div>
   );
 });
-
+ComboboxCmp.displayName = 'ComboboxCmp';
 export { ComboboxCmp, type Props as ComboboxCmpProps };

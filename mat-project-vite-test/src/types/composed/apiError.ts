@@ -1,7 +1,8 @@
+import { GeneralErrorDetails, UserSpecificPartOfAnError } from "../../api/dtos/errors/error_response";
+
 export interface ApiError{
-    code?:number;
+    details?:GeneralErrorDetails
     status:number;
     statusText:string;
-    message:string;
-    description?:string;
+    userInfo:UserSpecificPartOfAnError;
 }

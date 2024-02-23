@@ -2,20 +2,19 @@ import React, { FC } from "react";
 import { ComboboxCmp } from "./components/ComboboxCmp";
 import { TxtInputCmp } from "./components/TxtInputCmp";
 import { Group } from "@mantine/core";
-import styles from "./DoplnovackaCmpStyle.module.css"
+import styles from "./FillInBlanksCmpStyle.module.css"
 import { isNotNullNorUndef } from "../../../../../utils/utils";
-import { TakeTaskResponse } from "../../../../../api/dtos/task/take/response";
+import { TakeContent } from "../FillInBlanks";
 
 
-type Content = ((TakeTaskResponse['task']['entries'][0]&{type:'exercise'})['details']&{exerType:'FillInBlanks'})['content'];
+type Content = TakeContent;
 
-interface DoplnovackaCmpProps {
+interface FillInBlanksTakeCmpProps {
     uiData: Content;
     state:{data:(string|number|undefined)[]};
 }
 
-
-const DoplnovackaCmp: FC<DoplnovackaCmpProps> = ({ uiData,state }) => {
+const FillInBlanksTakeCmp: FC<FillInBlanksTakeCmpProps> = React.memo(({ uiData,state }) => {
 
     const onChange = React.useCallback((value:string|number|undefined,i:number) => {
         console.log(`${i}: ${value}`);
@@ -57,6 +56,6 @@ const DoplnovackaCmp: FC<DoplnovackaCmpProps> = ({ uiData,state }) => {
             })}
             </Group>
         );
-}
-
-export { DoplnovackaCmp, type DoplnovackaCmpProps }
+});
+FillInBlanksTakeCmp.displayName = 'FillInBlanksTakeCmp';
+export { FillInBlanksTakeCmp, type FillInBlanksTakeCmpProps }

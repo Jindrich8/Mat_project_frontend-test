@@ -1,63 +1,64 @@
 import React, { FC, useEffect } from "react"
-import { Task, TaskDisplay, toTask } from "./Task";
+import { TaskDisplay, toTask } from "./Task";
 import { HorizontalCmp } from "./Horizontal/HorizontalCmp";
 import { VerticalCmp } from "./Vertical/VerticalCmp";
-import { Switch, Box, Loader, Title, Stack } from "@mantine/core";
-import { getShowTask } from "../../api/task/take/get";
-import { Either } from "../../types/base";
+import { Box, Loader, Stack } from "@mantine/core";
+import { takeTask } from "../../api/task/take/get";
 import { BasicStyledCmpProps } from "../../types/props/props";
-import { useHookstate } from "@hookstate/core";
-import { ApplicationErrorResponse } from "../../api/dtos/errors/error_response";
+import { GeneralErrorDetails, TaskTakeErrorResponseDetails } from "../../api/dtos/errors/error_response";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
-import { tryGetLastArrayValue } from "../../utils/utils";
+import { VerticalTask } from "./Vertical/VerticalTask";
+import { HorizontalTask } from "./Horizontal/HorizontalTask";
+import { ErrorResponseType } from "../../types/composed/errorResponseType";
+import { ApiController } from "../../types/composed/apiController";
 
-type Props = Either<{task:Task},{taskId:string}> & BasicStyledCmpProps;
+type Props = {taskId:string} & BasicStyledCmpProps;
 
-const ShowTaskCmp:FC<Props> = ({task:taskArg,taskId,style,...baseProps}) => {
-    const [task,setTask] = React.useState(taskArg);
-    const [show,setShow] = React.useState(true);
-    const takeError = useHookstate<({
+const takeTaskControl = new ApiController();
+const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
+  const [task,setTask] = React.useState(
+    undefined as (HorizontalTask|VerticalTask|undefined)
+     );
+    const [takeError,setTakeError] = React.useState<({
       status:number,
       statusText:string,
-      errorResp:ApplicationErrorResponse
+      errorResp:ErrorResponseType<TaskTakeErrorResponseDetails|GeneralErrorDetails>|undefined
     }|undefined)>(undefined);
 
     useEffect(() => {
       const fetchTask = async (taskId:string) => {
-        const response = await getShowTask({},taskId);
+        const response = await takeTask({
+        },taskId,takeTaskControl);
         if(response.success){
-        setTask(toTask(response.body,taskId));
+        setTask(toTask(response.body.data,taskId));
         }
-        else{
-          
+        else if(response.isServerError){
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const {success:_,error:errorResp,...error} = response;
-          takeError.set({...error,errorResp:errorResp});
+          setTakeError({...error,errorResp:errorResp});
         }
       };
-        if(task === undefined && taskId !== undefined){
+      if(taskId !== undefined){
+        if(task === undefined || task?.id !== taskId){
           fetchTask(taskId);
         }
-    },[taskId,task]);
-    const takeErrorValue = takeError.get();
-    const lastTakeError = takeErrorValue?.errorResp.errors && tryGetLastArrayValue(takeErrorValue.errorResp.errors);
-    const apiErrror =  lastTakeError  ? {
-      status:takeErrorValue.status,
-      code:lastTakeError.details?.code,
-      statusText:takeErrorValue.statusText,
-    message:lastTakeError.message,
-  description:lastTakeError.description
-    } : undefined;
+      }
+    },[task,taskId]);
   return (
     <Stack style={{boxSizing:'border-box',maxHeight:'100vh',...style}} {...baseProps}>
-    <Switch checked={show} onChange={(e) =>setShow(e.currentTarget.checked)}/>
-    {show ? 
-    (<Box style={{flexGrow:1,paddingBottom:'1rem'}}>{!task  ? (apiErrror ? (<ApiErrorAlertCmp error={apiErrror}/>) : (<Loader />)):
-        (task.display === TaskDisplay.Horizontal ? 
-        <HorizontalCmp task={task} order={2} /> : 
-        <VerticalCmp task={task} order={2} />)
-}</Box>)
-:<Title>Hidden</Title>}
+    <Box style={{flexGrow:1,paddingBottom:'1rem'}}>
+      {takeError ? (
+      <ApiErrorAlertCmp 
+      status={takeError.status}
+      statusText={takeError.statusText}
+      error={takeError.errorResp}/>
+      ) : (
+        !task ? <Loader />
+        : (task.display === TaskDisplay.Horizontal ? 
+          <HorizontalCmp task={task} order={2} /> : 
+          <VerticalCmp task={task} order={2} />)
+      )}
+      </Box>
     </Stack>
   )
 };

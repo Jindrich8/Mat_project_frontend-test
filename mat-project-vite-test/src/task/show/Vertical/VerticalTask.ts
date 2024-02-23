@@ -1,79 +1,62 @@
 import { Group as VerticalGroup } from "@mantine/core";
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
-import { createExercise } from "../Exercise/Exercise";
-import { Exercise } from "../Exercise/ExerciseTypes";
 import { createResource } from "../Resource/Resource";
 import { BaseTask, TaskDisplay, TaskEntryType } from "../Task";
 import { Resource } from "../Resource/ResourceTypes";
-import { TakeTaskResponse } from "../../../api/dtos/task/take/response";
+import { createTakeExercise } from "../../Exercise/Exercise";
+import { TakeExercise } from "../../Exercise/ExerciseTypes";
+import { TakeTaskDto, TakeTaskEntryDto } from "../types";
 
 interface VerticalGroup{
     type: typeof TaskEntryType.Group,
     numOfExercises: PositiveInt,
     resources: Resource[],
-    members: (VerticalGroup | Exercise)[]
+    members: (VerticalGroup | TakeExercise)[]
 }
 
 interface VerticalTask extends BaseTask{
 display:typeof TaskDisplay.Vertical
-entries:(Exercise | VerticalGroup)[],
+entries:(TakeExercise | VerticalGroup)[],
 
 }
 
-const toVerticalEntryInner = (entry:TakeTaskResponse['task']['entries'][0],count:{value:number}):Exercise|VerticalGroup => {
-    const origin = count.value;
+type TakeVerticalTaskDto = TakeTaskDto&{display:'vertical'};
+
+const toVerticalEntryInner = (entry:TakeTaskEntryDto,context:{count:number,exercises:TakeExercise[]}):TakeExercise|VerticalGroup => {
+    const origin = context.count;
     let transformed;
     if(entry.type === 'group'){
         transformed = {
         type:TaskEntryType.Group,
-        resources:entry.resources.map(resource => createResource(resource)),
-        members:entry.entries.map(entry => toVerticalEntryInner(entry,count)),
-        numOfExercises:count.value - origin as PositiveInt,
+        resources:entry.resources.map(resource => createResource(resource.content)),
+        members:entry.entries.map(entry => toVerticalEntryInner(entry,context)),
+        numOfExercises:context.count - origin as PositiveInt,
     } satisfies VerticalGroup;
  }else{ 
-    transformed = createExercise(entry);
-    ++count.value;
+    transformed = createTakeExercise(entry);
+    context.exercises.push(transformed);
+    ++context.count;
 }
     return transformed;
 }
 
-const toVerticalEntry = (entry:TakeTaskResponse['task']['entries'][0]):VerticalTask['entries'][0] => {
-   return toVerticalEntryInner(entry,{value:0});
+const toVerticalEntry = (entry:TakeTaskEntryDto,exercises:TakeExercise[]):VerticalTask['entries'][0] => {
+   return toVerticalEntryInner(entry,{count:0,exercises});
 }
 
-type getFilledDataForServerType = ReturnType<Exercise['getFilledDataForServer']>;
-
-const getEntryDataForServer = (entry:VerticalTask['entries'][0],depth:number = 0):getFilledDataForServerType[] =>{
-    const data:getFilledDataForServerType[] = [];
-    const stack = [];
-console.log('depth: '+depth);
-let actualEntry:typeof entry|undefined = entry;
-do{
-  if(actualEntry.type === TaskEntryType.Group){
-    stack.unshift(...actualEntry.members);
-  }
-  else{
-    data.push(actualEntry.getFilledDataForServer());
-  }
-}while((actualEntry = stack.shift()));
-console.log(`data: ${JSON.stringify(data)}`);
-return data;
-}
-
-const toVerticalTask = (task:TakeTaskResponse['task'] & {display:'vertical'},taskId:string):VerticalTask =>{
-return {
+const toVerticalTask = (task:TakeVerticalTaskDto,taskId:string):VerticalTask =>{
+    const exercises:TakeExercise[] = [];
+    return {
     id:taskId,
-    name:task.name,
+    name:task.task_detail.name,
     display:TaskDisplay.Vertical,
-    description:task.description,
-    entries:task.entries.map(entry => toVerticalEntry(entry)),
-        getFilledDataForServer() {
-            const data = [];
-            for(const entry of this.entries){
-                data.push(...getEntryDataForServer(entry));
-            }
-            return data;
-        },
+    description:task.task_detail.description ?? '',
+    entries:task.entries.map(entry => toVerticalEntry(entry,exercises)),
+        getFilledDataForServer:() => {
+            return exercises.map(e => e.getFilledDataForServer());
+        }
 }
-}
+};
+
+
 export {toVerticalTask,type VerticalTask,type VerticalGroup};

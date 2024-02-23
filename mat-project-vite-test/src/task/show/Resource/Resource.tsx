@@ -1,12 +1,11 @@
-import { OutShowResource } from "../../../api/task/take/get";
 import { BasicProps } from "../../../types/props/props";
 import { ResourceCmp } from "./ResourceCmp";
 import { Resource } from "./ResourceTypes";
 
 
-const createResource = (resource:OutShowResource):Resource =>{
+const createResource = (resource:string):Resource =>{
    return {
-    renderCmp: (props:BasicProps) => (<ResourceCmp {...props} content={resource.content} />)
+    renderCmp: (props:BasicProps) => (<ResourceCmp {...props} content={resource} />)
    }
 };
 

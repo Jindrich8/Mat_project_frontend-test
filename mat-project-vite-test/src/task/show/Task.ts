@@ -1,10 +1,8 @@
 import { FC } from "react";
-import { OutShowTaskDisplay } from "../../api/task/take/get";
 import { BasicProps } from "../../types/props/props";
-import { ExerciseContentFromDTO} from "./Exercise/ExerciseTypes";
 import { HorizontalTask, toHorizontalTask } from "./Horizontal/HorizontalTask";
 import { VerticalTask, toVerticalTask } from "./Vertical/VerticalTask";
-import { TakeTaskResponse } from "../../api/dtos/task/take/response";
+import { TakeTaskResponseDto } from "./types";
 
 
 enum TaskEntryType {
@@ -27,10 +25,10 @@ interface BaseTask{
 
 type RenderCmp<Props extends BasicProps> = FC<Props>;
 
-const createTask = (response:TakeTaskResponse,taskId:string) => {
+const createTask = (response:TakeTaskResponseDto,taskId:string) => {
 
     const data = response.task;
-    if(data.display === OutShowTaskDisplay.Horizontal){
+    if(data.display === 'horizontal'){
         const {display,...others} = data;
     return toHorizontalTask({display,...others},taskId)
     }
@@ -40,7 +38,9 @@ const createTask = (response:TakeTaskResponse,taskId:string) => {
     }
 };
 
-export {type BaseTask,TaskDisplay,TaskEntryType, createTask as toTask,type RenderCmp, type Task, type ExerciseContentFromDTO };
+
+
+export {type BaseTask,TaskDisplay,TaskEntryType, createTask as toTask,type RenderCmp, type Task };
 
 
 

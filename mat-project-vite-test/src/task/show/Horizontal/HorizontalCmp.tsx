@@ -1,24 +1,13 @@
 import { Box, Button,Stack,Text, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
-import { Exercise } from "../Exercise/ExerciseTypes";
 import { addOneToOrder, isNotNullNorUndef, isNullOrUndef } from "../../../utils/utils";
 import { NonNegativeInt, NonNegativeIntHelper } from "../../../types/primitives/NonNegativeInteger";
 import { IntHelper } from "../../../types/primitives/Integer";
-
-interface Task {
-    name: string,
-    description: string,
-    entries: ExerciseWResources[],
-    getFilledDataForServer():Array<ReturnType<Exercise['getFilledDataForServer']>>
-}
-
-interface ExerciseWResources {
-    renderCmp: Exercise['renderCmp']
-}
+import { HorizontalTask } from "./HorizontalTask";
 
 interface Props {
-    task: Task,
+    task: HorizontalTask,
     order:TitleOrder
 }
 

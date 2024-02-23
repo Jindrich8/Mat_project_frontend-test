@@ -2,13 +2,13 @@ import { FC } from "react"
 import { PositiveInt } from "../../../../types/primitives/PositiveInteger";
 import { Stack, Box, TitleOrder } from "@mantine/core";
 import { BasicProps } from "../../../../types/props/props";
-import { TakeExercise as Exercise } from "../../../Exercise/ExerciseTypes";
-import { Resource } from "../../Resource/ResourceTypes";
-import { ResourcesCmp } from "../../components/ResourcesCmp";
+import { Resource } from "../../../show/Resource/ResourceTypes";
+import { ResourcesCmp } from "../../../show/components/ResourcesCmp";
+import { ReviewExercise } from "../../../Exercise/ExerciseTypes";
 
 interface Props extends BasicProps {
     resources:Pick<Resource,'renderCmp'>[],
-    exercise:Pick<Exercise,'renderCmp'>,
+    exercise:Pick<ReviewExercise,'renderCmp'>,
     num:PositiveInt,
     order:TitleOrder
 }

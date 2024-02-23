@@ -1,5 +1,4 @@
-import { ApplicationErrorResponse } from "../../api/dtos/errors/error_response";
+import {ApplicationErrorInformation} from "../../api/dtos/errors/error_response";
 
-export type ErrorResponseType<Details> = Details extends ApplicationErrorResponse['details']  ?
- ApplicationErrorResponse & {details:Details}
- : never;
+export type ErrorResponseType<Details extends ApplicationErrorInformation['details']> = 
+ApplicationErrorInformation & {details:Details};

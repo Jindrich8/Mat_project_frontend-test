@@ -1,0 +1,12 @@
+.cmbWrapper{
+    display:inline-block;
+}
+
+.dropdown{
+    min-width:fit-content;
+}
+
+.option{
+    min-width:fit-content;
+    text-align:center;
+}

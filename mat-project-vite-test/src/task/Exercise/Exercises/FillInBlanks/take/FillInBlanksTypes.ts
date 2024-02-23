@@ -6,9 +6,9 @@ type TxtInput = {
     type: 'txtInput',
 }
 
-interface DoplnovackaContent {
+interface FillInBlanksContent {
 uiData:(string | Cmb | TxtInput)[],
 filledData?:(string|number|undefined)[]
 }
 
-export type {Cmb, TxtInput, DoplnovackaContent}
+export type {Cmb, TxtInput, FillInBlanksContent}

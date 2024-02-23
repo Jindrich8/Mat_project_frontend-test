@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Accordion, AccordionControl, AccordionItem, AccordionPanel, Box, Textarea } from "@mantine/core";
 
 
-interface HledaniChybCmpProps {
+interface FixErrorsCmpProps {
   defaultText: string,
   state: {
     data: string|undefined,
@@ -11,7 +11,7 @@ interface HledaniChybCmpProps {
 
 
 
-const HledaniChybCmp: FC<HledaniChybCmpProps> = ({ defaultText, state }) => {
+const FixErrorsCmp: FC<FixErrorsCmpProps> = ({ defaultText, state }) => {
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = React.useCallback((e) => {
     const element = (e.target as HTMLTextAreaElement);
     state.data = element.value;
@@ -44,4 +44,4 @@ const HledaniChybCmp: FC<HledaniChybCmpProps> = ({ defaultText, state }) => {
     </Box>);
 }
 
-export { HledaniChybCmp, type HledaniChybCmpProps }
+export { FixErrorsCmp, type FixErrorsCmpProps }

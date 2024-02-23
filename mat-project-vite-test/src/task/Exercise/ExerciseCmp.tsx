@@ -3,8 +3,8 @@ import { ExerciseInstructionsCmp } from "./components/ExerciseInstructionsCmp";
 import { Box, Group, Title, TitleOrder } from "@mantine/core";
 import { ExerciseContent, ExerciseInstructions } from "./ExerciseTypes";
 import styles from "./ExerciseStyle.module.css"
-import { BasicStyledCmpProps } from "../../../types/props/props";
-import { PositiveInt } from "../../../types/primitives/PositiveInteger";
+import { PositiveInt } from "../../types/primitives/PositiveInteger";
+import { BasicStyledCmpProps } from "../../types/props/props";
 
 interface Props extends BasicStyledCmpProps  {
 num:PositiveInt
@@ -24,7 +24,7 @@ const ExerciseCmp:FC<Props> = ({num,order,content,style,instructions}) => {
         </Group>
       </Box>
       <Box>
-        {content.renderCmp({})}
+        {content.renderCmp()}
       </Box>
     </Box>
   )

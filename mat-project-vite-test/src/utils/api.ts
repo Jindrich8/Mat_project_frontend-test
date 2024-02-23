@@ -1,7 +1,16 @@
 import axios from "axios"
 import qs from "qs"
-import { Response } from "../types/composed/Response";
 import { ErrorResponseType } from "../types/composed/errorResponseType";
+import { ApiError } from "../types/errors/ApiError";
+import { ApplicationSuccessResponse } from "../api/dtos/success_response";
+import { SuccessResponseType } from "../types/composed/successResponseType";
+import { Response } from "../types/composed/Response";
+import { ApplicationErrorResponse, GeneralErrorDetails } from "../api/dtos/errors/error_response";
+import { EndpointResponse, ErrorDetail } from "../types/composed/apiTypes";
+import { ApiController } from "../types/composed/apiController";
+import { OldRequestError } from "../types/errors/OldRequestError";
+import { AbortedError, RequestAbortError } from "../types/errors/RequestAbortError";
+
 axios.defaults.withCredentials = true;
 const apiAxios = (() => {
   const instance = axios.create({
@@ -44,10 +53,18 @@ export const api = () => {
   return apiAxios;
 }
 
-const apiRequest = async <R, E>(method: 'GET' | 'POST', path: string, actualRequest: object): 
-Promise<Response<R, ErrorResponseType<E>>> => {
+const DuplicateRequest = Symbol("DuplicateRequest");
+type ApiMethod = "GET" | "POST";
+/** 
+ * @throws {Error}
+ */
+const apiRequest = async <
+R extends EndpointResponse, 
+E extends ErrorDetail
+>(method: ApiMethod, path: string, actualRequest: object|undefined,apiController:ApiController): 
+Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>|undefined>> => {
   let response;
-
+  let signal = undefined;
   try {
     let call;
     const apiObj = api();
@@ -61,52 +78,65 @@ Promise<Response<R, ErrorResponseType<E>>> => {
       default:
         throw new Error(`Undefined method '${method}`);
     }
-    response = await call(path,actualRequest);
+    apiController.abort(DuplicateRequest);
+   signal = apiController.set();
+    response = await call<SuccessResponseType<R>>(path,actualRequest,{
+      signal:signal
+    });
   }
   catch (error) {
-    if (axios.isAxiosError(error)) {
+    if(signal?.aborted && error instanceof DOMException &&
+      (error.name === "AbortError" || error.name === "CanceledError")){
+        const apiError = 
+        signal.reason === DuplicateRequest ?
+        new OldRequestError()
+        : new RequestAbortError(signal.reason)
+        return {
+          success:false,
+          error:apiError
+        };
+    }
+    if (axios.isAxiosError<R>(error)) {
       // Access to config, request, and response
       response = error.response;
-    } else {
-      // Just a stock error
-      throw error;
+      if (response) {
+        return {
+          success: false,
+          status: response.status,
+          statusText: response.statusText,
+          error: response.data as (ErrorResponseType<E> | undefined)
+        };
+      }
     }
-  }
-  if (!response) {
-    throw new Error("Response is undefined this should not be possible!");
+    throw error;
   }
 
-  if (response.status === 200) {
     return {
-      success: true,
-      body: response.data.data as R
+      success:true,
+      body:response.data
     };
-  }
-  else {
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      success: false,
-      error: response.data as ErrorResponseType<E>
-    };
-  }
-  //  return FakeData[request.id];
-
-
 }
 
-export const apiGet = async <T extends object, R, E>(path: string, request: T | undefined) => {
-  return apiRequest<R,E>('GET',path,{
+export const apiGet = async <
+T,
+R extends EndpointResponse, 
+E extends ErrorDetail
+>(path: string, request: T,apiController:ApiController) => {
+  return apiRequest<R,E>('GET',path,request ?{
     params:{
       data:request
     }
-  });
+  }:undefined,apiController);
 };
 
 
-export const apiPost = async <T extends object, R, E>(path: string, request: T) => {
+export const apiPost = async <
+T extends object,
+R extends EndpointResponse, 
+E extends ErrorDetail
+>(path: string, request: T,apiController:ApiController) => {
   return apiRequest<R,E>('POST',path,{
     data:request
-  });
-}
+  },apiController);
+};
 

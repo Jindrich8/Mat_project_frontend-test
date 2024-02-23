@@ -28,4 +28,18 @@ Nester<Depth,Node,NodeNestingProp,Leaf> & Node;
 
 type JSObjectWInterface<Interface,PropsToPick extends keyof Interface = keyof Interface> = JSObjectType & Pick<Interface,PropsToPick>;
 
-  export {type JSObjectWInterface,type PrefixedRecord,type MinusOne, type Nester,type NodeWNesting,type HasProperty,type BuildTuple,type Length};
+type SetProperties<T,Properties extends Record<PropertyKey,unknown>> = Omit<T,keyof Properties> & Properties;
+
+
+
+  export type {
+    JSObjectWInterface,
+    PrefixedRecord,
+    MinusOne, 
+    Nester,
+    NodeWNesting,
+    HasProperty,
+    BuildTuple,
+    Length,
+    SetProperties
+  };

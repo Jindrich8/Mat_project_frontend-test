@@ -1,18 +1,17 @@
 import React, { FC } from "react"
-import { CreateExerciseProps, TakeExercise as TaskExercise } from "../../Exercise/ExerciseTypes";
-import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { CreateExerciseProps, ReviewExercise as TaskExercise } from "../../Exercise/ExerciseTypes";
+import { Box, Stack, Title, TitleOrder } from "@mantine/core";
 import { PositiveInt, PositiveIntHelper } from "../../../types/primitives/PositiveInteger";
-import { VerticalGroup, VerticalTask } from "./VerticalTask";
+import { VerticalReview, VerticalReviewGroup } from "./VerticalReview";
 import { addOneToOrder } from "../../../utils/utils";
-import { ResourcesCmp } from "../components/ResourcesCmp";
-
+import { ResourcesCmp } from "../../show/components/ResourcesCmp";
 
 type Exercise = Pick<TaskExercise,'type'|'renderCmp'>;
 
-type Group = Pick<VerticalGroup,'type'|'members'|'numOfExercises'|'resources'>;
+type Group = Pick<VerticalReviewGroup,'type'|'members'|'numOfExercises'|'resources'>;
 
 interface Props {
-    task: VerticalTask,
+    task: VerticalReview,
     order:TitleOrder
 }
 
@@ -46,18 +45,14 @@ const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num
         </Box>);
 }
 
-const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
+const VerticalReviewCmp: FC<Props> = ({ task:taskArg,order }) => {
     const taskRef = React.useRef(taskArg);
     const task = taskRef.current;
-    const onSubmit = React.useCallback(() => {
-        console.log(`DataForServer: ${JSON.stringify(task.getFilledDataForServer(),null,2)}`);
-    },[task]);
     
     let  exerNum = 1 as PositiveInt;
     return (
         <>
             <Title order={order}>{task.name}</Title>
-            <Text>{task.description}</Text>
             <Box>
                 <Stack>
                     {task.entries.map((entry, i) => {
@@ -85,9 +80,8 @@ const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
                     })}
                 </Stack>
             </Box>
-            <Button type={'submit'} onClick={onSubmit}>Odeslat</Button>
         </>
     )
 };
 
-export { VerticalCmp, type Props as VerticalCmpProps };
+export { VerticalReviewCmp, type Props as VerticalReviewCmpProps };
