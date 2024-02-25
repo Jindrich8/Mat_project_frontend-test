@@ -1,45 +1,37 @@
-import React, { FC } from "react"
+import { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
 import { ErrorAlertCmp } from "./ErrorAlertCmp";
-import { Accordion, AccordionControl, AccordionItem, AccordionPanel, Code, Text} from "@mantine/core";
+import { Button, Code, Modal, Text } from "@mantine/core";
 import { ApplicationErrorInformation } from "../api/dtos/errors/error_response";
-import { ImmutableObject } from "@hookstate/core";
+import { useDisclosure } from "@mantine/hooks";
 interface Props extends BasicStyledCmpProps {
-error:ApplicationErrorInformation|ImmutableObject<ApplicationErrorInformation>|undefined,
-status:number,
-statusText:string
+  error?: ApplicationErrorInformation,
+  status: number,
+  statusText: string
 }
 
-const ApiErrorAlertCmp:FC<Props> = React.memo(({error,status,statusText,...baseProps}) => {
-  const codeAndData = React.useMemo(()=> ({
-    code:error && error.details.code + '',
-    data:error && JSON.stringify(error.details.errorData,undefined,4)
-  })
-    ,[error]);
+const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText, ...baseProps }) => {
+  const [opened, { open,close }] = useDisclosure(false);
   return (
     <ErrorAlertCmp {...baseProps}>
-      <Text>Error ({status}): {statusText}</Text>
-      {error && (<>
-      <Text>Message: {error.user_info.message}</Text>
-      {error?.user_info.description 
-      && (<Text>Description: {error.user_info.description}</Text>)
+      <Text span>{statusText}({status}):</Text>
+      {error && <>
+        <Text>Message: {error.user_info.message}</Text>
+        {error.user_info.description && <Text>Description: {error.user_info.description}</Text>}
+        {error.details && <Text>Code: {error.details.code}</Text>}
+        {error.details?.errorData !== undefined && <Button onClick={open}>Data</Button>}
+        </>
       }
-      <Text>Code: {codeAndData.code}</Text>
-      <Accordion defaultChecked={false}>
-        <AccordionItem value={codeAndData.code ?? ''}>
-          <AccordionControl>
-            Data
-          </AccordionControl>
-          <AccordionPanel>
-            <Code>{codeAndData.data}</Code>
-          </AccordionPanel>
-         
-        </AccordionItem>
-      </Accordion>
-      </>)}
-      </ErrorAlertCmp>
+        <Modal
+          opened={opened}
+          onClose={close}
+          title="Error data"
+          centered
+          >
+          <Code>{JSON.stringify(error?.details?.errorData, undefined, 8)}</Code>
+        </Modal>
+    </ErrorAlertCmp>
   );
-});
-ApiErrorAlertCmp.displayName = "ApiErrorAlertCmp";
+};
 
 export { ApiErrorAlertCmp, type Props as ApiErrorAlertCmpProps };

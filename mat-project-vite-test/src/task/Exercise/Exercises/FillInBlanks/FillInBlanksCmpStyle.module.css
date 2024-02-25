@@ -3,8 +3,12 @@
     min-height:fit-content;
 }
 
+.inputCmp{
+    box-sizing: border-box;
+    height:var(1lh,1rem);
+}
+
 .textCmp{
     min-width:fit-content;
-    white-space:pre;
     word-wrap:break-word;
 }

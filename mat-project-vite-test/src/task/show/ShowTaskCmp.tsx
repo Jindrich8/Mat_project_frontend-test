@@ -22,7 +22,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
     const [takeError,setTakeError] = React.useState<({
       status:number,
       statusText:string,
-      errorResp:ErrorResponseType<TaskTakeErrorResponseDetails|GeneralErrorDetails>|undefined
+      errorResp:ErrorResponseType<TaskTakeErrorResponseDetails|GeneralErrorDetails>['error']|undefined
     }|undefined)>(undefined);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         else if(response.isServerError){
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const {success:_,error:errorResp,...error} = response;
-          setTakeError({...error,errorResp:errorResp});
+          setTakeError({...error,errorResp:errorResp?.error});
         }
       };
       if(taskId !== undefined){

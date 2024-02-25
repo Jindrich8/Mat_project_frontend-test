@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Group } from "@mantine/core";
-import styles from "./FillInBlanksCmpStyle.module.css"
+import styles from "../FillInBlanksCmpStyle.module.css"
 import { ComboboxReviewCmp } from "./components/ComboboxReviewCmp";
 import { TextInputReviewCmp } from "./components/TextInputReviewCmp";
 import { ReviewContent } from "../FillInBlanks";

@@ -1,6 +1,6 @@
 import { FC } from "react";
 import React from "react";
-import { AnswerTextCmp } from "./AnswerTextCmp";
+import { AnswerCmp } from "./AnswerCmp";
 
 interface Props {
   correctValue?:string;
@@ -8,7 +8,7 @@ interface Props {
 }
 
 const TextInputReviewCmp:FC<Props> = React.memo(({correctValue,userValue}) => {
-  return (<AnswerTextCmp userText={userValue} correctText={correctValue} />);
+  return (<AnswerCmp userText={userValue} correctText={correctValue} />);
 });
 TextInputReviewCmp.displayName = 'TextInputReviewCmp';
 export { TextInputReviewCmp, type Props as TextInputReviewCmpProps };

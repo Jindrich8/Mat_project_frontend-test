@@ -12,6 +12,7 @@ onSelectionChange?:(value:string,index:number) => void;
 style?:React.CSSProperties
 name?:string
 defaultValue?:number;
+className?:string;
 }
 
 type MyOption = {name:string,value:string,index:number};
@@ -23,12 +24,12 @@ const checkDefaultValue = (index:number,length:number) =>{
   return index;
 }
 
-const ComboboxCmp:FC<Props> = React.memo(({options,onSelectionChange,style,defaultValue,name}) => {
+const ComboboxCmp:FC<Props> = React.memo(({options,onSelectionChange,style,defaultValue,name,className}) => {
 
  const inputStyle = React.useMemo<CSSProperties>(() => (
   {
 font:'inherit',
-padding:'0.125rem',
+padding:'0 0.125rem',
 textAlign:'center',
 ...style,
 boxSizing:'content-box',
@@ -155,7 +156,8 @@ useEffect(() => {
   }
 },[combobox.dropdownOpened,longestOption,options,search]);
 
-  return (<div className={styles.cmbWrapper}>
+const wrapperClassName = React.useMemo(()=>styles.cmbWrapper+' '+className,[className]);
+  return (<div className={wrapperClassName}>
     <Combobox
       store={combobox}
       position={"bottom"}

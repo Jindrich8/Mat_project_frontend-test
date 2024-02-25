@@ -1,15 +1,15 @@
 import axios from "axios"
 import qs from "qs"
 import { ErrorResponseType } from "../types/composed/errorResponseType";
-import { ApiError } from "../types/errors/ApiError";
-import { ApplicationSuccessResponse } from "../api/dtos/success_response";
 import { SuccessResponseType } from "../types/composed/successResponseType";
 import { Response } from "../types/composed/Response";
-import { ApplicationErrorResponse, GeneralErrorDetails } from "../api/dtos/errors/error_response";
+import { GeneralErrorDetails } from "../api/dtos/errors/error_response";
 import { EndpointResponse, ErrorDetail } from "../types/composed/apiTypes";
 import { ApiController } from "../types/composed/apiController";
 import { OldRequestError } from "../types/errors/OldRequestError";
-import { AbortedError, RequestAbortError } from "../types/errors/RequestAbortError";
+import { RequestAbortError } from "../types/errors/RequestAbortError";
+import Cookies from "js-cookie"
+import { csrf } from "./auth";
 
 axios.defaults.withCredentials = true;
 const apiAxios = (() => {
@@ -53,19 +53,26 @@ export const api = () => {
   return apiAxios;
 }
 
+
 const DuplicateRequest = Symbol("DuplicateRequest");
 type ApiMethod = "GET" | "POST";
 /** 
  * @throws {Error}
  */
-const apiRequest = async <
+export const apiRequest = async <
 R extends EndpointResponse, 
 E extends ErrorDetail
->(method: ApiMethod, path: string, actualRequest: object|undefined,apiController:ApiController): 
+>(method: ApiMethod, path: string, actualRequest: object|undefined,apiController:ApiController,needsCsrf:boolean = true): 
 Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>|undefined>> => {
   let response;
   let signal = undefined;
   try {
+    if(needsCsrf){
+    const xsrfToken = Cookies.get('XSRF-TOKEN');
+    if(!xsrfToken){
+      await csrf();
+    }
+  }
     let call;
     const apiObj = api();
     switch (method) {
@@ -92,6 +99,7 @@ Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>
         new OldRequestError()
         : new RequestAbortError(signal.reason)
         return {
+          isServerError:false,
           success:false,
           error:apiError
         };
@@ -101,6 +109,7 @@ Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>
       response = error.response;
       if (response) {
         return {
+          isServerError:true,
           success: false,
           status: response.status,
           statusText: response.statusText,

@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Accordion, AccordionControl, AccordionItem, AccordionPanel, Box, Textarea } from "@mantine/core";
 
 
-interface FixErrorsCmpProps {
+interface Props {
   defaultText: string,
   state: {
     data: string|undefined,
@@ -11,7 +11,7 @@ interface FixErrorsCmpProps {
 
 
 
-const FixErrorsCmp: FC<FixErrorsCmpProps> = ({ defaultText, state }) => {
+const FixErrorsTakeCmp: FC<Props> = ({ defaultText, state }) => {
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = React.useCallback((e) => {
     const element = (e.target as HTMLTextAreaElement);
     state.data = element.value;
@@ -44,4 +44,4 @@ const FixErrorsCmp: FC<FixErrorsCmpProps> = ({ defaultText, state }) => {
     </Box>);
 }
 
-export { FixErrorsCmp, type FixErrorsCmpProps }
+export { FixErrorsTakeCmp,  type Props as FixErrorsTakeCmpProps }

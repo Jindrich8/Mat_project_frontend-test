@@ -9,6 +9,8 @@ type ReviewContent = (ReviewExerciseDto['details']&{exerType:'FillInBlanks'})['c
 const FillInBlanksMethods:ActualExercise = {
 
     createTake:(content:TakeContent) => {
+        console.log("FillInBlanks createTake - content: ");
+        console.log(JSON.stringify(content));
         const data = [];
         for(const part of content){
             if(typeof part !== 'string'){

@@ -15,8 +15,11 @@ const HorizontalCmp: FC<Props> = ({ task:taskArg,order }) => {
     const [currentIndex, setCurrentIndex] = React.useState<NonNegativeInt>(NonNegativeIntHelper.MIN);
     const taskRef = React.useRef(taskArg);
     const task = taskRef.current;
-    const onSubmit = React.useCallback(() => {
+    const onSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>((e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log(`DataForServer: ${JSON.stringify(task.getFilledDataForServer(),null,2)}`);
+        
     },[task]);
 
     const onClick = React.useCallback<React.MouseEventHandler<HTMLDivElement>>((e) => {
@@ -31,13 +34,14 @@ const HorizontalCmp: FC<Props> = ({ task:taskArg,order }) => {
         }
     }, []);
     return (
+        <form onSubmit={onSubmit}>
         <Stack h={'100%'} style={{boxSizing:'border-box',maxHeight:'100vh',padding:0}} px={'xl'}>
         <Box>
         <Box mb={'xs'} style={{float:'left'}}>
          <Title order={order}>{task.name}</Title>
             <Text>{task.description}</Text>
             </Box>
-            <Button type={'submit'} style={{float:'right'}} onClick={onSubmit} >Odeslat</Button>
+            <Button type={'submit'} style={{float:'right'}}>Odeslat</Button>
             </Box>
             <Box style={{flexGrow:1,overflowY:'auto'}}>
                 {task.entries[currentIndex].renderCmp({ 
@@ -50,6 +54,7 @@ const HorizontalCmp: FC<Props> = ({ task:taskArg,order }) => {
                 </Button.Group>
             </div>
         </Stack>
+        </form>
     )
 };
 

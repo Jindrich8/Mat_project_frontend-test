@@ -12,10 +12,11 @@ import {
     Button,
 } from '@mantine/core';
 //import axios from 'axios';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ErrorAlertCmp } from '../components/ErrorAlertCmp';
 import { logIn } from '../utils/auth';
+//import { logIn } from '../utils/auth';
 
 interface Props {
 }
@@ -42,20 +43,39 @@ const Login: FC<Props> = () => {
     
    const navigateTo = useNavigate();
 
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
    const navigate = () => navigateTo('/');
 
-    const submitLogin = async ()=>{
+    const submitLogin:React.FormEventHandler<HTMLFormElement> = async (e)=>{
+        e.preventDefault();
         console.log("Login submit\n");
         const email = state.email.get();
         const password = state.password.get();
         const signedIn = await signIn(email,password/*,rememberMe*/);
         if(signedIn){
-            navigate();
+            //navigate();
         }
         else{
             state.validationError.set("Incorrect email or password!");
         }
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     }
+
+    useEffect(() =>{
+        const listener =(e:BeforeUnloadEvent)=>{
+            alert("Unloading...");
+            if(prompt("Unload[Y/N]?")?.toLowerCase() !== "y"){
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        };
+        window.addEventListener("beforeunload",listener);
+        return () => {
+            window.removeEventListener("beforeunload",listener);
+           };
+    },[]);
 
     return (
         <Container size={420} my={40}>
@@ -70,14 +90,14 @@ const Login: FC<Props> = () => {
            state.validationError.get() && 
            <ErrorAlertCmp>{state.validationError.get()}</ErrorAlertCmp>
            }
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+            <Paper withBorder shadow="md" p={30} mt={30} radius="md" component='form' onSubmit={submitLogin}>
                 <TextInput 
                 type={'email'}
-                pattern={'email'}
                 onChange={(e)=>state.email.set(e.target.value)}
                 value={state.email.get()}
                 label="Email" 
                 placeholder="your@email.com" 
+                mt={'md'}
                 required/>
                 <PasswordInput 
                 label="Password" 
@@ -94,7 +114,7 @@ const Login: FC<Props> = () => {
                         Forgot password?
                     </Anchor>
                 </Group>
-                <Button fullWidth mt="xl" onClick={submitLogin}>
+                <Button fullWidth mt="xl" type={'submit'}>
                     Sign in
                 </Button>
             </Paper>
