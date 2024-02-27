@@ -25,12 +25,12 @@ const FillInBlanksReviewCmp: FC<FillInBlanksReviewCmpProps> = React.memo(({ uiDa
                     : (
                         d.type === 'cmb' ?
                             (<ComboboxReviewCmp
-                                userValue={d.userValue}
+                                userValue={typeof d.userValue === 'string' ? d.userValue : ''}
                                 key={i}
                                 correctValue={d.correctValue}
                             />)
                             : (<TextInputReviewCmp
-                                userValue={d.userValue}
+                                userValue={typeof d.userValue === 'string' ? d.userValue : ''}
                                 key={i}
                                 correctValue={d.correctValue}
                             />)

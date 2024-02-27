@@ -3,6 +3,7 @@ import { BasicProps } from "../../types/props/props";
 import { HorizontalTask, toHorizontalTask } from "./Horizontal/HorizontalTask";
 import { VerticalTask, toVerticalTask } from "./Vertical/VerticalTask";
 import { TakeTaskResponseDto } from "./types";
+import { EvaluateTaskRequest } from "../../api/dtos/request";
 
 
 enum TaskEntryType {
@@ -20,7 +21,8 @@ interface BaseTask{
     id:string;
     name:string;
     description:string;
-    getFilledDataForServer():(unknown|undefined)[];
+    version:string;
+    getFilledDataForServer():EvaluateTaskRequest['exercises'];
 }
 
 type RenderCmp<Props extends BasicProps> = FC<Props>;

@@ -45,10 +45,7 @@ const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num
         </Box>);
 }
 
-const VerticalReviewCmp: FC<Props> = ({ task:taskArg,order }) => {
-    const taskRef = React.useRef(taskArg);
-    const task = taskRef.current;
-    
+const VerticalReviewCmp: FC<Props> = ({ task,order }) => {
     let  exerNum = 1 as PositiveInt;
     return (
         <>

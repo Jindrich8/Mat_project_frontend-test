@@ -10,9 +10,9 @@ interface Props extends BasicProps {
 
 const ResourcesCmp: FC<Props> = ({ resources,order }) => {
     return (
-        <Stack gap={'xs'} align={'flex-start'}>
+        <Stack align={'flex-start'}>
             {resources.map((resource, i) =>
-                <Stack key={i}>
+                <Stack key={i} style={{gap:0}}>
                     <Title order={order}>Zdroj {i + 1}</Title>
                     {resource.renderCmp({})}
                 </Stack>

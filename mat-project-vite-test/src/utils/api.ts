@@ -10,6 +10,7 @@ import { OldRequestError } from "../types/errors/OldRequestError";
 import { RequestAbortError } from "../types/errors/RequestAbortError";
 import Cookies from "js-cookie"
 import { csrf } from "./auth";
+import { dump } from "./utils";
 
 axios.defaults.withCredentials = true;
 const apiAxios = (() => {
@@ -92,6 +93,7 @@ Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>
     });
   }
   catch (error) {
+    console.log("Error: "+(error && typeof error === "object"?dump(error):error));
     if(signal?.aborted && error instanceof DOMException &&
       (error.name === "AbortError" || error.name === "CanceledError")){
         const apiError = 
@@ -105,9 +107,11 @@ Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>
         };
     }
     if (axios.isAxiosError<R>(error)) {
+      console.log("Axios error");
       // Access to config, request, and response
       response = error.response;
       if (response) {
+        console.log("response");
         return {
           isServerError:true,
           success: false,
@@ -117,6 +121,7 @@ Promise<Response<SuccessResponseType<R>,ErrorResponseType<E|GeneralErrorDetails>
         };
       }
     }
+    console.log("Throwing");
     throw error;
   }
 

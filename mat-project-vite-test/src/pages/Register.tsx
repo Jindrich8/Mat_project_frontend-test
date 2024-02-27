@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../utils/auth';
 import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
 import { ApplicationErrorInformation, RegisterErrorDetails } from '../api/dtos/errors/error_response';
+import { dump } from '../utils/utils';
 
 interface Props {
 }
@@ -40,18 +41,21 @@ const Register: FC<Props> = () => {
  const navigate = () => navigateTo('/login');
 console.log("refresh");
     const submitLogin:React.FormEventHandler<HTMLFormElement> = async (e)=>{
+        e.preventDefault();
        const response = await register(
             state.name.get(),
             state.email.get(),
             state.password.get(),
             state.passwordConfirm.get()
             );
+            console.log("Response: "+dump(response));
             if(response.success){
                 //navigate();
             }
             else if(response.isServerError){
-                if(response.error?.error.details.code === 1){
+                if(response.error?.error?.details.code === 1){
                     setFormError(response.error.error.details);
+                    console.log(dump(response.error.error.details));
                 }
                 else{
                 setError({
@@ -61,8 +65,7 @@ console.log("refresh");
                 });
             }
             }
-            e.preventDefault();
-            e.stopPropagation();
+           
             return false;
     };
 
@@ -105,7 +108,7 @@ console.log("refresh");
             style={{maxWidth:'30rem'}}
             component={'form'}
             onSubmit={submitLogin}
-            onChange={() => setFormError(undefined)}
+            //onChange={() => setFormError(undefined)}
             >
             <TextInput 
                 type={'name'}

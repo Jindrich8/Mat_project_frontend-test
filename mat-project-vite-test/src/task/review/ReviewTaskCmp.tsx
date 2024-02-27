@@ -1,48 +1,47 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import { Box, Loader, Stack } from "@mantine/core";
 import { BasicStyledCmpProps } from "../../types/props/props";
-import { ApplicationErrorInformation} from "../../api/dtos/errors/error_response";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { getTaskReview } from "../../api/task/review/get";
 import { ApiController } from "../../types/composed/apiController";
 import { ReviewDisplay, toReview } from "./Review";
 import { HorizontalReviewCmp } from "./Horizontal/HorizontalReviewCmp";
 import { VerticalReviewCmp } from "./Vertical/VerticalReviewCmp";
-import { HorizontalReview } from "./Horizontal/HorizontalReview";
-import { VerticalReview } from "./Vertical/VerticalReview";
+import { useErrorResponse } from "../../utils/hooks";
+import { ReviewTaskResponse } from "../../api/dtos/success_response";
 
-type Props = {reviewId:string} & BasicStyledCmpProps;
+type Props = {reviewId:string,reviewDto?:ReviewTaskResponse} & BasicStyledCmpProps;
 
 const getTaskReviewController = new ApiController();
 
-const ReviewTaskCmp:FC<Props> = ({reviewId,style,...baseProps}) => {
-  
+const ReviewTaskCmp:FC<Props> = ({reviewId,reviewDto,style,...baseProps}) => {
     const [review,setReview] = React.useState(
-      undefined as (HorizontalReview|VerticalReview|undefined)
+      reviewDto ? toReview(reviewDto,reviewId) : undefined
       );
-    const [reviewError,setReviewError] = useState<({
-      status:number,
-      statusText:string,
-      errorResp:ApplicationErrorInformation|undefined
-    }|undefined)>(undefined);
+    const [reviewError,setReviewError] = useErrorResponse<typeof getTaskReview>();
+    console.log("ReviewTaskCmp refresh");
+    console.log("Has review - "+(review ? "true" : "false"));
+
 
     useEffect(() => {
       const fetchReview = async (reviewId:string) => {
+        console.log("Fetching review");
         const response = await getTaskReview(null,reviewId,getTaskReviewController);
         if(response.success){
         setReview(toReview(response.body.data,reviewId));
         }
         else if(response.isServerError){
-          
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const {success:_,error:errorResp,...error} = response;
-          setReviewError({...error,errorResp:errorResp});
+          setReviewError({
+            status:response.status,
+            statusText:response.statusText,
+            error:response.error?.error
+          });
         }
       };
         if(review === undefined && reviewId !== undefined){
           fetchReview(reviewId);
         }
-    },[reviewId,review]);
+    },[reviewId,review,setReviewError]);
   return (
     <Stack style={{boxSizing:'border-box',maxHeight:'100vh',...style}} {...baseProps}>
     <Box style={{flexGrow:1,paddingBottom:'1rem'}}>
@@ -50,7 +49,7 @@ const ReviewTaskCmp:FC<Props> = ({reviewId,style,...baseProps}) => {
       <ApiErrorAlertCmp 
       status={reviewError.status}
       statusText={reviewError.statusText}
-      error={reviewError.errorResp}/>
+      error={reviewError.error}/>
       ) : (
         !review ? <Loader />
         : (review.display === ReviewDisplay.Horizontal ? 

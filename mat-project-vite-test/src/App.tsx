@@ -21,6 +21,7 @@ import axios from 'axios';
 import { Create } from './pages/task/Create';
 import { Csrf } from './pages/Csrf';
 import { Take } from './pages/task/Take';
+import { Review } from './pages/task/Review';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -48,6 +49,7 @@ const router = createBrowserRouter(
       <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/task/create" element={<Create/>}/>
+      <Route path="/task/:reviewId/review" element={<Review/>}/>
       <Route path="/task/:taskId/take" element={<Take/>}/>
      <Route index
      element={<Home />}

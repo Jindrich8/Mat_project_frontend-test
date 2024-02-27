@@ -1,7 +1,7 @@
 import { TitleOrder } from "@mantine/core";
 import { PositiveInt } from "../../types/primitives/PositiveInteger";
 import { BasicProps } from "../../types/props/props";
-import { RenderCmp } from "../show/Task";
+import { BaseTask, RenderCmp } from "../show/Task";
 import { ReviewTaskResponse, TakeTaskResponse } from "../../api/dtos/success_response";
 
 interface ExerciseInstructions {
@@ -10,7 +10,7 @@ interface ExerciseInstructions {
 
 interface TakeExercise {
     type:'exercise',
-    getFilledDataForServer():unknown|undefined
+    getFilledDataForServer():ReturnType<BaseTask['getFilledDataForServer']>[0]
     renderCmp:RenderCmp<CreateExerciseProps>
 }
 
@@ -27,7 +27,7 @@ interface CreateExerciseProps extends BasicProps
 }
 
 interface TakeActualExercise extends ExerciseContent{
-  getFilledDataForServer:()=>unknown
+  getFilledDataForServer:TakeExercise['getFilledDataForServer']
 }
 
 interface ReviewActualExercise extends ExerciseContent{

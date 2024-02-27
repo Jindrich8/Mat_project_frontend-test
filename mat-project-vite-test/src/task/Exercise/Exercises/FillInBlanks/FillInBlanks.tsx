@@ -1,3 +1,4 @@
+import { FillInBlanksEvaluateRequest } from "../../../../api/dtos/request";
 import { ActualExercise, ReviewExerciseDto, TakeExerciseDto } from "../../ExerciseTypes";
 import { FillInBlanksReviewCmp } from "./review/FillInBlanksReviewCmp";
 import { FillInBlanksTakeCmp} from "./take/FillInBlanksTakeCmp";
@@ -27,7 +28,12 @@ const FillInBlanksMethods:ActualExercise = {
                 uiData={content} 
                 state={state} 
                  />),
-                getFilledDataForServer:() => state.data
+                getFilledDataForServer:() => {
+                    const res = ({
+                        content:state.data
+                    }) as FillInBlanksEvaluateRequest;
+                    return res;
+                }
             };
         },
     createReview:(content:ReviewContent) =>{

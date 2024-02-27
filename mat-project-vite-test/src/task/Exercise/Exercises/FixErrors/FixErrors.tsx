@@ -1,3 +1,4 @@
+import { FixErrorsEvaluateRequest } from "../../../../api/dtos/request";
 import { TakeExerciseDto, ReviewExerciseDto, ActualExercise } from "../../ExerciseTypes";
 import { FixErrorsReviewCmp } from "./review/FixErrorsReviewCmp";
 import { FixErrorsTakeCmp } from "./take/FixErrorsTakeCmp";
@@ -17,7 +18,12 @@ const FixErrorsMethods: ActualExercise = {
                 defaultText={defaultText}
                 state={state}
             />),
-            getFilledDataForServer: () => state.data
+            getFilledDataForServer: () => {
+                const res = ({
+                    content:state.data ?? null
+                }) as FixErrorsEvaluateRequest;
+                return res;
+            }
         };
     },
     createReview: (content: ReviewContent) => {

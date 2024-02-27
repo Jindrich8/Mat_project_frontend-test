@@ -55,6 +55,7 @@ const toHorizontalTask = (task:TakeHorizontalTaskDto,taskId:string):HorizontalTa
 return {
     id:taskId,
     name:task.task_detail.name,
+    version:task.task_detail.version,
     display:TaskDisplay.Horizontal,
     description:task.task_detail.description ?? '',
     entries:task.entries.flatMap(entry => toHorizontalEntry(entry)),

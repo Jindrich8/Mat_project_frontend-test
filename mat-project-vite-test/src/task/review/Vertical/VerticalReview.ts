@@ -3,12 +3,12 @@ import { ReviewTaskResponse} from "../../../api/dtos/success_response";
 import { ReviewExercise } from "../../Exercise/ExerciseTypes";
 import { createResource } from "../../show/Resource/Resource";
 import { Resource } from "../../show/Resource/ResourceTypes";
-import { TaskEntryType, TaskDisplay } from "../../show/Task";
+import { TaskDisplay } from "../../show/Task";
 import { createReviewExercise } from "../../Exercise/Exercise";
 import { BaseReview } from "../Review";
 
 interface VerticalReviewGroup{
-    type: typeof TaskEntryType.Group,
+    type: 'group',
     numOfExercises: PositiveInt,
     resources: Resource[],
     members: (VerticalReviewGroup | ReviewExercise)[]
@@ -27,7 +27,7 @@ const toVerticalEntryInner = (entry:DtoEntry,context:{count:number,exercises:Rev
     let transformed;
     if(entry.type === 'group'){
         transformed = {
-        type:TaskEntryType.Group,
+        type:'group',
         resources:entry.resources.map(resource => createResource(resource.content)),
         members:entry.entries.map(entry => toVerticalEntryInner(entry,context)),
         numOfExercises:context.count - origin as PositiveInt,

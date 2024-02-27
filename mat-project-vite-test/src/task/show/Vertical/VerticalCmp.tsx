@@ -5,6 +5,7 @@ import { PositiveInt, PositiveIntHelper } from "../../../types/primitives/Positi
 import { VerticalGroup, VerticalTask } from "./VerticalTask";
 import { addOneToOrder } from "../../../utils/utils";
 import { ResourcesCmp } from "../components/ResourcesCmp";
+import { EvaluateTaskRequest } from "../../../api/dtos/request";
 
 
 type Exercise = Pick<TaskExercise,'type'|'renderCmp'>;
@@ -13,7 +14,8 @@ type Group = Pick<VerticalGroup,'type'|'members'|'numOfExercises'|'resources'>;
 
 interface Props {
     task: VerticalTask,
-    order:TitleOrder
+    order:TitleOrder,
+    onSubmit?:(values:EvaluateTaskRequest['exercises']) => void
 }
 
 const renderExercise = (exercise: Exercise, props: CreateExerciseProps) => {
@@ -23,8 +25,11 @@ const renderExercise = (exercise: Exercise, props: CreateExerciseProps) => {
 const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num: PositiveInt, key?: React.Key }) => {
     return (
         <Box key={key}>
-            <Title mb={'xs'} order={order}>{`Zdroje k cvičením ${num} - ${num + group.numOfExercises - 1}`}</Title>
+            {group.resources.length >= 1 && <Box mb={'lg'}>
+                <Title mb={'xs'} order={order}>{`Zdroje k cvičením ${num} - ${num + group.numOfExercises - 1}`}</Title>
                 <ResourcesCmp order={addOneToOrder(order)} resources={group.resources} />
+            </Box>
+            }
             <Stack>
                 {group.members.map((member, i) =>{
 
@@ -46,19 +51,24 @@ const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num
         </Box>);
 }
 
-const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
+const VerticalCmp: FC<Props> = ({ task:taskArg,order,onSubmit }) => {
     const taskRef = React.useRef(taskArg);
     const task = taskRef.current;
-    const onSubmit = React.useCallback(() => {
-        console.log(`DataForServer: ${JSON.stringify(task.getFilledDataForServer(),null,2)}`);
-    },[task]);
+    const onFormSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>(
+        (e) => {
+            console.log("VerticalCmp - formSubmit");
+            e.preventDefault();
+        const data = task.getFilledDataForServer();
+        onSubmit && onSubmit(data);
+        console.log(`DataForServer: ${JSON.stringify(data,null,2)}`);
+    },[task,onSubmit]);
     
     let  exerNum = 1 as PositiveInt;
     return (
         <>
             <Title order={order}>{task.name}</Title>
             <Text>{task.description}</Text>
-            <Box>
+            <Box mt={'lg'} component={'form'} onSubmit={onFormSubmit}>
                 <Stack>
                     {task.entries.map((entry, i) => {
                         if (entry.type === 'group') {
@@ -84,8 +94,9 @@ const VerticalCmp: FC<Props> = ({ task:taskArg,order }) => {
                         }
                     })}
                 </Stack>
+                <Button type={'submit'}>Odeslat</Button>
             </Box>
-            <Button type={'submit'} onClick={onSubmit}>Odeslat</Button>
+            
         </>
     )
 };

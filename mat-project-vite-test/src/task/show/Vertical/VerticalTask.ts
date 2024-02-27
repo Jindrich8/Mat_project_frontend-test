@@ -49,6 +49,7 @@ const toVerticalTask = (task:TakeVerticalTaskDto,taskId:string):VerticalTask =>{
     return {
     id:taskId,
     name:task.task_detail.name,
+    version:task.task_detail.version,
     display:TaskDisplay.Vertical,
     description:task.task_detail.description ?? '',
     entries:task.entries.map(entry => toVerticalEntry(entry,exercises)),
