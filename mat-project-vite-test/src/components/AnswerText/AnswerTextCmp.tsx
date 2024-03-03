@@ -1,4 +1,3 @@
-import { Text } from "@mantine/core";
 import React, { FC } from "react"
 import styles from "./AnswerTextCmpStyle.module.css"
 
@@ -8,18 +7,20 @@ correctText?:string;
 }
 
 const AnswerTextCmp:FC<Props> = React.memo(({userText,correctText}) => {
-    const userTextIsIncorrect =correctText && userText !== correctText;
-  return (<span>
-   {userTextIsIncorrect && <Text 
-    inline={true} 
-    span={true}
+
+
+    const userTextIsIncorrect =correctText !== undefined && userText !== correctText;
+    const incorrectText = userTextIsIncorrect ? userText : '';
+  return (<span className={styles.container}>
+   <span
     className={styles.incorrectText}
-    >{userText}</Text>}
-    <Text 
-    inline={true} 
-    span={true}
+    data-empty={incorrectText ? 'false' : 'true'}
+    data-correct={userTextIsIncorrect}
+    >{incorrectText}</span>
+    <span className={styles.middle}>/</span>
+    <span
     className={styles.correctText}
-    >{correctText ?? userText}</Text>
+    >{correctText ?? userText}</span>
     </span>
   )
 });

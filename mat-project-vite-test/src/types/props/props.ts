@@ -7,7 +7,6 @@ interface InputBeh{
 }
 
 interface BasicProps{
-    key?:React.Key,
 }
 
 interface BasicStyledCmpProps extends BasicProps {

@@ -3,22 +3,38 @@ import { Box, Loader, Stack } from "@mantine/core";
 import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { getTaskReview } from "../../api/task/review/get";
-import { ApiController } from "../../types/composed/apiController";
 import { ReviewDisplay, toReview } from "./Review";
 import { HorizontalReviewCmp } from "./Horizontal/HorizontalReviewCmp";
 import { VerticalReviewCmp } from "./Vertical/VerticalReviewCmp";
 import { useErrorResponse } from "../../utils/hooks";
-import { ReviewTaskResponse } from "../../api/dtos/success_response";
+import { useLocation, useParams } from "react-router-dom";
+import { createAuthApiController } from "../../components/Auth/auth";
 
-type Props = {reviewId:string,reviewDto?:ReviewTaskResponse} & BasicStyledCmpProps;
+type Props =  BasicStyledCmpProps;
 
-const getTaskReviewController = new ApiController();
+const getTaskReviewController = createAuthApiController();
 
-const ReviewTaskCmp:FC<Props> = ({reviewId,reviewDto,style,...baseProps}) => {
-    const [review,setReview] = React.useState(
-      reviewDto ? toReview(reviewDto,reviewId) : undefined
+const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
+  const { reviewId } = useParams();
+    const location = useLocation();
+  //  const authState = useAuthContext();
+    const reviewFromLoc = React.useMemo(()=>{
+     const dto = location.state?.reviewDto;
+     return dto ? toReview(dto) : undefined;
+    },[location]); 
+    const [reviewFromApi,setReviewFromApi] = React.useState(
+      undefined as (typeof reviewFromLoc)
       );
+
+    const review = React.useMemo(
+      ()=>reviewFromApi ?? reviewFromLoc,
+    [reviewFromApi,reviewFromLoc]
+    );
     const [reviewError,setReviewError] = useErrorResponse<typeof getTaskReview>();
+
+    const clearReviewError = React.useCallback(() => {
+      setReviewError(undefined);
+  },[setReviewError]);
     console.log("ReviewTaskCmp refresh");
     console.log("Has review - "+(review ? "true" : "false"));
 
@@ -28,7 +44,7 @@ const ReviewTaskCmp:FC<Props> = ({reviewId,reviewDto,style,...baseProps}) => {
         console.log("Fetching review");
         const response = await getTaskReview(null,reviewId,getTaskReviewController);
         if(response.success){
-        setReview(toReview(response.body.data,reviewId));
+        setReviewFromApi(toReview(response.body.data));
         }
         else if(response.isServerError){
           setReviewError({
@@ -41,7 +57,10 @@ const ReviewTaskCmp:FC<Props> = ({reviewId,reviewDto,style,...baseProps}) => {
         if(review === undefined && reviewId !== undefined){
           fetchReview(reviewId);
         }
+        
     },[reviewId,review,setReviewError]);
+
+    const reviewToDisplay = review ?? reviewFromLoc;
   return (
     <Stack style={{boxSizing:'border-box',maxHeight:'100vh',...style}} {...baseProps}>
     <Box style={{flexGrow:1,paddingBottom:'1rem'}}>
@@ -49,12 +68,14 @@ const ReviewTaskCmp:FC<Props> = ({reviewId,reviewDto,style,...baseProps}) => {
       <ApiErrorAlertCmp 
       status={reviewError.status}
       statusText={reviewError.statusText}
-      error={reviewError.error}/>
+      error={reviewError.error}
+      onClose={clearReviewError}
+      />
       ) : (
-        !review ? <Loader />
-        : (review.display === ReviewDisplay.Horizontal ? 
-          <HorizontalReviewCmp task={review} order={2} /> : 
-          <VerticalReviewCmp task={review} order={2} />)
+        !reviewToDisplay ? <Loader />
+        : (reviewToDisplay.display === ReviewDisplay.Horizontal ? 
+          <HorizontalReviewCmp task={reviewToDisplay} order={2} /> : 
+          <VerticalReviewCmp task={reviewToDisplay} order={2} />)
       )}
       </Box>
     </Stack>

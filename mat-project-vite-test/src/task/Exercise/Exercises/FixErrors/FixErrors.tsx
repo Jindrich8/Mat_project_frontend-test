@@ -12,12 +12,12 @@ const FixErrorsMethods: ActualExercise = {
     createTake: (content: TakeContent) => {
         const state = { data: content.text };
         const defaultText = content.defaultText;
+        const takeExercise = (<FixErrorsTakeCmp
+            defaultText={defaultText}
+            state={state}
+        />);
         return {
-            renderCmp: () =>
-            (<FixErrorsTakeCmp
-                defaultText={defaultText}
-                state={state}
-            />),
+            renderCmp: () =>takeExercise,
             getFilledDataForServer: () => {
                 const res = ({
                     content:state.data ?? null
@@ -27,11 +27,12 @@ const FixErrorsMethods: ActualExercise = {
         };
     },
     createReview: (content: ReviewContent) => {
+        const reviewExercise = (<FixErrorsReviewCmp
+            data={content}
+        />);
         return {
-            renderCmp: () =>
-            (<FixErrorsReviewCmp
-                data={content}
-            />)
+            renderCmp: () =>reviewExercise
+            
         };
     }
 };

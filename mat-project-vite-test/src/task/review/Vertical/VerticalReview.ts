@@ -3,7 +3,6 @@ import { ReviewTaskResponse} from "../../../api/dtos/success_response";
 import { ReviewExercise } from "../../Exercise/ExerciseTypes";
 import { createResource } from "../../show/Resource/Resource";
 import { Resource } from "../../show/Resource/ResourceTypes";
-import { TaskDisplay } from "../../show/Task";
 import { createReviewExercise } from "../../Exercise/Exercise";
 import { BaseReview } from "../Review";
 
@@ -15,7 +14,7 @@ interface VerticalReviewGroup{
 }
 
 interface VerticalReview extends BaseReview{
-display:typeof TaskDisplay.Vertical
+display:'vertical'
 entries:(ReviewExercise | VerticalReviewGroup)[],
 
 }
@@ -49,7 +48,12 @@ const toVerticalReview = (task:ReviewTaskResponse['task'] & {display:'vertical'}
     return {
     id:taskId,
     name:task.name,
-    display:TaskDisplay.Vertical,
+    display:'vertical',
+    points:{
+        has:task.points.has,
+        max:task.points.max
+    },
+    description:task.description ?? '',
     entries:task.entries.map(entry => toVerticalEntry(entry,exercises))
 }
 };

@@ -1,0 +1,32 @@
+
+
+.correctText{
+    background-color: greenyellow;
+}
+
+.incorrectText[data-correct="false"], .incorrectText[data-correct="false"] ~ .middle{
+    display:none;
+} 
+
+.incorrectText{
+    background-color: orange;
+}
+
+.middle{
+    content:'/';
+    text-decoration: none;
+    background-color: inherit;
+}
+
+.container{
+    display:inline-flex;
+    flex-direction: row;
+    border: 0.5px solid black;
+    background-color: whitesmoke;
+    height: 1lh;
+}
+
+.container *{
+    padding: 0 0.25rem;
+    height: 100%;
+}

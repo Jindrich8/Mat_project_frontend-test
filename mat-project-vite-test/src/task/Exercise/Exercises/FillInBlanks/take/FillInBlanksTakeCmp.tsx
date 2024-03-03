@@ -1,11 +1,9 @@
 import React, { FC } from "react";
 import { ComboboxCmp } from "./components/ComboboxCmp";
-import { TxtInputCmp } from "./components/TxtInputCmp";
-import { Group } from "@mantine/core";
+import { TxtInputCmp, TxtInputCmpProps } from "./components/TxtInputCmp";
 import styles from "../FillInBlanksCmpStyle.module.css"
-import { isNotNullNorUndef } from "../../../../../utils/utils";
+import { isNotNullNorUndef, strStartAndEndWsToNbsp } from "../../../../../utils/utils";
 import { TakeContent } from "../FillInBlanks";
-
 
 type Content = TakeContent;
 
@@ -16,46 +14,64 @@ interface FillInBlanksTakeCmpProps {
 
 const FillInBlanksTakeCmp: FC<FillInBlanksTakeCmpProps> = React.memo(({ uiData,state }) => {
 
-    const onChange = React.useCallback((value:string|number|undefined,i:number) => {
+    const onChange = React.useCallback<Exclude<TxtInputCmpProps['onChange'],undefined>>((e) => {
+        const value = e.target.value;
+        const i = Number(e.target.dataset['index']);
         console.log(`${i}: ${value}`);
         state.data[i] = value;
     }, [state]);
 
+    const onCmbChange = React.useCallback((_value:string,index:number,dataAttr:unknown) =>{
+        const i = Number(dataAttr);
+        state.data[i] = index;
+    },[state])
+
     let cmpIndex = 0;
     return (
-            <Group
+            <span
             className={styles.cmpsContainer}
-            gap={0}
-            wrap={'wrap'}
-            align={'center'}>
+            style={{display:'inline'}}
+            >
             {uiData.map((d,i) => {
-                if (typeof d === 'string')
-                    return <span className={styles.textCmp} key={i}>{d}</span>;
-                else {
+                if (typeof d === 'string'){
+                    const value = strStartAndEndWsToNbsp(d);
+                    return <span className={styles.textCmp} key={i}>{value}</span>;
+                 } else {
                     const currentCmpIndex = cmpIndex;
-                    const defaultValue = state ? state.data[currentCmpIndex] ?? undefined : undefined;
                     let cmp;
                     if(d.type === 'cmb'){
+                        if((state.data[currentCmpIndex] ?? undefined) === undefined){
+                            const emptyIndex = d.values.findIndex(v => v.length === 0);
+                            state.data[currentCmpIndex] = emptyIndex >= 0 ? emptyIndex : undefined;
+                        }
+                        
+                      const defaultValue = state.data[currentCmpIndex] ?? undefined;
                         if(isNotNullNorUndef(defaultValue) && typeof defaultValue !== 'number'){
                             throw new Error('Incorrect type of default value');
                         }
                         // avoid rerendering - every render new string instance (cmpIndex.toString()) - pass data attributes to input
-                        cmp = <ComboboxCmp 
+                        cmp = <ComboboxCmp
                         className={styles.inputCmp}
                         defaultValue={defaultValue} 
                         key={i}
                         options={d.values} 
-                        onSelectionChange={(_value,index) => onChange(index,currentCmpIndex)} />;
+                        data-attr={currentCmpIndex}
+                        onSelectionChange={onCmbChange} />;
                     }
                     else{
+                        state.data[currentCmpIndex] ??="";
+                        const defaultValue = state.data[currentCmpIndex];
+                        
                         if(isNotNullNorUndef(defaultValue) && typeof defaultValue !== 'string'){
                             throw new Error('Incorrect type of default value');
                         }
+                        
                         cmp = <TxtInputCmp 
                         className={styles.inputCmp}
                         defaultValue={defaultValue} 
                         key={i} 
-                        onChange={(e) => onChange(e.target.value,currentCmpIndex)} />
+                        data-index={currentCmpIndex}
+                        onChange={onChange} />
                     }
                         console.log(`cmpIndex: ${cmpIndex}`);
                     ++cmpIndex;
@@ -63,7 +79,7 @@ const FillInBlanksTakeCmp: FC<FillInBlanksTakeCmpProps> = React.memo(({ uiData,s
                 }
 
             })}
-            </Group>
+            </span>
         );
 });
 FillInBlanksTakeCmp.displayName = 'FillInBlanksTakeCmp';

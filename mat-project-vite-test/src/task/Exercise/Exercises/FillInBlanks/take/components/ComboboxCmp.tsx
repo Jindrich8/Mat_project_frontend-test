@@ -1,5 +1,5 @@
 import { Combobox, Input, useCombobox } from "@mantine/core";
-import { CSSProperties, FC, useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import React from "react";
 import styles from "./ComboboxCmpStyle.module.css"
 import { matchSorter } from "match-sorter";
@@ -8,11 +8,12 @@ import { resizeInput31 } from "../../../../../../utils/utils";
 
 interface Props {
 options:string[]
-onSelectionChange?:(value:string,index:number) => void;
+onSelectionChange?:(value:string,index:number,dataAttr:unknown) => void;
 style?:React.CSSProperties
 name?:string
 defaultValue?:number;
 className?:string;
+'data-attr':unknown;
 }
 
 type MyOption = {name:string,value:string,index:number};
@@ -24,7 +25,7 @@ const checkDefaultValue = (index:number,length:number) =>{
   return index;
 }
 
-const ComboboxCmp:FC<Props> = React.memo(({options,onSelectionChange,style,defaultValue,name,className}) => {
+const ComboboxCmp = React.memo(({options,'data-attr':dataAttr,onSelectionChange,style,defaultValue,name,className}:Props) => {
 
  const inputStyle = React.useMemo<CSSProperties>(() => (
   {
@@ -96,10 +97,10 @@ const onOptionSubmit = React.useCallback((val:string) => {
   console.log(`Submited option :${JSON.stringify(selectedOption)}, val: ${val}`);
    setSelectedOptionIndex(selectedIndex);
    setSearch(selectedOption.name);
-   onSelectionChange && onSelectionChange(selectedOption.name,selectedIndex);
+   onSelectionChange && onSelectionChange(selectedOption.name,selectedIndex,dataAttr);
   }
    combobox.closeDropdown();
- },[combobox,selectedOptionIndex,onSelectionChange,objOptions]);
+ },[combobox,selectedOptionIndex,onSelectionChange,objOptions,dataAttr]);
 
  const filteredOptions = React.useMemo(() => {
   if(search === ''){
@@ -183,11 +184,18 @@ const wrapperClassName = React.useMemo(()=>styles.cmbWrapper+' '+className,[clas
 
       <Combobox.Dropdown ref={dropdownRef} className={styles.dropdown}>
         <Combobox.Options >
-          {dropdownOptions.length > 0 ? dropdownOptions.map((item,i) => (
+          {dropdownOptions.length > 0 ? dropdownOptions.map((item,i) => {
+            const isEmpty = item.name.length === 0;
+            const isSpace = !isEmpty && item.name.trim().length === 0;
+            const value = isEmpty ? " " : item.name;
+            const ariaLabel = isEmpty ? "Empty option" : undefined;
+            
+            return (
     <Combobox.Option value={item.value} selected={i === 0} key={item.name} className={styles.option}>
-      {item.name}
+      <span className={styles.optionValue} data-space={isSpace ? true : undefined} data-empty={isEmpty ? true : undefined} aria-label={ariaLabel}>{value}</span>
     </Combobox.Option>
-  )) : <Combobox.Empty>Nothing found</Combobox.Empty>}
+  );
+  }) : <Combobox.Empty>Nothing found</Combobox.Empty>}
         </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>

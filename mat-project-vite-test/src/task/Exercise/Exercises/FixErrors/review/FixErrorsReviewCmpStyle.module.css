@@ -1,0 +1,11 @@
+.insert{
+    text-decoration: underline double green;
+    background-color: greenyellow;
+    padding: 0 0.1rem;
+}
+
+.delete{
+    background-color: orange;
+    text-decoration: line-through solid red;
+    padding: 0 0.1rem;
+}

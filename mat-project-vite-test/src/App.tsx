@@ -22,6 +22,9 @@ import { Create } from './pages/task/Create';
 import { Csrf } from './pages/Csrf';
 import { Take } from './pages/task/Take';
 import { Review } from './pages/task/Review';
+import { AuthContextProvider } from './components/Auth/AuthContextProvider';
+import { AuthProtectionCmp } from './components/AuthProtectionCmp';
+import { Layout } from './pages/Layout';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -41,14 +44,14 @@ const theme = createTheme({
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
-      path="/"
+    element={<Layout/>}
     >
       <Route path="/login" 
       element={<Login/>}
       />
       <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/register" element={<Register/>}/>
-      <Route path="/task/create" element={<Create/>}/>
+      <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
       <Route path="/task/:reviewId/review" element={<Review/>}/>
       <Route path="/task/:taskId/take" element={<Take/>}/>
      <Route index
@@ -70,10 +73,12 @@ function App() {
   axios.defaults.withCredentials = true;
   axios.defaults.withXSRFToken = true;
   return <Sanctum config={sanctumConfig} checkOnInit={false}>
-    <MantineProvider theme={theme}>
-    <RouterProvider router={router}/>
-   </MantineProvider>
-   </Sanctum>;
+    <AuthContextProvider>
+      <MantineProvider theme={theme}>
+        <RouterProvider router={router} />
+      </MantineProvider>
+    </AuthContextProvider>
+  </Sanctum>;
 }
 
 

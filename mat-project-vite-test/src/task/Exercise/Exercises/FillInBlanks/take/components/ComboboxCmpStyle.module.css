@@ -10,3 +10,11 @@
     min-width:fit-content;
     text-align:center;
 }
+
+.optionValue{
+    white-space-collapse: preserve;
+}
+
+.optionValue[data-space]{
+    text-decoration: underline solid 1px;
+}

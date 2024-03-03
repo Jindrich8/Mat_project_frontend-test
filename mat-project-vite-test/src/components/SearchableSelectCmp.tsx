@@ -4,6 +4,7 @@ import { BasicStyledCmpProps } from "../types/props/props";
 import { Box, ComboboxItem, OptionsFilter, Select } from "@mantine/core";
 import { matchSorter } from "match-sorter";
 import React from "react";
+
 interface Props extends BasicStyledCmpProps {
   options:{label:string,value:string}[],
   placeholder?:string,
@@ -12,18 +13,29 @@ interface Props extends BasicStyledCmpProps {
   error?:string
   label?:React.ReactNode
   selId?:NonNullable<unknown>
+  style?:React.CSSProperties
   ['aria-label']?:string
   onChange?:(label:string,value:string,selId?:NonNullable<unknown>)=> void
 }
 
-const filter:OptionsFilter = (input: { options: readonly string[]; search: string; })=>{
+const filter:OptionsFilter = (input)=>{
   return matchSorter(input.options,input.search,{
     keys:['label'],
     keepDiacritics:true
   })
 };
 
-const SearchableSelect:FC<Props> = ({options,selId,error,value,required,placeholder,onChange,key,...baseProps}) => {
+const SearchableSelect:FC<Props> = ({
+  options,
+  selId,
+  error,
+  value,
+  required,
+  placeholder,
+  style,
+  onChange,
+  ...baseProps
+}) => {
     const onSelectionChange = React.useCallback(
         (_value:string|null,option:ComboboxItem) => {
             onChange 
@@ -31,7 +43,7 @@ const SearchableSelect:FC<Props> = ({options,selId,error,value,required,placehol
         },[onChange,selId]
     );
   return (
-      <Box key={key} style={{width:'50%',minWidth:'10rem'}}>
+      <Box style={style}>
     <Select data={options} 
     selectFirstOptionOnChange
     onChange={onSelectionChange}

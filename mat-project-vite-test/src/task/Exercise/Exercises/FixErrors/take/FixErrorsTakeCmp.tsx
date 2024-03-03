@@ -1,40 +1,41 @@
 import React, { FC } from "react";
-import { Accordion, AccordionControl, AccordionItem, AccordionPanel, Box, Textarea } from "@mantine/core";
+import { Box, Textarea } from "@mantine/core";
+import { DetailsCmp } from "../../../../../components/Collapse/DetailsCmp";
+import { SummaryCmp } from "../../../../../components/Collapse/SummaryCmp";
+import { CollapseCmp } from "../../../../../components/Collapse/CollapseCmp";
 
 
 interface Props {
   defaultText: string,
   state: {
-    data: string|undefined,
+    data: string | undefined,
   }
 }
 
 
 
-const FixErrorsTakeCmp: FC<Props> = ({ defaultText, state }) => {
+const FixErrorsTakeCmp: FC<Props> = React.memo(({ defaultText, state }) => {
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = React.useCallback((e) => {
     const element = (e.target as HTMLTextAreaElement);
     state.data = element.value;
   }, [state]);
   const defaultTextLabel = 'Původní text';
   return (
-    <Box w={'auto'}>
-      <Accordion defaultChecked={false}>
-        <AccordionItem value={defaultText}>
-          <AccordionControl>
-            {defaultTextLabel}
-          </AccordionControl>
-          <AccordionPanel>
+    <Box w={'100%'}>
+      <DetailsCmp>
+        <SummaryCmp>
+          {defaultTextLabel}
+        </SummaryCmp>
+        <CollapseCmp>
           <Textarea
             aria-label={defaultTextLabel}
             readOnly={true}
             autosize
             value={defaultText}
           />
-          </AccordionPanel>
-         
-        </AccordionItem>
-      </Accordion>
+        </CollapseCmp>
+      </DetailsCmp>
+
       <Textarea
         defaultValue={state.data ?? defaultText}
         minRows={2}
@@ -42,6 +43,8 @@ const FixErrorsTakeCmp: FC<Props> = ({ defaultText, state }) => {
         onChange={onChange}
       />
     </Box>);
-}
+});
 
-export { FixErrorsTakeCmp,  type Props as FixErrorsTakeCmpProps }
+FixErrorsTakeCmp.displayName = 'FixErrorsTakeCmp';
+
+export { FixErrorsTakeCmp, type Props as FixErrorsTakeCmpProps }

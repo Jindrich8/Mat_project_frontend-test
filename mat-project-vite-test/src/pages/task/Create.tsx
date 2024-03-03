@@ -1,38 +1,44 @@
 import React, { FC, useEffect, useState } from "react"
-import { SearchableMultiSelect } from "../../components/SearchableMultiSelect";
+import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
 import { Editor } from "@monaco-editor/react";
 import { Box, Button, Checkbox, Group, Stack, Text } from "@mantine/core";
 import { createTask } from "../../api/task/create/create";
 import { useHookstate } from "@hookstate/core";
 import { ApplicationErrorInformation } from "../../api/dtos/errors/error_response";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
-import { ApiController } from "../../types/composed/apiController";
 import { SearchableSelect } from "../../components/SearchableSelectCmp";
 import { ListRangeCmp } from "../../components/ListRangeCmp";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { ErrorAlertCmp } from "../../components/ErrorAlertCmp";
+import { createAuthApiController } from "../../components/Auth/auth";
+import { Any } from "../../types/types";
 
 interface Props {
 
 }
 
-const taskCreateInfoControl = new ApiController();
-const taskCreateControl = new ApiController();
+const taskCreateInfoControl = createAuthApiController();
+const taskCreateControl = createAuthApiController();
 
 
 const Create: FC<Props> = () => {
     // const editor = useMonaco();
+    const editorRef = React.useRef<Any>(null);
     console.log("Rerendering Create");
     const editorValue = React.useRef<string | undefined>();
     const generalError = useHookstate<{
         message: string,
         description?: string
     } | undefined>(undefined);
-    const [taskError,setTaskError] = React.useState<{
+    const [taskError, setTaskError] = React.useState<{
         status: number,
         statusText: string,
         error?: ApplicationErrorInformation
     } | undefined>(undefined);
+
+    const clearTaskError = React.useCallback(() => {
+        setTaskError(undefined);
+    }, [setTaskError]);
 
     const [createInfo, setCreateInfo] = useState<{
         tags: Array<{ value: string, label: string }>,
@@ -49,6 +55,11 @@ const Create: FC<Props> = () => {
         getValidData(): undefined | [min: number, max: number] { return undefined }
     });
 
+    const onMount: EditorProps['onMount'] = React.useCallback((editor) => {
+        editorRef.current = editor;
+    }, []);
+
+
     const state = useHookstate({
         difficulty: {
             val: undefined as (string | undefined),
@@ -64,11 +75,15 @@ const Create: FC<Props> = () => {
         isPublic: false as boolean
     });
 
-    
+
     useEffect(() => {
+        const resizeListener = () => {
+            editorRef.current?.layout({});
+        };
+        window.addEventListener('resize', resizeListener);
         const fetchCreateInfo = async () => {
             const response = await getTaskCreateInfo(null, taskCreateInfoControl);
-          //  console.log('response: ' + JSON.stringify(response));
+            //  console.log('response: ' + JSON.stringify(response));
             if (response.success) {
                 const data = response.body.data;
                 console.log('data: ');
@@ -89,11 +104,14 @@ const Create: FC<Props> = () => {
                     }
                 );
             }
-           
+
         };
         if (!createInfo) {
             fetchCreateInfo();
         }
+        return () => {
+            window.removeEventListener('resize', resizeListener);
+        };
     }, [createInfo]);
 
 
@@ -110,7 +128,7 @@ const Create: FC<Props> = () => {
         state.isPublic.set(e.target.checked);
     };
 
-    const handleSubmit:React.FormEventHandler<HTMLFormElement> = async (e)=>{
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!editorValue.current) {
@@ -163,67 +181,71 @@ const Create: FC<Props> = () => {
         }
     };
 
-    
+
 
     return (
-        <Stack style={{ height: '100%' }} align={'center'}>
-            {generalError.value && <ErrorAlertCmp style={{ minHeight: 'fit-content',minWidth:'fit-content', overflow: 'visible' }} >
+        <Stack style={{ height: '100%', width: '100%' }} align={'center'}>
+            {generalError.value && <ErrorAlertCmp style={{ minHeight: 'fit-content', minWidth: 'fit-content', overflow: 'visible' }} >
                 <Text>Message: {generalError.value.message}</Text>
                 {generalError.value.description
                     && <Text>Description: {generalError.value.description}</Text>}
             </ErrorAlertCmp>
             }
-             {taskError
+
+            <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+                <Group w={'100%'}>
+
+                    <Stack w={'100%'} justify={'center'} m={'lg'} align={'center'}>
+                        <SearchableMultiSelect
+                            options={createInfo?.tags ?? []}
+                            onChange={onTagsChanged}
+                            error={state.tags.err.value}
+                            required
+                            label={'Tags'}
+                        />
+                        <SearchableSelect
+                            options={createInfo?.difficulties ?? []}
+                            label={'Difficulty'}
+                            error={state.difficulty.err.value}
+                            required
+                            onChange={onDifficultyChanged}
+                        />
+                        <ListRangeCmp
+                            options={classesForCmp ?? []}
+                            apiRef={classesRangeApiRef}
+                            required
+                            error={state.classRange.err.value}
+                            label={'Class range'}
+                        />
+                        <Group>
+                            <Checkbox
+                                checked={state.isPublic.value}
+                                onChange={onIsPublicChanged}
+                                label={'Is public'}
+                            />
+                            <Button type={'submit'}
+                                style={{ maxWidth: 'fit-content', minWidth: 'fit-content', minHeight: '2.5rem', alignSelf: 'flex-end', margin: '1rem' }}>
+                                Create
+                            </Button>
+                        </Group>
+                    </Stack>
+
+                </Group>
+            </form>
+            {taskError
                 && <ApiErrorAlertCmp
-                style={{ minHeight: 'fit-content',minWidth:'fit-content',width:'100%', overflow: 'visible' }}
+                    style={{ minHeight: 'fit-content', minWidth: 'fit-content', width: '100%', overflow: 'visible' }}
                     error={taskError.error}
                     status={taskError.status}
                     statusText={taskError.statusText}
+                    onClose={clearTaskError}
                 />}
-                <form onSubmit={handleSubmit}>
-            <Group>
-                
-                <Stack w={'fit-content'} align={'center'} m={'lg'}>
-                    <SearchableMultiSelect
-                        options={createInfo?.tags ?? []}
-                        onChange={onTagsChanged}
-                        error={state.tags.err.value}
-                        required
-                        label={'Tags'}
-                    />
-                    <SearchableSelect
-                        options={createInfo?.difficulties ?? []}
-                        label={'Difficulty'}
-                        error={state.difficulty.err.value}
-                        required
-                        onChange={onDifficultyChanged}
-                    />
-                    <ListRangeCmp
-                        options={classesForCmp ?? []}
-                        apiRef={classesRangeApiRef}
-                        required
-                        error={state.classRange.err.value}
-                        label={'Class range'}
-                    />
-                    <Checkbox
-                        style={{ alignSelf: 'flex-end' }}
-                        checked={state.isPublic.value}
-                        onChange={onIsPublicChanged}
-                        label={'Is public'}
-                    />
-                </Stack>
-                <Button type={'submit'} 
-                style={{ maxWidth: 'fit-content', minWidth: 'fit-content', minHeight: '2.5rem', alignSelf: 'flex-end', margin: '1rem' }}>
-                    Create
-                </Button>
-            </Group>
-            </form>
-            <Box style={{ flexGrow: 1, minWidth: '100%' }}>
-                <Editor height={'100%'} width={'100%'} language={'xml'} onChange={(value) => {
+            <Box style={{ minWidth: '100%', flexGrow: 1, height: '100%', minHeight: '25rem' }}>
+                <Editor wrapperProps={{ minHeight: '25rem' }} height={'100%'} width={'100%'} language={'xml'} onMount={onMount} onChange={(value) => {
                     editorValue.current = value;
                 }} />
             </Box>
-            
+
         </Stack>
     )
 };

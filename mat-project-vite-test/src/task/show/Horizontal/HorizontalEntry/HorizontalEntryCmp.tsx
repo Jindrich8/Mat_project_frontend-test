@@ -1,4 +1,4 @@
-import { FC } from "react"
+import React, { FC } from "react"
 import { PositiveInt } from "../../../../types/primitives/PositiveInteger";
 import { Stack, Box, TitleOrder } from "@mantine/core";
 import { BasicProps } from "../../../../types/props/props";
@@ -13,16 +13,16 @@ interface Props extends BasicProps {
     order:TitleOrder
 }
 
-const HorizontalEntryCmp:FC<Props> = ({exercise,resources,num,order}) => {
+const HorizontalEntryCmp:FC<Props> = React.memo(({exercise,resources,num,order}) => {
   console.log(order);
   return (
     <Stack>
       <ResourcesCmp resources={resources} order={order} />
         <Box>
-            {exercise.renderCmp({num:num,key:0,order:order})}
+          <exercise.renderCmp num={num} order={order} />
         </Box>
     </Stack>
   )
-};
-
+});
+HorizontalEntryCmp.displayName = 'HorizontalEntryCmp';
 export { HorizontalEntryCmp, type Props as HorizontalEntryCmpProps };

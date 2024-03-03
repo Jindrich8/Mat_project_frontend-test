@@ -3,18 +3,16 @@ import { defaultHiddenSpanStyle } from '../types/props/props';
 import { getResizerValue, resizeInput, resizeInput31 } from '../utils/utils';
 
 
-type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & {
+type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>&{"type":'text'}, "type"> & {
     minSize?: string,
     placeholderMinSize?: string,
-    inputStyle?:React.InputHTMLAttributes<HTMLInputElement>['style']
+    inputStyle?:React.InputHTMLAttributes<HTMLInputElement>['style'],
+    inputClassName?:string;
 };
 
-
-
-
-
-
-
+const resizerOptions = {
+    padding:3
+};
 
 const AutoResizeTextInputCmp = React.memo(React.forwardRef<HTMLInputElement, Props>((
         props,ref) => {
@@ -26,6 +24,8 @@ const AutoResizeTextInputCmp = React.memo(React.forwardRef<HTMLInputElement, Pro
             defaultValue,
             minSize,
             placeholderMinSize,
+            className,
+            inputClassName,
             ...rest} = props;
         const pRef = React.useRef<HTMLElement | null>(null);
 
@@ -35,7 +35,9 @@ const AutoResizeTextInputCmp = React.memo(React.forwardRef<HTMLInputElement, Pro
                 pRef.current,
                 minSize,
                 placeholder,
-                placeholderMinSize);
+                placeholderMinSize,
+                resizerOptions
+                );
     
             onChange && onChange(e)},
             [minSize, placeholder, placeholderMinSize, onChange]);
@@ -58,14 +60,19 @@ const AutoResizeTextInputCmp = React.memo(React.forwardRef<HTMLInputElement, Pro
         //console.log("UseEffect");
         if(pRef.current){
             const input = pRef.current.previousElementSibling as HTMLInputElement;
-         resizeInput(input,pRef.current,getResizerValue(input.value,minSize,placeholder,placeholderMinSize));
+         resizeInput(
+            input,
+            pRef.current,
+            getResizerValue(input.value,minSize,placeholder,placeholderMinSize),
+            resizerOptions
+         );
         }
     },[value,defaultValue,minSize,placeholder,placeholderMinSize]);
 
     
 
     return (
-        <div style={style}>
+        <div style={style} className={className}>
             <input 
             role={'textbox'} 
             type={'text'} 
@@ -75,6 +82,7 @@ const AutoResizeTextInputCmp = React.memo(React.forwardRef<HTMLInputElement, Pro
                 defaultValue={defaultValue}
                 placeholder={placeholder}
                 style={currentInputStyle}
+                className={inputClassName}
                 {...rest}
                 onChange={onInputChange} />
             <span ref={pRef} aria-hidden style={hiddenSpanStyle}></span>

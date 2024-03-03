@@ -7,9 +7,10 @@ import {
     Text,
     Container,
     Button,
+    Checkbox,
 } from '@mantine/core';
 //import axios from 'axios';
-import { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../utils/auth';
 import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
@@ -27,14 +28,20 @@ const Register: FC<Props> = () => {
         error?: ApplicationErrorInformation
     } | undefined>(undefined);
 
-    const [formError,setFormError] = useState<RegisterErrorDetails|undefined>(undefined);
+    const clearError = React.useCallback(() => {
+        setError(undefined);
+    },[setError]);
+
+    const [formError,setFormError] = useState<RegisterErrorDetails['errorData']|undefined>(undefined);
+
+    const onChange = React.useCallback(() => setFormError(undefined),[]);
     
     const state = useHookstate({
         name:"",
         email:"",
         password:"",
         passwordConfirm:"",
-        validationError:undefined
+        isTeacher:false
     });
  const navigateTo = useNavigate();
  // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -42,19 +49,30 @@ const Register: FC<Props> = () => {
 console.log("refresh");
     const submitLogin:React.FormEventHandler<HTMLFormElement> = async (e)=>{
         e.preventDefault();
-       const response = await register(
-            state.name.get(),
-            state.email.get(),
-            state.password.get(),
-            state.passwordConfirm.get()
-            );
+        if(state.password.value !== state.passwordConfirm.value){
+            setFormError({
+                password: {
+                    message: 'Passwords do not match'
+                }
+            });
+            state.password.set('');
+            state.passwordConfirm.set('');
+            return;
+        }
+       const response = await register({
+            name:state.name.get(),
+            email:state.email.get(),
+            password:state.password.get(),
+            password_confirmation:state.passwordConfirm.get(),
+            role:state.isTeacher.get() ? 'teacher' : undefined
+       });
             console.log("Response: "+dump(response));
             if(response.success){
-                //navigate();
+                navigate();
             }
             else if(response.isServerError){
                 if(response.error?.error?.details.code === 1){
-                    setFormError(response.error.error.details);
+                    setFormError(response.error.error.details.errorData);
                     console.log(dump(response.error.error.details));
                 }
                 else{
@@ -69,20 +87,6 @@ console.log("refresh");
             return false;
     };
 
-    useEffect(() =>{
-        const listener =(e:BeforeUnloadEvent)=>{
-            alert("Unloading...");
-            if(prompt("Unload[Y/N]?")?.toLowerCase() !== "y"){
-                e.preventDefault();
-                e.stopImmediatePropagation();
-            }
-        };
-        window.addEventListener("beforeunload",listener);
-       return () => {
-        window.removeEventListener("beforeunload",listener);
-       };
-    },[]);
-
     return (
         <Container>
             <Title ta="center">
@@ -96,6 +100,7 @@ console.log("refresh");
          error={error.error} 
          status={error.status}
          statusText={error.statusText}
+         onClose={clearError}
           />}
             <Paper 
             withBorder 
@@ -108,7 +113,7 @@ console.log("refresh");
             style={{maxWidth:'30rem'}}
             component={'form'}
             onSubmit={submitLogin}
-            //onChange={() => setFormError(undefined)}
+            onChange={onChange}
             >
             <TextInput 
                 type={'name'}
@@ -117,8 +122,9 @@ console.log("refresh");
                 label="Name" 
                 placeholder="Your name" 
                 mt={'md'}
-                error={formError?.errorData.name?.message}
-                required/>
+                error={formError?.name?.message}
+                required
+                />
                 <TextInput 
                 type={'email'}
                 onChange={(e)=>state.email.set(e.target.value)}
@@ -126,22 +132,32 @@ console.log("refresh");
                 label="Email" 
                 mt={'md'}
                 placeholder="your@email.com"
-                //error={formError?.errorData.email?.message}
-                required/>
+                error={formError?.email?.message}
+                required
+                />
                 <PasswordInput 
                 label="Password" 
                 placeholder="Your password"
                 minLength={8}
                 value={state.password.get()}
                 onChange={(e)=>state.password.set(e.target.value)}
-                error={formError?.errorData.password?.message}
-                required mt="md" />
+                error={formError?.password?.message}
+                required 
+                mt="md"
+                 />
                     <PasswordInput 
                 label="Password confirmation" 
                 placeholder="Your password again"
                 value={state.passwordConfirm.get()}
                 onChange={(e)=>state.passwordConfirm.set(e.target.value)}
-                required mt="md" />
+                required 
+                mt="md" 
+                />
+                <Checkbox 
+                label="Is teacher" 
+                checked={state.isTeacher.value} 
+                onChange={(e)=>state.isTeacher.set(e.target.checked)} 
+                />
                 <Button fullWidth mt="xl" type={'submit'}>
                     Sign up
                 </Button>

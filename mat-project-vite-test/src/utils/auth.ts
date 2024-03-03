@@ -1,37 +1,30 @@
 import { AxiosResponse } from "axios";
 import { api, apiRequest } from "./api";
-import { LoginErrorDetails, RegisterErrorDetails } from "../api/dtos/errors/error_response";
-import { LoginResponse, RegisterResponse } from "../api/dtos/success_response";
+import { LoginErrorResponseDetails, RegisterErrorDetails } from "../api/dtos/errors/error_response";
+import { LogOutResponse, LoginResponse, RegisterResponse } from "../api/dtos/success_response";
 import { ApiController } from "../types/composed/apiController";
+import { LoginRequest, RegisterRequest } from "../api/dtos/request";
 
 const registerControl = new ApiController();
 
-const register = async (username: string, email: string, password: string,passwordConfirm:string) => {
+const register = async (request:RegisterRequest) => {
     const registerResponse = await apiRequest<
     RegisterResponse,
     RegisterErrorDetails
     >
-    (
-        'POST',
-        '/api/register', 
-    { 
-        name: username, 
-        email: email, 
-        password: password,
-        password_confirmation: passwordConfirm
-    },registerControl);
+    ('POST','/api/register', request,registerControl);
     return registerResponse;
 }
 
 const loginControl = new ApiController();
 
-const logIn = async (email: string, password: string) => {
+const logIn = async (request:LoginRequest) => {
     console.log('logIn');
     const response = await apiRequest<
     LoginResponse,
-    LoginErrorDetails
+    LoginErrorResponseDetails
     >
-    ('POST','/api/login', { email, password },loginControl);
+    ('POST','/api/login', request,loginControl);
     return response;
 };
 
@@ -43,20 +36,14 @@ const csrf = async ():Promise<AxiosResponse | undefined> => {
     return undefined
 };
 
+const logoutControl = new ApiController();
+
 const logOut = async () => {
-const response = await api().get('/api/logout');
-if(response.status !== 200) {
-    console.warn(
-        'Logout failed\n' +
-        `Status: ${response.status}\n` +
-        `Status text: ${response.statusText}\n` +
-        `Response: ${JSON.stringify(response)}\n`
-    )
-    return false;
-}
-else{
-    return true;
-}
+const response = await apiRequest<
+LogOutResponse,
+undefined
+>('POST','/api/logout',undefined,logoutControl);
+return response;
 };
 
 export {logIn,logOut,register,csrf};

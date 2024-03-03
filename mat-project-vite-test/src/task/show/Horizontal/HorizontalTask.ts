@@ -24,19 +24,21 @@ type TakeHorizontalTaskDto = TakeTaskDto & {display:'horizontal'};
 
  const toHorizontalEntryInner = (entry:TakeTaskEntryDto,resources:string[]):HorizontalTaskEntry|HorizontalTaskEntry[] => {
     if(entry.type === "exercise"){
+        const exercise = createTakeExercise(entry);
+        const exerciseResources = resources.map((resource) => createResource(resource));
      return {
-         resources:resources.map((resource) => createResource(resource)),
-         exercise:createTakeExercise(entry),
+         resources:exerciseResources,
+         exercise:exercise,
          renderCmp({num,order}) {
              return renderHorizontalEntry({
-             exercise:this.exercise,
-             resources:this.resources,
+             exercise:exercise,
+             resources:exerciseResources,
              num:num,
              order:order
          });
      },
      getFilledDataForServer(...props) {
-         return this.exercise.getFilledDataForServer(...props);
+         return exercise.getFilledDataForServer(...props);
      },
     } satisfies HorizontalTaskEntry;
 }
@@ -52,15 +54,16 @@ const toHorizontalEntry = (entry:TakeTaskEntryDto) => {
 }
 
 const toHorizontalTask = (task:TakeHorizontalTaskDto,taskId:string):HorizontalTask =>{
+    const entries = task.entries.flatMap(entry => toHorizontalEntry(entry));
 return {
     id:taskId,
     name:task.task_detail.name,
     version:task.task_detail.version,
     display:TaskDisplay.Horizontal,
     description:task.task_detail.description ?? '',
-    entries:task.entries.flatMap(entry => toHorizontalEntry(entry)),
+    entries:entries,
         getFilledDataForServer() {
-            return this.entries.map(entry => entry.getFilledDataForServer());
+            return entries.map(entry => entry.getFilledDataForServer());
         },
 }
 }

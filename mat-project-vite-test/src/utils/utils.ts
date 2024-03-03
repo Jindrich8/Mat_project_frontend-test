@@ -44,11 +44,25 @@ const hasOwnProperty = <X extends object, Y extends PropertyKey>
   return Object.hasOwn(obj,prop);
 }
 
-const resizeInput = (input: HTMLInputElement,hidden:HTMLElement,newValue:string,forceResize:boolean = false) => {
+
+
+const resizeInput = (
+  input: HTMLInputElement,
+  hidden:HTMLElement,
+  newValue:string,
+  options?:{forceResize?:boolean,padding?:number}
+  ) => {
+    console.log(`options: `+JSON.stringify(options));
+    const forceResize = options?.forceResize ?? false;
+    const padding = options?.padding ?? 0;
+    console.log("padding: "+padding);
+  console.log(`resize input '${hidden.textContent}' to '${newValue}'`);
   if (forceResize || newValue !== hidden.textContent) {
       hidden.textContent = newValue;
-
-      const newWidth = hidden.getBoundingClientRect().width + 'px';
+      const bounding = hidden.getBoundingClientRect().width;
+    const px = (bounding + padding);
+    console.log(`px: ${px} - ${bounding} + ${padding}`);
+      const newWidth =  px+ 'px';
       input.style.width = newWidth;
   }
 };
@@ -68,7 +82,9 @@ const resizeInput31 = (
   hidden:HTMLElement,
   minSize?:string,
   placeholder?:string,
-  placeholderMinSize?:string) => {
+  placeholderMinSize?:string,
+  options?:Parameters<typeof resizeInput>[3]
+  ) => {
   resizeInput(
       input,
       hidden,
@@ -76,7 +92,7 @@ const resizeInput31 = (
           input.value,
           minSize,
           placeholder,
-          placeholderMinSize));
+          placeholderMinSize),options);
 };
 
 const isNullOrUndef = (value?:undefined|null|unknown):value is (null | undefined) =>{
@@ -137,7 +153,21 @@ const toTitleOrder = (value:number):TitleOrder => {
     return names.join(" > ");
 }
 
+const nbsp = '\u00A0';
+
+const strStartAndEndWsToNbsp =(d:string) => {
+  const trimmedStart = d.trimStart();
+  const trimmedEnd = trimmedStart.trimEnd();
+  const endWsCount = trimmedStart.length-trimmedEnd.length;
+  const value = nbsp.repeat(d.length - trimmedStart.length)
+   + trimmedStart.substring(0,trimmedStart.length - endWsCount)
+   + nbsp.repeat(endWsCount);
+   return value;
+}
+
 export {
+  nbsp,
+  strStartAndEndWsToNbsp,
   tryGetLastArrayValue,
   dump,
   narrowArray,

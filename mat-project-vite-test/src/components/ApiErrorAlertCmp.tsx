@@ -1,19 +1,21 @@
 import { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
-import { ErrorAlertCmp } from "./ErrorAlertCmp";
-import { Button, Code, Modal, Text } from "@mantine/core";
+import { ErrorAlertCmp, ErrorAlertCmpProps } from "./ErrorAlertCmp";
+import { Button, Modal, Text } from "@mantine/core";
 import { ApplicationErrorInformation } from "../api/dtos/errors/error_response";
 import { useDisclosure } from "@mantine/hooks";
+import { JsonViewCmp } from "./JsownView/JsonViewCmp";
 interface Props extends BasicStyledCmpProps {
   error?: ApplicationErrorInformation,
   status: number,
   statusText: string
+  onClose:ErrorAlertCmpProps['onClose']
 }
 
-const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText, ...baseProps }) => {
+const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText,onClose, ...baseProps }) => {
   const [opened, { open,close }] = useDisclosure(false);
   return (
-    <ErrorAlertCmp {...baseProps}>
+    <ErrorAlertCmp withCloseButton onClose={onClose} {...baseProps}>
       <Text span>{statusText}({status}):</Text>
       {error && <>
         <Text>Message: {error.user_info.message}</Text>
@@ -28,7 +30,7 @@ const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText, ...baseProps }
           title="Error data"
           centered
           >
-          <Code>{JSON.stringify(error?.details?.errorData, undefined, 8)}</Code>
+            <JsonViewCmp json={error?.details?.errorData} />
         </Modal>
     </ErrorAlertCmp>
   );

@@ -7,3 +7,9 @@ export type ResponseError<T extends Lfunc> =
 T extends (...args: Any) => Promise<Response<Any, ErrorResponseType<infer R>|undefined>> ? 
 ErrorResponseType<R>['error']|undefined 
 : never;
+
+export type ApiError<T> = {
+    error?: T;
+    status: number;
+    statusText: string;
+};

@@ -1,5 +1,6 @@
-import { Badge } from "@mantine/core";
+
 import React, { FC } from "react"
+import { AnswerTextCmp } from "../../../../../../components/AnswerText/AnswerTextCmp";
 
 interface Props {
 userText:string;
@@ -7,7 +8,7 @@ correctText?:string;
 }
 
 const AnswerCmp:FC<Props> = React.memo((props) => {
-  return (<Badge><AnswerCmp {...props}/></Badge>);
+  return (<AnswerTextCmp {...props}/>);
 });
 AnswerCmp.displayName = "AnswerCmp";
 

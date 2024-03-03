@@ -8,20 +8,20 @@ interface ExerciseInstructions {
     instructions:string
   }
 
-interface TakeExercise {
-    type:'exercise',
+interface TakeExercise extends Exercise {
     getFilledDataForServer():ReturnType<BaseTask['getFilledDataForServer']>[0]
-    renderCmp:RenderCmp<CreateExerciseProps>
 }
 
-interface ReviewExercise{
+interface ReviewExercise extends Exercise{
+}
+
+interface Exercise{
   type:'exercise',
   renderCmp:RenderCmp<CreateExerciseProps>
 }
 
 interface CreateExerciseProps extends BasicProps
 {
-  key:React.Key;
   order:TitleOrder;
   num:PositiveInt;
 }
@@ -60,7 +60,8 @@ export {
   type ActualExercise,
   type TakeExerciseDto,
   type ReviewExerciseDto,
-  type ExerciseContent
+  type ExerciseContent,
+  type Exercise
 }
 
 

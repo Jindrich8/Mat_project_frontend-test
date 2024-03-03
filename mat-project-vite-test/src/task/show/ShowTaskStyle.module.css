@@ -1,0 +1,9 @@
+.container{
+    box-sizing: border-box;
+    max-height: 100vh;
+}
+
+.childContainer{
+    flex-grow: 1;
+    padding-bottom: 1rem;
+}

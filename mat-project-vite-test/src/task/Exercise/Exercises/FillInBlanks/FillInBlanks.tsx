@@ -22,12 +22,12 @@ const FillInBlanksMethods:ActualExercise = {
             }
         }
         const state = {data:data};
+        const takeExercise = (<FillInBlanksTakeCmp 
+            uiData={content} 
+            state={state} 
+             />);
         return {
-            renderCmp:() => 
-            (<FillInBlanksTakeCmp 
-                uiData={content} 
-                state={state} 
-                 />),
+            renderCmp:() => takeExercise,
                 getFilledDataForServer:() => {
                     const res = ({
                         content:state.data
@@ -37,11 +37,12 @@ const FillInBlanksMethods:ActualExercise = {
             };
         },
     createReview:(content:ReviewContent) =>{
+        const reviewExercise =  (<FillInBlanksReviewCmp 
+            uiData={content}
+             />);
         return {
-            renderCmp:() => 
-            (<FillInBlanksReviewCmp 
-                uiData={content}
-                 />)
+            renderCmp:() => reviewExercise
+           
             };
         }
 };

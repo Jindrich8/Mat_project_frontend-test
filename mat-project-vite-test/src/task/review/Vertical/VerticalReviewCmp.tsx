@@ -1,84 +1,51 @@
 import React, { FC } from "react"
-import { CreateExerciseProps, ReviewExercise as TaskExercise } from "../../Exercise/ExerciseTypes";
-import { Box, Stack, Title, TitleOrder } from "@mantine/core";
+import { Box, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
 import { PositiveInt, PositiveIntHelper } from "../../../types/primitives/PositiveInteger";
-import { VerticalReview, VerticalReviewGroup } from "./VerticalReview";
 import { addOneToOrder } from "../../../utils/utils";
-import { ResourcesCmp } from "../../show/components/ResourcesCmp";
-
-type Exercise = Pick<TaskExercise,'type'|'renderCmp'>;
-
-type Group = Pick<VerticalReviewGroup,'type'|'members'|'numOfExercises'|'resources'>;
+import { VerticalReview } from "./VerticalReview";
+import { VerticalGroupCmp } from "../../components/VerticalGroupCmp";
+import { TaskPointsCmp } from "../../../components/TaskPointsCmp";
 
 interface Props {
     task: VerticalReview,
-    order:TitleOrder
+    order: TitleOrder
 }
-
-const renderExercise = (exercise: Exercise, props: CreateExerciseProps) => {
-    return exercise.renderCmp(props);
-}
-
-const renderGroup = (group: Group, { order, num, key }: { order: TitleOrder, num: PositiveInt, key?: React.Key }) => {
-    return (
-        <Box key={key}>
-            <Title mb={'xs'} order={order}>{`Zdroje k cvičením ${num} - ${num + group.numOfExercises - 1}`}</Title>
-                <ResourcesCmp order={addOneToOrder(order)} resources={group.resources} />
-            <Stack>
-                {group.members.map((member, i) =>{
-
-                    const cmp = member.type === 'exercise' ?
-                        renderExercise(member, {
-                            key: i,
-                            order,
-                            num: num
-                        })
-                        : renderGroup(group, {
-                            key: i,
-                            order: addOneToOrder(order),
-                            num: num
-                        });
-                        num = PositiveIntHelper.addOne(num);
-                        return cmp;
-                        })}
-            </Stack>
-        </Box>);
-}
-
-const VerticalReviewCmp: FC<Props> = ({ task,order }) => {
-    let  exerNum = 1 as PositiveInt;
+const VerticalReviewCmp: FC<Props> = React.memo(({ task, order }) => {
+    let exerNum = 1 as PositiveInt;
     return (
         <>
-            <Title order={order}>{task.name}</Title>
-            <Box>
+            <Group ta={'center'} align={'center'} justify={'center'}>
+                <Title order={order}>{task.name}</Title>
+                <TaskPointsCmp has={task.points.has} max={task.points.max} />
+            </Group>
+            <Text>{task.description}</Text>
+            <Box mt={'lg'} component={'form'}>
                 <Stack>
                     {task.entries.map((entry, i) => {
                         if (entry.type === 'group') {
                             console.log(`Group: exerNum: ${exerNum}`);
-                            const cmp = renderGroup(entry, {
-                                order: addOneToOrder(order),
-                                num: exerNum,
-                                key: i
-                            });
+                            const cmp = <VerticalGroupCmp
+                                group={entry}
+                                order={addOneToOrder(order)}
+                                num={exerNum}
+                                key={i}
+                            />;
                             exerNum = exerNum + entry.numOfExercises as PositiveInt;
                             console.log(`Group end: exerNum: ${exerNum}`);
                             return cmp;
                         }
                         else {
                             console.log(`exerNum: ${exerNum}`);
-                            const cmp =  renderExercise(entry, {
-                                order: addOneToOrder(order),
-                                num: exerNum,
-                                key: i
-                            });
+                            const cmp = <entry.renderCmp order={order} num={exerNum} key={i} />;
                             exerNum = PositiveIntHelper.addOne(exerNum);
-                           return cmp;
+                            return cmp;
                         }
                     })}
                 </Stack>
             </Box>
+
         </>
     )
-};
-
+});
+VerticalReviewCmp.displayName = 'VerticalReviewCmp';
 export { VerticalReviewCmp, type Props as VerticalReviewCmpProps };

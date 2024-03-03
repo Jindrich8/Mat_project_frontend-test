@@ -8,28 +8,37 @@ import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { VerticalTask } from "./Vertical/VerticalTask";
 import { HorizontalTask } from "./Horizontal/HorizontalTask";
-import { ApiController } from "../../types/composed/apiController";
 import { evaluateTask } from "../../api/task/take/send";
 import { EvaluateTaskRequest } from "../../api/dtos/request";
 import { useNavigate } from "react-router-dom";
 import { useErrorResponse } from "../../utils/hooks";
 import { useDisclosure } from "@mantine/hooks";
 import { dump } from "../../utils/utils";
+import styles from "./ShowTaskStyle.module.css"
+import { createAuthApiController } from "../../components/Auth/auth";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
-const evaluateTaskControl = new ApiController();
+const evaluateTaskControl = createAuthApiController();
 
-const takeTaskControl = new ApiController();
+const takeTaskControl = createAuthApiController();
 const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
   const [task,setTask] = React.useState(
     undefined as (HorizontalTask|VerticalTask|undefined)
      );
     const [takeError,setTakeError] = useErrorResponse<typeof takeTask>();
 
-    const [evaluateError,setEvaluteError] = useErrorResponse<typeof evaluateTask>();
+    const clearTakeError = React.useCallback(() => {
+      setTakeError(undefined);
+  },[setTakeError]);
+
+    const [evaluateError,setEvaluateError] = useErrorResponse<typeof evaluateTask>();
+
+    const clearEvaluateError = React.useCallback(() => {
+      setEvaluateError(undefined);
+  },[setEvaluateError]);
     const [opened, { open, close }] = useDisclosure(evaluateError !== undefined,{
-      onClose:() => setEvaluteError(undefined)
+      onClose:() => setEvaluateError(undefined)
     });
 
     const navigateTo = useNavigate();
@@ -59,25 +68,23 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
 
     
 
-    const onSubmit = async(values:EvaluateTaskRequest['exercises']) => {
+    const onSubmit = React.useCallback(async(values:EvaluateTaskRequest['exercises']) => {
       console.log("submit");
       if(task){
       const response = await evaluateTask(taskId,{
-        version:task.version,
+        version:task.version+'',
         exercises:values
       },evaluateTaskControl);
       if(response.success){
         console.log(dump(response,2));
-        navigateTo(`/task/${taskId}/review`,{
-          relative:'path',
+        navigateTo(`/task/${response.body.data.task.id ?? taskId}/review`,{
           state:{
-            key:"key",
-            //reviewDto:response.body.data
+            reviewDto:response.body.data
           }
         });
       }
       else if(response.isServerError){
-        setEvaluteError(
+        setEvaluateError(
           {
             status: response.status,
             statusText: response.statusText,
@@ -89,15 +96,18 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         
       }
     }
-    };
+    },[navigateTo, open, setEvaluateError, task, taskId]);
+
   return (
-    <Stack style={{boxSizing:'border-box',maxHeight:'100vh',...style}} {...baseProps}>
-    <Box style={{flexGrow:1,paddingBottom:'1rem'}}>
+    <Stack className={styles.container} style={style} {...baseProps}>
+    <Box className={styles.childContainer}>
       {takeError ? (
       <ApiErrorAlertCmp 
       status={takeError.status}
       statusText={takeError.statusText}
-      error={takeError.error}/>
+      error={takeError.error}
+      onClose={clearTakeError}
+      />
       ) : (
         !task ? <Loader />
         : (task.display === TaskDisplay.Horizontal ? 
@@ -111,6 +121,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         status={evaluateError.status} 
         statusText={evaluateError.statusText}
         error={evaluateError.error}
+        onClose={clearEvaluateError}
          />
         }
       </Modal>

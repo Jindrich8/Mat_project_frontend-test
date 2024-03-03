@@ -1,27 +1,27 @@
-import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { addOneToOrder, isNotNullNorUndef, isNullOrUndef } from "../../../utils/utils";
 import { NonNegativeInt, NonNegativeIntHelper } from "../../../types/primitives/NonNegativeInteger";
 import { IntHelper } from "../../../types/primitives/Integer";
 import { HorizontalTask } from "./HorizontalTask";
+import { EvaluateTaskRequest } from "../../../api/dtos/request";
 
 interface Props {
     task: HorizontalTask,
     order: TitleOrder,
-    onSubmit?: (values: unknown[]) => void
+    onSubmit?: (values: EvaluateTaskRequest['exercises']) => void
 }
 
 const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
     const [currentIndex, setCurrentIndex] = React.useState<NonNegativeInt>(NonNegativeIntHelper.MIN);
     const taskRef = React.useRef(taskArg);
     const task = taskRef.current;
-    const onFormSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>((e) => {
+    const onFormSubmit = React.useCallback<React.FormEventHandler>((e) => {
         e.preventDefault();
         const data = task.getFilledDataForServer();
         onSubmit && onSubmit(data);
         console.log(`DataForServer: ${JSON.stringify(data, null, 2)}`);
-
     }, [task, onSubmit]);
 
     const onClick = React.useCallback<React.MouseEventHandler<HTMLDivElement>>((e) => {
@@ -35,27 +35,35 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
             setCurrentIndex(NonNegativeIntHelper.fromInt(IntHelper.parse(index)));
         }
     }, []);
+
+    const currentEntry = task.entries[currentIndex];
+
     return (
-        <Stack h={'100%'} style={{ boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} px={'xl'}>
+        <Stack h={'100%'} style={{ boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} px={'xl'} 
+        component={'form'}
+        onSubmit={onFormSubmit}>
             <Box>
-                <Box mb={'xs'} style={{ float: 'left' }}>
+                <Group mb={'xs'} ta={'center'} align={'center'} justify={'center'}>
                     <Title order={order}>{task.name}</Title>
                     <Text>{task.description}</Text>
-                </Box>
+                </Group>
                 <Button type={'submit'} style={{ float: 'right' }}>Odeslat</Button>
             </Box>
             <Box style={{ flexGrow: 1, overflowY: 'auto' }}
-                component={'form'}
-                onSubmit={onFormSubmit}
+                
             >
-                {task.entries[currentIndex].renderCmp({
-                    num: currentIndex + 1 as PositiveInt,
-                    order: addOneToOrder(order)
-                })}
+                <currentEntry.renderCmp
+                    num={currentIndex + 1 as PositiveInt}
+                    order={addOneToOrder(order)}
+                />
             </Box>
             <div data-index-stop onClick={onClick}>
                 <Button.Group >
-                    {task.entries.map((_, i) => <Button key={i} data-index={i} variant={'filled'}><span data-index={i}>{i + 1}</span></Button>)}
+                    {task.entries.map((_, i) => 
+                    <Button key={i} data-index={i} variant={'filled'}>
+                        <span data-index={i}>{i + 1}</span>
+                        </Button>
+                        )}
                 </Button.Group>
             </div>
         </Stack>

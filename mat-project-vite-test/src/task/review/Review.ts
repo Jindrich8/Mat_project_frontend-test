@@ -19,20 +19,26 @@ type Review = VerticalReview | HorizontalReview;
 interface BaseReview{
     id:string;
     name:string;
+    display:'vertical' | 'horizontal',
+    description:string;
+    points:{
+        has:number;
+        max:number;
+    };
 }
 
 type RenderCmp<Props extends BasicProps> = FC<Props>;
 
-const createReview = (response:ReviewTaskResponse,reviewId:string):Review => {
+const createReview = (response:ReviewTaskResponse):Review => {
 
     const data = response.task;
     if(data.display === 'horizontal'){
         const {display,...others} = data;
-    return toHorizontalReview({display,...others},reviewId)
+    return toHorizontalReview({display,...others},data.id)
     }
     else{ 
         const {display,...others} = data;
-        return toVerticalReview({display,...others},reviewId);
+        return toVerticalReview({display,...others},data.id);
     }
 };
 

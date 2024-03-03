@@ -93,7 +93,7 @@ const ListRangeCmp: FC<Props> = ({ options, apiRef,label,error,required }) => {
         <Group>
         {label && <InputLabel required={required}>{label}</InputLabel>}
         <Stack>
-            <Group id={'MultiSelectGroup'} style={{display:'flex',flexDirection:'row',flexWrap:'nowrap',alignItems:'flex-start'}}>
+            <Group id={'MultiSelectGroup'} align={'flex-start'}>
                 <SearchableSelect
                 style={{float:'left'}}
                     options={data}

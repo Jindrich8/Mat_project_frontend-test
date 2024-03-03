@@ -24,13 +24,15 @@ type HorizontalReviewDto = ReviewTaskDto & {display:'horizontal'};
 
  const toHorizontalEntryInner = (entry:ReviewTaskEntryDto,resources:string[]):HorizontalReviewEntry|HorizontalReviewEntry[] => {
     if(entry.type === "exercise"){
+        const exercise = createReviewExercise(entry);
+        const exerciseResources = resources.map((resource) => createResource(resource));
      return {
-         resources:resources.map((resource) => createResource(resource)),
-         exercise:createReviewExercise(entry),
+         resources:exerciseResources,
+         exercise:exercise,
          renderCmp({num,order}) {
              return renderHorizontalEntry({
-             exercise:this.exercise,
-             resources:this.resources,
+             exercise:exercise,
+             resources:exerciseResources,
              num:num,
              order:order
          });
@@ -52,6 +54,11 @@ const toHorizontalReview = (task:HorizontalReviewDto,taskId:string):HorizontalRe
 return {
     id:taskId,
     name:task.name,
+    description:task.description ?? '',
+    points:{
+        has:task.points.has,
+        max:task.points.max
+    },
     display:ReviewDisplay.Horizontal,
     entries:task.entries.flatMap(entry => toHorizontalEntry(entry)),
 }

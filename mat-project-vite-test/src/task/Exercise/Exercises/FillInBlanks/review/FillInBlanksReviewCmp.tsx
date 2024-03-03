@@ -1,9 +1,8 @@
 import React, { FC } from "react";
-import { Group } from "@mantine/core";
 import styles from "../FillInBlanksCmpStyle.module.css"
-import { ComboboxReviewCmp } from "./components/ComboboxReviewCmp";
-import { TextInputReviewCmp } from "./components/TextInputReviewCmp";
 import { ReviewContent } from "../FillInBlanks";
+import { AnswerCmp } from "./components/AnswerCmp";
+import { strStartAndEndWsToNbsp } from "../../../../../utils/utils";
 
 
 type Content = ReviewContent;
@@ -14,30 +13,15 @@ interface FillInBlanksReviewCmpProps {
 
 const FillInBlanksReviewCmp: FC<FillInBlanksReviewCmpProps> = React.memo(({ uiData }) => {
     return (
-        <Group
-            className={styles.cmpsContainer}
-            gap={0}
-            wrap={'wrap'}
-            align={'center'}>
+        <span style={{display:'inline',textAlign:'left'}}>
             {uiData.map((d, i) => {
                 return (typeof d === 'string' ?
-                    <span className={styles.textCmp} key={i}>{d}</span>
-                    : (
-                        d.type === 'cmb' ?
-                            (<ComboboxReviewCmp
-                                userValue={typeof d.userValue === 'string' ? d.userValue : ''}
-                                key={i}
-                                correctValue={d.correctValue}
-                            />)
-                            : (<TextInputReviewCmp
-                                userValue={typeof d.userValue === 'string' ? d.userValue : ''}
-                                key={i}
-                                correctValue={d.correctValue}
-                            />)
+                    <span className={styles.textCmp} key={i}>{strStartAndEndWsToNbsp(d)}</span>
+                    : (<AnswerCmp userText={d.userValue} key={i} correctText={d.correctValue} />
                     )
                 );
             })}
-        </Group>
+        </span>
     );
 });
 FillInBlanksReviewCmp.displayName = 'FillInBlanksReviewCmp';
