@@ -62,7 +62,7 @@ export type RequestOptions = {
 
 const RequestVersion = Symbol("RequestVersion");
 const DuplicateRequest = Symbol("DuplicateRequest");
-type ApiMethod = "GET" | "POST";
+type ApiMethod = "GET" | "POST" | "PUT";
 const XsrfTokenCookieName = 'XSRF-TOKEN';
 
 const versionsAreSame = (controller: ApiController, version: number) => {
@@ -105,6 +105,9 @@ export const apiRequest = async <
         break;
       case 'POST':
         call = apiObj.post;
+        break;
+      case 'PUT':
+        call = apiObj.put;
         break;
       default:
         throw new Error(`Undefined method '${method}`);
@@ -199,6 +202,16 @@ export const apiPost = async <
   E extends ErrorDetail
 >(path: string, request: T, apiController: ApiController,options:RequestOptions|undefined = undefined) => {
   return apiRequest<R, E>('POST', path, {
+    data: request
+  }, apiController,options);
+};
+
+export const apiPut = async <
+  T extends object,
+  R extends EndpointResponse,
+  E extends ErrorDetail
+>(path: string, request: T, apiController: ApiController,options:RequestOptions|undefined = undefined) => {
+  return apiRequest<R, E>('PUT', path, {
     data: request
   }, apiController,options);
 };

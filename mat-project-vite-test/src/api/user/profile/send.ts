@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ApiController } from "../../../types/composed/apiController";
-import { apiGet } from "../../../utils/api";
+import { apiRequest } from "../../../utils/api";
+import { UserProfileInformationErrorDetails } from "../../dtos/errors/error_response";
 import { UserProfileInformationRequest } from "../../dtos/request";
 
 const updateProfile = async(request: UserProfileInformationRequest,controller:ApiController) =>{
-  const response = await apiGet<
-  UserProfileInformationRequest,
+  const response = await apiRequest<
   undefined,
-  undefined
+  UserProfileInformationErrorDetails
   >
-  (`/api/user/profile-information`,request,controller);
+  ('PUT',`/api/user/profile-information`,request,controller);
   return response;
 };
 

@@ -25,6 +25,7 @@ import { Review } from './pages/task/Review';
 import { AuthContextProvider } from './components/Auth/AuthContextProvider';
 import { AuthProtectionCmp } from './components/AuthProtectionCmp';
 import { Layout } from './pages/Layout';
+import { ProfileInfo } from './pages/profile/ProfileInfo';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
       element={<Login/>}
       />
       <Route path="/csrf" element={<Csrf/>}/>
+      <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
       <Route path="/task/:reviewId/review" element={<Review/>}/>

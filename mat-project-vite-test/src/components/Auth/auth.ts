@@ -164,7 +164,7 @@ export const fetchUser = async () => {
     return response;
 };
 
-export const updateProfile = async (user: User) => {
+export const updateProfile = async (user: User):ReturnType<typeof apiUpdateProfile> => {
     const response = await apiUpdateProfile({
         name: user.name,
         email: user.email
@@ -174,7 +174,7 @@ export const updateProfile = async (user: User) => {
             user:user,
             error:undefined
         });
-        return { success: true };
+        return { success: true,body:undefined };
     }
     return response;
 };
