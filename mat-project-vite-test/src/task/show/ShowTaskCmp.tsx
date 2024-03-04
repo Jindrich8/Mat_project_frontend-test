@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from "react"
-import { TaskDisplay, toTask } from "./Task";
+import { toTask } from "./Task";
 import { HorizontalCmp } from "./Horizontal/HorizontalCmp";
 import { VerticalCmp } from "./Vertical/VerticalCmp";
 import { Box, Loader, Modal, Stack } from "@mantine/core";
@@ -10,12 +10,13 @@ import { VerticalTask } from "./Vertical/VerticalTask";
 import { HorizontalTask } from "./Horizontal/HorizontalTask";
 import { evaluateTask } from "../../api/task/take/send";
 import { EvaluateTaskRequest } from "../../api/dtos/request";
-import { useNavigate } from "react-router-dom";
 import { useErrorResponse } from "../../utils/hooks";
 import { useDisclosure } from "@mantine/hooks";
 import { dump } from "../../utils/utils";
 import styles from "./ShowTaskStyle.module.css"
 import { createAuthApiController } from "../../components/Auth/auth";
+import { Review, toReview } from "../review/Review";
+import { ReviewCmp } from "../review/ReviewCmp";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
@@ -26,6 +27,8 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
   const [task,setTask] = React.useState(
     undefined as (HorizontalTask|VerticalTask|undefined)
      );
+
+    const [review,setReview] = React.useState(undefined as (Review|undefined));
     const [takeError,setTakeError] = useErrorResponse<typeof takeTask>();
 
     const clearTakeError = React.useCallback(() => {
@@ -37,11 +40,15 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
     const clearEvaluateError = React.useCallback(() => {
       setEvaluateError(undefined);
   },[setEvaluateError]);
-    const [opened, { open, close }] = useDisclosure(evaluateError !== undefined,{
+    const [evaluateErrModalOpened, evaluateErrModalMethods] = useDisclosure(evaluateError !== undefined,{
       onClose:() => setEvaluateError(undefined)
     });
 
-    const navigateTo = useNavigate();
+    const reviewModalClose = React.useCallback(() =>{
+      console.log('review modal closed');
+      setReview(undefined)
+    },[]);
+
 
     useEffect(() => {
       const fetchTask = async (taskId:string) => {
@@ -76,12 +83,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         exercises:values
       },evaluateTaskControl);
       if(response.success){
-        console.log(dump(response,2));
-        navigateTo(`/task/${response.body.data.task.id ?? taskId}/review`,{
-          state:{
-            reviewDto:response.body.data
-          }
-        });
+        setReview(toReview(response.body.data));
       }
       else if(response.isServerError){
         setEvaluateError(
@@ -92,11 +94,10 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
           }
         );
         console.log(dump(response,2));
-        open();
-        
+        evaluateErrModalMethods.open();
       }
     }
-    },[navigateTo, open, setEvaluateError, task, taskId]);
+    },[evaluateErrModalMethods, setEvaluateError, task, taskId]);
 
   return (
     <Stack className={styles.container} style={style} {...baseProps}>
@@ -109,15 +110,16 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
       onClose={clearTakeError}
       />
       ) : (
-        !task ? <Loader />
-        : (task.display === TaskDisplay.Horizontal ? 
+        !task ? <Loader m={'auto'} />
+        : (task.display === 'horizontal' ? 
           <HorizontalCmp task={task} order={2} onSubmit={onSubmit} /> : 
           <VerticalCmp task={task} order={2} onSubmit={onSubmit} />)
       )}
       </Box>
-      <Modal opened={opened} onClose={close}>
+      <Modal opened={evaluateErrModalOpened} onClose={evaluateErrModalMethods.close}>
         {evaluateError && 
         <ApiErrorAlertCmp 
+        withoutCloseButton
         status={evaluateError.status} 
         statusText={evaluateError.statusText}
         error={evaluateError.error}
@@ -125,6 +127,30 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
          />
         }
       </Modal>
+      <Modal.Root 
+      trapFocus
+      returnFocus
+      closeOnClickOutside={false}
+      opened={!!review} 
+      onClose={reviewModalClose} 
+      style={{height:'100%'}} 
+      fullScreen
+      radius={0}
+      transitionProps={{ transition: 'fade', duration: 20 }}
+      >
+        <Modal.Overlay>
+        <Modal.Content display={'flex'} w={'100%'} style={{flexDirection:'column',flexGrow:1}}>
+          <Modal.Header display={'flex'} style={{flexDirection:'row',justifyContent:'space-between'}}>
+            <div></div>
+          <Modal.Title>Review</Modal.Title>
+            <Modal.CloseButton style={{marginLeft:0}}/>
+          </Modal.Header>
+          <Modal.Body display={'flex'} style={{flexDirection:'column',flexGrow:1}}>
+        {review && <ReviewCmp review={review} order={2} />}
+        </Modal.Body>
+        </Modal.Content>
+        </Modal.Overlay>
+      </Modal.Root>
     </Stack>
   )
 };

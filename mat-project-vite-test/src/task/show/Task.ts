@@ -10,10 +10,6 @@ enum TaskEntryType {
     Group='group',
     Exercise='exercise'
 }
-enum TaskDisplay {
-    Horizontal = 'horizontal',
-    Vertical = 'vertical',
-}
 
 type Task = VerticalTask | HorizontalTask;
 
@@ -42,7 +38,7 @@ const createTask = (response:TakeTaskResponseDto,taskId:string) => {
 
 
 
-export {type BaseTask,TaskDisplay,TaskEntryType, createTask as toTask,type RenderCmp, type Task };
+export {type BaseTask,TaskEntryType, createTask as toTask,type RenderCmp, type Task };
 
 
 

@@ -1,6 +1,7 @@
 import { TitleOrder } from "@mantine/core";
 import { Int } from "../types/primitives/Integer";
 import { Immutable, ImmutableObject } from "@hookstate/core";
+import { Any } from "../types/types";
 
 const tryGetLastArrayValue = <T>(arr:T[]|ImmutableObject<T[]>):T|Immutable<T>|undefined =>{
   return arr.length > 0 ? arr[arr.length - 1] : undefined;
@@ -9,7 +10,7 @@ const tryGetLastArrayValue = <T>(arr:T[]|ImmutableObject<T[]>):T|Immutable<T>|un
 const dump = (obj:object, indent:number = 2) => {
  const getCircularReplacer = () => {
   const seen = new WeakSet();
-  return (key, value) => {
+  return (_key:Any, value:Any) => {
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
         return;

@@ -1,7 +1,7 @@
 import { Group as VerticalGroup } from "@mantine/core";
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { createResource } from "../Resource/Resource";
-import { BaseTask, TaskDisplay, TaskEntryType } from "../Task";
+import { BaseTask, TaskEntryType } from "../Task";
 import { Resource } from "../Resource/ResourceTypes";
 import { createTakeExercise } from "../../Exercise/Exercise";
 import { TakeExercise } from "../../Exercise/ExerciseTypes";
@@ -15,7 +15,7 @@ interface VerticalGroup{
 }
 
 interface VerticalTask extends BaseTask{
-display:typeof TaskDisplay.Vertical
+display:'vertical'
 entries:(TakeExercise | VerticalGroup)[],
 
 }
@@ -50,7 +50,7 @@ const toVerticalTask = (task:TakeVerticalTaskDto,taskId:string):VerticalTask =>{
     id:taskId,
     name:task.task_detail.name,
     version:task.task_detail.version,
-    display:TaskDisplay.Vertical,
+    display:'vertical',
     description:task.task_detail.description ?? '',
     entries:task.entries.map(entry => toVerticalEntry(entry,exercises)),
         getFilledDataForServer:() => {

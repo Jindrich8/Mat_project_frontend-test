@@ -1,7 +1,7 @@
 import { renderHorizontalEntry } from "./HorizontalEntry/HorizontalEntry";
 import { createResource } from "../Resource/Resource";
 import { Resource } from "../Resource/ResourceTypes";
-import { TaskDisplay, BaseTask } from "../Task";
+import { BaseTask } from "../Task";
 import { TakeExercise } from "../../Exercise/ExerciseTypes";
 import { createTakeExercise } from "../../Exercise/Exercise";
 import { TakeTaskDto, TakeTaskEntryDto } from "../types";
@@ -10,7 +10,7 @@ import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 
 interface HorizontalTask extends BaseTask{
 entries:HorizontalTaskEntry[],
-display:typeof TaskDisplay.Horizontal
+display:'horizontal'
 }
 
 interface HorizontalTaskEntry {
@@ -59,7 +59,7 @@ return {
     id:taskId,
     name:task.task_detail.name,
     version:task.task_detail.version,
-    display:TaskDisplay.Horizontal,
+    display:'horizontal',
     description:task.task_detail.description ?? '',
     entries:entries,
         getFilledDataForServer() {

@@ -4,12 +4,14 @@ import React, { FC } from "react"
 interface Props {
 has:number;
 max:number;
+withBorder?:boolean;
 }
 
-const ExercisePointsCmp: FC<Props> = ({has,max}) => {
+const ExercisePointsCmp: FC<Props> = ({has,max,withBorder}) => {
+    const style = withBorder ? { border: '1px solid black', padding: '0.4rem',borderRadius:'10px'} : undefined;
     return (
         <Box ml={'auto'} mr={'lg'} pr={'lg'} ta={'end'}>
-            <span style={{ border: '1px solid black', padding: '0.25rem' }}>~{(has.toFixed(2))} / {max.toFixed(2)}b</span>
+            <span style={style}>~{(has.toFixed(2))} / {max.toFixed(2)}b</span>
         </Box>
     )
 };

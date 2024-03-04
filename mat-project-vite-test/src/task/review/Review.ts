@@ -14,7 +14,7 @@ enum ReviewDisplay {
     Vertical = 'vertical',
 }
 
-type Review = VerticalReview | HorizontalReview;
+export type Review = VerticalReview | HorizontalReview;
 
 interface BaseReview{
     id:string;

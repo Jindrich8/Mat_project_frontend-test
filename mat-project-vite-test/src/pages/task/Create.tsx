@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
-import { Editor } from "@monaco-editor/react";
+import { Editor, EditorProps } from "@monaco-editor/react";
 import { Box, Button, Checkbox, Group, Stack, Text } from "@mantine/core";
 import { createTask } from "../../api/task/create/create";
 import { useHookstate } from "@hookstate/core";
@@ -12,6 +12,7 @@ import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { ErrorAlertCmp } from "../../components/ErrorAlertCmp";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { Any } from "../../types/types";
+import styles from "./CreateStyle.module.css";
 
 interface Props {
 
@@ -55,7 +56,7 @@ const Create: FC<Props> = () => {
         getValidData(): undefined | [min: number, max: number] { return undefined }
     });
 
-    const onMount: EditorProps['onMount'] = React.useCallback((editor) => {
+    const onMount: EditorProps['onMount'] = React.useCallback((editor:Any) => {
         editorRef.current = editor;
     }, []);
 
@@ -241,7 +242,7 @@ const Create: FC<Props> = () => {
                     onClose={clearTaskError}
                 />}
             <Box style={{ minWidth: '100%', flexGrow: 1, height: '100%', minHeight: '25rem' }}>
-                <Editor wrapperProps={{ minHeight: '25rem' }} height={'100%'} width={'100%'} language={'xml'} onMount={onMount} onChange={(value) => {
+                <Editor wrapperProps={{ minHeight: '25rem' }} className={styles.editor}  height={'100%'} width={'100%'} language={'xml'} onMount={onMount} onChange={(value) => {
                     editorValue.current = value;
                 }} />
             </Box>

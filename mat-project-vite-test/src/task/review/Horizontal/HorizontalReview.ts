@@ -3,7 +3,7 @@ import { BasicProps } from "../../../types/props/props";
 import { renderHorizontalEntry } from "./HorizontalEntry/HorizontalEntry";
 import { TitleOrder } from "@mantine/core";
 import { ReviewTaskDto, ReviewTaskEntryDto } from "../types";
-import { BaseReview, RenderCmp, ReviewDisplay } from "../Review";
+import { BaseReview, RenderCmp  } from "../Review";
 import { createResource } from "../../show/Resource/Resource";
 import { Resource } from "../../show/Resource/ResourceTypes";
 import { createReviewExercise } from "../../Exercise/Exercise";
@@ -11,7 +11,7 @@ import { ReviewExercise } from "../../Exercise/ExerciseTypes";
 
 interface HorizontalReview extends BaseReview{
 entries:HorizontalReviewEntry[],
-display:typeof ReviewDisplay.Horizontal
+display:'horizontal'
 }
 
 interface HorizontalReviewEntry{
@@ -59,7 +59,7 @@ return {
         has:task.points.has,
         max:task.points.max
     },
-    display:ReviewDisplay.Horizontal,
+    display:'horizontal',
     entries:task.entries.flatMap(entry => toHorizontalEntry(entry)),
 }
 }

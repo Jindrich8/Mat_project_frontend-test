@@ -29,7 +29,7 @@ const AuthProtectionCmp: FC<Props> = ({ children, allowedRole }) => {
                 </ErrorAlertCmp>
         ) :
         <>
-            <Loader />
+            <Loader m={'auto'} />
         </>)
 };
 

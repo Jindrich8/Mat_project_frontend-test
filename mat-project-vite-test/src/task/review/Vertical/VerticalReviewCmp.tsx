@@ -13,12 +13,14 @@ interface Props {
 const VerticalReviewCmp: FC<Props> = React.memo(({ task, order }) => {
     let exerNum = 1 as PositiveInt;
     return (
-        <>
-            <Group ta={'center'} align={'center'} justify={'center'}>
-                <Title order={order}>{task.name}</Title>
-                <TaskPointsCmp has={task.points.has} max={task.points.max} />
-            </Group>
-            <Text>{task.description}</Text>
+        <Stack  ml={'md'} mr={'lg'}>
+            <Stack ta={'center'} align={'center'} w={'100%'}>
+                <Group ta={'center'} align={'center'} justify={'center'} w={'100%'}>
+                    <Title order={order}>{task.name}</Title>
+                    <TaskPointsCmp has={task.points.has} max={task.points.max} />
+                </Group>
+                <Text>{task.description}</Text>
+            </Stack>
             <Box mt={'lg'} component={'form'}>
                 <Stack>
                     {task.entries.map((entry, i) => {
@@ -44,7 +46,7 @@ const VerticalReviewCmp: FC<Props> = React.memo(({ task, order }) => {
                 </Stack>
             </Box>
 
-        </>
+        </Stack>
     )
 });
 VerticalReviewCmp.displayName = 'VerticalReviewCmp';

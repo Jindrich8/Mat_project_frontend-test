@@ -1,8 +1,8 @@
-import { Box, Button } from "@mantine/core";
+import { AppShell, Burger, Group, Stack, UnstyledButton } from "@mantine/core";
 import React, { FC } from "react"
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthMethods } from "../components/Auth/auth";
-import { useAuthContext } from "../components/Auth/context";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
 
@@ -11,29 +11,49 @@ interface Props {
 const Layout: FC<Props> = () => {
     const { signOut } = useAuthMethods();
     const navigate = useNavigate();
+    const [opened, { toggle }] = useDisclosure();
     const onLogOut = React.useCallback(() => {
         signOut();
         navigate('/login');
     },[signOut,navigate]);
 
-    const authState = useAuthContext();
+  return (
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md">
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Group justify="space-between" style={{ flex: 1 }}>
+            <Group ml="xl" gap={'md'} visibleFrom="sm">
+              <UnstyledButton>Home</UnstyledButton>
+              <UnstyledButton>Blog</UnstyledButton>
+              <UnstyledButton>Contacts</UnstyledButton>
+              <UnstyledButton>Support</UnstyledButton>
+              <UnstyledButton onClick={onLogOut}>Log out</UnstyledButton>
+            </Group>
+          </Group>
+        </Group>
+      </AppShell.Header>
 
-    return (
-        <Box h={'100%'}>
-            <Box mih={'10vh'} bg={'cyan'} flex={'row'} dir={'row'}>
-                {authState.signedIn.value &&
-                    <Button style={{ float: 'right' }}
-                        onClick={onLogOut}
-                    >
-                        Log out
-                    </Button>
-                }
-            </Box>
-            <Box h={'100%'}>
-                <Outlet />
-            </Box>
-        </Box>
-    )
+      <AppShell.Navbar py="md" px={4}>
+        <Stack gap={'md'} ml={'md'}>
+        <UnstyledButton>Home</UnstyledButton>
+        <UnstyledButton>Blog</UnstyledButton>
+        <UnstyledButton>Contacts</UnstyledButton>
+        <UnstyledButton>Support</UnstyledButton>
+        <UnstyledButton onClick={onLogOut}>Log out</UnstyledButton>
+        </Stack>
+      </AppShell.Navbar>
+
+      <AppShell.Main mih={'100vh'}display={'flex'} style={{flexDirection:'column'}}>
+        <Outlet />
+      </AppShell.Main>
+    </AppShell>
+  );
+
 };
 
 export { Layout, type Props as LayoutProps };

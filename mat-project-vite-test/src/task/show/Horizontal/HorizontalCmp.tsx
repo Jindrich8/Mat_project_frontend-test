@@ -39,8 +39,9 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
     const currentEntry = task.entries[currentIndex];
 
     return (
-        <Stack h={'100%'} style={{ boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} px={'xl'} 
+        <Stack h={'100%'}  justify={'stretch'} style={{ flexGrow:1, boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} px={'xl'} 
         component={'form'}
+        display={'flex'}
         onSubmit={onFormSubmit}>
             <Box>
                 <Group mb={'xs'} ta={'center'} align={'center'} justify={'center'}>
@@ -57,7 +58,7 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
                     order={addOneToOrder(order)}
                 />
             </Box>
-            <div data-index-stop onClick={onClick}>
+            <div style={{marginTop:'auto'}} data-index-stop onClick={onClick}>
                 <Button.Group >
                     {task.entries.map((_, i) => 
                     <Button key={i} data-index={i} variant={'filled'}>

@@ -22,7 +22,7 @@ const ExerciseCmp: FC<Props> = ({ num, order, content, style, instructions, poin
   return (
     <Box className={styles.wrapper} style={style}>
       <Box>
-        {points && <ExercisePointsCmp has={points.has} max={points.max} />}
+        {points && <ExercisePointsCmp has={points.has} max={points.max} withBorder />}
 
         <Group gap={'xs'}>
           <Title order={order} >{num}</Title>

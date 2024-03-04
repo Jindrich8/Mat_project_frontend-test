@@ -12,4 +12,5 @@
     min-width:fit-content;
     word-wrap:break-word;
     padding:0 0.125rem;
+    white-space: pre-wrap;
 }

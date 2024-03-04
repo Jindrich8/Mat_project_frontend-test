@@ -1,17 +1,18 @@
 import React, { FC } from "react"
 import styles from "./AnswerTextCmpStyle.module.css"
+import { BasicStyledCmpProps } from "../../types/props/props";
 
-interface Props {
+interface Props extends BasicStyledCmpProps {
 userText:string;
 correctText?:string;
 }
 
-const AnswerTextCmp:FC<Props> = React.memo(({userText,correctText}) => {
+const AnswerTextCmp:FC<Props> = React.memo(({userText,correctText,className,...rest}) => {
 
 
     const userTextIsIncorrect =correctText !== undefined && userText !== correctText;
     const incorrectText = userTextIsIncorrect ? userText : '';
-  return (<span className={styles.container}>
+  return (<span className={styles.container + ' '+className} {...rest}>
    <span
     className={styles.incorrectText}
     data-empty={incorrectText ? 'false' : 'true'}

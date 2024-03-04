@@ -3,12 +3,11 @@ import { Box, Loader, Stack } from "@mantine/core";
 import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { getTaskReview } from "../../api/task/review/get";
-import { ReviewDisplay, toReview } from "./Review";
-import { HorizontalReviewCmp } from "./Horizontal/HorizontalReviewCmp";
-import { VerticalReviewCmp } from "./Vertical/VerticalReviewCmp";
+import { toReview } from "./Review";
 import { useErrorResponse } from "../../utils/hooks";
 import { useLocation, useParams } from "react-router-dom";
 import { createAuthApiController } from "../../components/Auth/auth";
+import { ReviewCmp } from "./ReviewCmp";
 
 type Props =  BasicStyledCmpProps;
 
@@ -17,7 +16,6 @@ const getTaskReviewController = createAuthApiController();
 const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
   const { reviewId } = useParams();
     const location = useLocation();
-  //  const authState = useAuthContext();
     const reviewFromLoc = React.useMemo(()=>{
      const dto = location.state?.reviewDto;
      return dto ? toReview(dto) : undefined;
@@ -72,10 +70,8 @@ const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
       onClose={clearReviewError}
       />
       ) : (
-        !reviewToDisplay ? <Loader />
-        : (reviewToDisplay.display === ReviewDisplay.Horizontal ? 
-          <HorizontalReviewCmp task={reviewToDisplay} order={2} /> : 
-          <VerticalReviewCmp task={reviewToDisplay} order={2} />)
+        !reviewToDisplay ? <Loader m={'auto'} />
+        :  <ReviewCmp review={reviewToDisplay} order={2} />
       )}
       </Box>
     </Stack>

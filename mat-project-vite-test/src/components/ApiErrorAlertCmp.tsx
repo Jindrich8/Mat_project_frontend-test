@@ -9,13 +9,14 @@ interface Props extends BasicStyledCmpProps {
   error?: ApplicationErrorInformation,
   status: number,
   statusText: string
-  onClose:ErrorAlertCmpProps['onClose']
+  onClose:ErrorAlertCmpProps['onClose'],
+  withoutCloseButton?:boolean
 }
 
-const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText,onClose, ...baseProps }) => {
+const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText,onClose,withoutCloseButton, ...baseProps }) => {
   const [opened, { open,close }] = useDisclosure(false);
   return (
-    <ErrorAlertCmp withCloseButton onClose={onClose} {...baseProps}>
+    <ErrorAlertCmp withCloseButton={!withoutCloseButton ?? true} onClose={onClose} {...baseProps}>
       <Text span>{statusText}({status}):</Text>
       {error && <>
         <Text>Message: {error.user_info.message}</Text>
