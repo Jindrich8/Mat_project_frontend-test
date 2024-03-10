@@ -1,9 +1,12 @@
-import './App.css'
+
 
 // Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
+import './App.css';
 import '@mantine/core/styles.css';
-import '@mantine/code-highlight/styles.css'
+import '@mantine/code-highlight/styles.css';
+import 'mantine-datatable/styles.css';
+
 
 import { MantineProvider,createTheme } from '@mantine/core';
 import { Home } from './pages/Home';
@@ -26,6 +29,8 @@ import { AuthContextProvider } from './components/Auth/AuthContextProvider';
 import { AuthProtectionCmp } from './components/AuthProtectionCmp';
 import { Layout } from './pages/Layout';
 import { ProfileInfo } from './pages/profile/ProfileInfo';
+import { TaskList } from './pages/task/TaskList';
+import { TaskDetail } from './pages/task/TaskDetail';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -53,9 +58,11 @@ const router = createBrowserRouter(
       <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
       <Route path="/register" element={<Register/>}/>
+      <Route path="/task/list" element={<TaskList />} />
       <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
       <Route path="/task/:reviewId/review" element={<Review/>}/>
       <Route path="/task/:taskId/take" element={<Take/>}/>
+      <Route path="/task/:taskId/detail" element={<TaskDetail/>}/>
      <Route index
      element={<Home />}
      />
