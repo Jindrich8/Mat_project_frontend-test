@@ -6,13 +6,14 @@ import { createTask } from "../../api/task/create/create";
 import { useHookstate } from "@hookstate/core";
 import { ApplicationErrorInformation } from "../../api/dtos/errors/error_response";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
-import { SearchableSelect } from "../../components/SearchableSelectCmp";
-import { ListRangeCmp } from "../../components/ListRangeCmp";
+import { SearchableSelect, SearchableSelectProps } from "../../components/SearchableSelectCmp";
+import { ListRangeCmp} from "../../components/ListRange/ListRangeCmp";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { ErrorAlertCmp } from "../../components/ErrorAlertCmp";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { Any } from "../../types/types";
 import styles from "./CreateStyle.module.css";
+import { useListRange } from "../../components/ListRange/ListRangeType";
 
 interface Props {
 
@@ -50,11 +51,6 @@ const Create: FC<Props> = () => {
     const classesForCmp = React.useMemo(() => {
         return createInfo?.sortedClasses.map(c => c.name)
     }, [createInfo]);
-
-
-    const classesRangeApiRef = React.useRef({
-        getValidData(): undefined | [min: number, max: number] { return undefined }
-    });
 
     const onMount: EditorProps['onMount'] = React.useCallback((editor:Any) => {
         editorRef.current = editor;
@@ -115,15 +111,11 @@ const Create: FC<Props> = () => {
         };
     }, [createInfo]);
 
+    const [classRange,setClassRange]= useListRange(classesForCmp ?? []);
 
-
-    const onDifficultyChanged = (_label: string, value: string) => {
-        state.difficulty.val.set(value);
-    };
-
-    const onTagsChanged = (values: string[]) => {
-        state.tags.val.set(values);
-    };
+    const onDifficultyChanged = React.useCallback<NonNullable<SearchableSelectProps['onChange']>>((option) => {
+        state.difficulty.val.set(option?.value);
+    },[state.difficulty.val]);
 
     const onIsPublicChanged: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         state.isPublic.set(e.target.checked);
@@ -145,19 +137,19 @@ const Create: FC<Props> = () => {
             state.difficulty.err.set("Task must have a difficulty.");
         }
         else {
-            const classRange = classesRangeApiRef.current.getValidData();
-            if (classRange === undefined) {
+            
+            if (classRange.min == null || classRange.max == null) {
                 state.classRange.err.set("Task must have a class.");
             }
-            else {
+            else if(classRange.minError === classRange.maxError === undefined) {
                 const response = await createTask({
                     task: {
                         tags: [...state.tags.val.value] as [string, ...string[]],
                         source: editorValue.current,
                         difficulty: Number(state.difficulty.val.value),
                         class_range: {
-                            min: classRange[0],
-                            max: classRange[1]
+                            min: classRange.min,
+                            max: classRange.max
                         },
                         is_public: state.isPublic.value
                     }
@@ -199,7 +191,7 @@ const Create: FC<Props> = () => {
                     <Stack w={'100%'} justify={'center'} m={'lg'} align={'center'}>
                         <SearchableMultiSelect
                             options={createInfo?.tags ?? []}
-                            onChange={onTagsChanged}
+                            onChange={state.tags.val.set}
                             error={state.tags.err.value}
                             required
                             label={'Tags'}
@@ -212,11 +204,15 @@ const Create: FC<Props> = () => {
                             onChange={onDifficultyChanged}
                         />
                         <ListRangeCmp
+                        min={classRange.min ?? undefined}
+                        max={classRange.max ?? undefined}
+                        minError={classRange.minError}
+                        maxError={classRange.maxError}
                             options={classesForCmp ?? []}
-                            apiRef={classesRangeApiRef}
                             required
                             error={state.classRange.err.value}
                             label={'Class range'}
+                            onChange={setClassRange}
                         />
                         <Group>
                             <Checkbox
@@ -242,7 +238,7 @@ const Create: FC<Props> = () => {
                     onClose={clearTaskError}
                 />}
             <Box style={{ minWidth: '100%', flexGrow: 1, height: '100%', minHeight: '25rem' }}>
-                <Editor wrapperProps={{ minHeight: '25rem' }} className={styles.editor}  height={'100%'} width={'100%'} language={'xml'} onMount={onMount} onChange={(value) => {
+                <Editor wrapperProps={{ minHeight: '25rem' }}  className={styles.editor}  height={'100%'} width={'100%'} language={'xml'} onMount={onMount} onChange={(value) => {
                     editorValue.current = value;
                 }} />
             </Box>

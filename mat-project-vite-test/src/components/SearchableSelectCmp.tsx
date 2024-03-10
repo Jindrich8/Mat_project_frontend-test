@@ -15,7 +15,7 @@ interface Props extends BasicStyledCmpProps {
   selId?:NonNullable<unknown>
   style?:React.CSSProperties
   ['aria-label']?:string
-  onChange?:(label:string,value:string,selId?:NonNullable<unknown>)=> void
+  onChange?:(option?:{label:string,value:string},selId?:NonNullable<unknown>)=> void
 }
 
 const filter:OptionsFilter = (input)=>{
@@ -37,9 +37,10 @@ const SearchableSelect:FC<Props> = ({
   ...baseProps
 }) => {
     const onSelectionChange = React.useCallback(
-        (_value:string|null,option:ComboboxItem) => {
+        (_value:string|null,option:ComboboxItem|null) => {
+          console.log(`Selection changed to '${_value}' '${JSON.stringify(option)}`)
             onChange 
-            && onChange(option.label,option.value,selId);
+            && onChange(option ?? undefined,selId);
         },[onChange,selId]
     );
   return (
@@ -49,6 +50,7 @@ const SearchableSelect:FC<Props> = ({
     onChange={onSelectionChange}
     error={error}
     filter={filter}
+    value={value}
     searchable
     {...baseProps} />
     </Box>

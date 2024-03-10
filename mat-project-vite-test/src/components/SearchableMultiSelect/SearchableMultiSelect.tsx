@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
 import { BasicStyledCmpProps } from "../../types/props/props";
-import { Box, MultiSelect } from "@mantine/core";
+import { Box, ComboboxData, MultiSelect } from "@mantine/core";
 import { matchSorter } from "match-sorter";
 import { OptionsFilter } from "@mantine/core";
 
 interface Props extends BasicStyledCmpProps {
-  options:{label:string,value:string}[],
+  options:ComboboxData,
   placeholder?:string
   selId?:NonNullable<unknown>
-  required?:boolean
+  required?:boolean,
+  value?:string[],
   error?:string
   onChange?:(selected:string[],selId?:NonNullable<unknown>)=>void
   label?:React.ReactNode
@@ -22,7 +23,7 @@ const filter:OptionsFilter = (input)=>{
   });
 };
 
-const SearchableMultiSelect:FC<Props> = ({options,onChange,selId,...baseProps}) => {
+const SearchableMultiSelect:FC<Props> = React.memo(({options,onChange,selId,...baseProps}) => {
   console.log("SearchableMultiSelect - options: ");
   console.log(JSON.stringify(options,undefined,4));
   const onSelectionChange = React.useCallback((selected:string[])=>{
@@ -39,6 +40,6 @@ const SearchableMultiSelect:FC<Props> = ({options,onChange,selId,...baseProps}) 
     {...baseProps} />
     </Box>
   )
-};
-
+});
+SearchableMultiSelect.displayName = 'SearchableMultiSelect';
 export { SearchableMultiSelect, type Props as SearchableMultiSelectProps };

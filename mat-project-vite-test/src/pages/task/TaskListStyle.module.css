@@ -1,0 +1,8 @@
+.tagContainer {
+  display:flex;
+  flex-direction: row;
+  }
+
+  .tag{
+    width:fit-content;
+  }
