@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { Box, Button, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
 import { PositiveInt, PositiveIntHelper } from "../../../types/primitives/PositiveInteger";
 import { VerticalTask } from "./VerticalTask";
 import { addOneToOrder } from "../../../utils/utils";
@@ -26,10 +26,10 @@ const VerticalCmp: FC<Props> = React.memo(({ task: taskArg, order, onSubmit }) =
     let exerNum = 1 as PositiveInt;
     return (
         <>
-            <Group ta={'center'} align={'center'} justify={'center'}>
+            <Stack ta={'center'} align={'center'} justify={'center'}>
                 <Title order={order}>{task.name}</Title>
                 <Text>{task.description}</Text>
-            </Group>
+            </Stack>
             <Box mt={'lg'} component={'form'} onSubmit={onFormSubmit}>
                 <Stack>
                     {task.entries.map((entry, i) => {

@@ -1,4 +1,4 @@
-import { Box, Button, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { addOneToOrder, isNotNullNorUndef, isNullOrUndef } from "../../../utils/utils";
@@ -44,10 +44,10 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
         display={'flex'}
         onSubmit={onFormSubmit}>
             <Box>
-                <Group mb={'xs'} ta={'center'} align={'center'} justify={'center'}>
+                <Stack mb={'xs'} ta={'center'} align={'center'} justify={'center'}>
                     <Title order={order}>{task.name}</Title>
                     <Text>{task.description}</Text>
-                </Group>
+                </Stack>
                 <Button type={'submit'} style={{ float: 'right' }}>Odeslat</Button>
             </Box>
             <Box style={{ flexGrow: 1, overflowY: 'auto' }}
