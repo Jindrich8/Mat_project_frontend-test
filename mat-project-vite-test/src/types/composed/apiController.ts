@@ -1,18 +1,21 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { ErrorWData } from "../errors/ErrorWData";
 import { Any } from "../types";
-import { EndpointResponse } from "./apiTypes";
+import { EndpointResponse, ErrorDetail } from "./apiTypes";
+import { ErrorResponseType } from "./errorResponseType";
 import { SuccessResponseType } from "./successResponseType";
 
 type Func<T> = (value: T) => void;
 
 type Callbacks = {
     error?: Record<PropertyKey, Func<unknown>>,
-    axiosError?: Record<PropertyKey, Func<AxiosError<EndpointResponse, Any>>>,
-    serverError?: Record<PropertyKey, Func<AxiosResponse<EndpointResponse, Any>>>,
-    success?: Record<PropertyKey, Func<AxiosResponse<SuccessResponseType<EndpointResponse>>>>,
+    axiosError?: Record<PropertyKey, Func<AxiosError<ErrorResponseType<ErrorDetail> | undefined, Any>>>,
+    serverError?: Record<PropertyKey, Func<AxiosResponse<ErrorResponseType<ErrorDetail> | undefined, Any>>>,
+    success?: Record<PropertyKey, Func<AxiosResponse<SuccessResponseType<EndpointResponse>, Any>>>,
 };
-
+// AxiosResponse<SuccessResponseType<EndpointResponse>, Any>
+//  AxiosResponse<ErrorResponseType<ErrorDetail> | undefined, Any>
+//  AxiosError<ErrorResponseType<ErrorDetail> | undefined, Any>
 type RecordValue<Rec extends Record<PropertyKey, unknown>> = Rec extends Record<PropertyKey, infer T> ? T : never;
 
 export class ApiController {
