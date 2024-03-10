@@ -9,7 +9,7 @@ import {
     Text,
     Container,
     Group,
-    Button,
+    Button
 } from '@mantine/core';
 //import axios from 'axios';
 import React, { FC, useState } from 'react';
@@ -40,10 +40,10 @@ const Login: FC<Props> = () => {
 
     const clearError = React.useCallback(() => {
         setError(undefined);
-    },[setError]);
+    }, [setError]);
     const clearFormError = React.useCallback(() => {
         setFormError(undefined);
-    },[]);
+    }, []);
 
 
     const navigateTo = useNavigate();
@@ -72,13 +72,13 @@ const Login: FC<Props> = () => {
                 });
             }
         }
-        if(!response.success){
+        if (!response.success) {
             state.password.set("");
         }
     }
 
     return (
-        <Container size={420} my={40}>
+        <Container size={420} my={40} >
             <Title ta="center">
                 Welcome back!
             </Title>
@@ -87,14 +87,20 @@ const Login: FC<Props> = () => {
                 <Link to={'/register'} >Create account</Link>
             </Text>
             {error && <ApiErrorAlertCmp
-         error={error.error} 
-         status={error.status}
-         statusText={error.statusText}
-         onClose={clearError}
-          />}
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md" component='form' 
-            onSubmit={submitLogin} 
-            onChange={clearFormError}>
+                error={error.error}
+                status={error.status}
+                statusText={error.statusText}
+                onClose={clearError}
+            />}
+            <Paper
+                withBorder
+                shadow="md"
+                p={30}
+                mt={30}
+                radius="md"
+                component='form'
+                onSubmit={submitLogin}
+                onChange={clearFormError}>
                 <TextInput
                     type={'email'}
                     onChange={(e) => state.email.set(e.target.value)}

@@ -34,7 +34,7 @@ const createReviewExercise = (exercise:ReviewExerciseDto):ReviewExercise=> {
   type:'exercise',
    renderCmp: ({order,...props}:CreateExerciseProps) => {
     
-    return (<ExerciseCmp 
+    return (<ExerciseCmp
       points={exercise.points}
     content={content}
     order={order}
