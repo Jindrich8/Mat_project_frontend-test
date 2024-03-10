@@ -3,6 +3,48 @@ import { Int } from "../types/primitives/Integer";
 import { Immutable, ImmutableObject } from "@hookstate/core";
 import { Any } from "../types/types";
 
+const setSearchParam = (params:URLSearchParams,key:string,value:string|undefined|string[]) => {
+  if(value === undefined){
+    params.delete(key);
+  }
+  else{
+    if(typeof value === "string"){
+    params.set(key,value);
+    }
+    else{
+      params.delete(key);
+      appendArrayToSearchParams(params,key,value);
+    }
+  }
+}
+
+const tryStrToNum = <T,F>(str:T,fallback:F) => {
+  return typeof str === 'string' ? Number(str) : fallback;
+};
+
+const nundef = <T,F>(value:T,fallback:F) => {
+  return value === undefined ? fallback : value;
+};
+
+const hasOwnProps = (rec:Record<PropertyKey,unknown>): boolean =>{
+  for(const prop in rec){
+    if(Object.hasOwn(rec, prop)){
+      return true;
+    }
+  }
+  return false;
+}
+
+const arrayLast = <T>(arr:Array<T>):T => {
+  return arr[arr.length - 1];
+};
+
+const appendArrayToSearchParams = (params:URLSearchParams, key:string,values:Iterable<string>):void =>{
+  for(const item of values){
+    params.append(key,item);
+  }
+}
+
 const tryGetLastArrayValue = <T>(arr:T[]|ImmutableObject<T[]>):T|Immutable<T>|undefined =>{
   return arr.length > 0 ? arr[arr.length - 1] : undefined;
 }
@@ -167,6 +209,12 @@ const strStartAndEndWsToNbsp =(d:string) => {
 }
 
 export {
+  setSearchParam,
+  tryStrToNum,
+  nundef,
+  hasOwnProps,
+  arrayLast,
+  appendArrayToSearchParams,
   nbsp,
   strStartAndEndWsToNbsp,
   tryGetLastArrayValue,
