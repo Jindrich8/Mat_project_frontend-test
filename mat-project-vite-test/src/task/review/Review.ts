@@ -5,15 +5,6 @@ import { ReviewTaskResponse } from "../../api/dtos/success_response";
 import { HorizontalReview, toHorizontalReview } from "./Horizontal/HorizontalReview";
 
 
-enum ReviewEntryType {
-    Group='group',
-    Exercise='exercise'
-}
-enum ReviewDisplay {
-    Horizontal = 'horizontal',
-    Vertical = 'vertical',
-}
-
 export type Review = VerticalReview | HorizontalReview;
 
 interface BaseReview{
@@ -44,7 +35,7 @@ const createReview = (response:ReviewTaskResponse):Review => {
 
 
 
-export {type BaseReview,ReviewDisplay,ReviewEntryType, createReview as toReview,type RenderCmp };
+export {type BaseReview, createReview as toReview,type RenderCmp };
 
 
 

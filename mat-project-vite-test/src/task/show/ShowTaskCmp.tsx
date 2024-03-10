@@ -2,7 +2,7 @@ import React, { FC, useEffect } from "react"
 import { toTask } from "./Task";
 import { HorizontalCmp } from "./Horizontal/HorizontalCmp";
 import { VerticalCmp } from "./Vertical/VerticalCmp";
-import { Box, Loader, Modal, Stack } from "@mantine/core";
+import { Box, Modal, Stack } from "@mantine/core";
 import { takeTask } from "../../api/task/take/get";
 import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
@@ -17,6 +17,7 @@ import styles from "./ShowTaskStyle.module.css"
 import { createAuthApiController } from "../../components/Auth/auth";
 import { Review, toReview } from "../review/Review";
 import { ReviewCmp } from "../review/ReviewCmp";
+import { LoaderCmp } from "../../components/LoaderCmp";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
@@ -110,7 +111,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
       onClose={clearTakeError}
       />
       ) : (
-        !task ? <Loader m={'auto'} />
+        !task ? <LoaderCmp />
         : (task.display === 'horizontal' ? 
           <HorizontalCmp task={task} order={2} onSubmit={onSubmit} /> : 
           <VerticalCmp task={task} order={2} onSubmit={onSubmit} />)

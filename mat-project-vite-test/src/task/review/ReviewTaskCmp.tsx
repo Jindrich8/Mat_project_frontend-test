@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from "react"
-import { Box, Loader, Stack } from "@mantine/core";
+import { Box, Stack } from "@mantine/core";
 import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { getTaskReview } from "../../api/task/review/get";
@@ -8,6 +8,7 @@ import { useErrorResponse } from "../../utils/hooks";
 import { useLocation, useParams } from "react-router-dom";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ReviewCmp } from "./ReviewCmp";
+import { LoaderCmp } from "../../components/LoaderCmp";
 
 type Props =  BasicStyledCmpProps;
 
@@ -70,7 +71,7 @@ const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
       onClose={clearReviewError}
       />
       ) : (
-        !reviewToDisplay ? <Loader m={'auto'} />
+        !reviewToDisplay ? <LoaderCmp />
         :  <ReviewCmp review={reviewToDisplay} order={2} />
       )}
       </Box>
