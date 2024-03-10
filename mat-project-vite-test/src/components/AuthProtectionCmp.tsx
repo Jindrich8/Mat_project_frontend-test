@@ -1,9 +1,10 @@
 import { FC, PropsWithChildren } from "react"
 import { useAuthContext } from "./Auth/context";
-import { Loader, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import { ErrorAlertCmp } from "./ErrorAlertCmp";
 import { Link } from "react-router-dom";
 import { User } from "../types/composed/user";
+import { LoaderCmp } from "./LoaderCmp";
 
 interface Props extends PropsWithChildren {
     allowedRole?: User['role']
@@ -29,7 +30,7 @@ const AuthProtectionCmp: FC<Props> = ({ children, allowedRole }) => {
                 </ErrorAlertCmp>
         ) :
         <>
-            <Loader m={'auto'} />
+            <LoaderCmp />
         </>)
 };
 
