@@ -88,7 +88,7 @@ console.log("refresh");
     };
 
     return (
-        <Container>
+        <Container size={420} my={40}>
             <Title ta="center">
                 Welcome back!
             </Title>
@@ -108,10 +108,10 @@ console.log("refresh");
             p={30} 
             mt={30} 
             radius="md" 
-            ta={'center'}
-            m={'auto'}
-            style={{maxWidth:'30rem'}}
-            component={'form'}
+            component='form' 
+            w={'55vw'}
+            miw={'max-content'}
+            maw={'25rem'}
             onSubmit={submitLogin}
             onChange={onChange}
             >
