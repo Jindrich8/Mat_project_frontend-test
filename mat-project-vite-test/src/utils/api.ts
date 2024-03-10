@@ -12,6 +12,7 @@ import Cookies from "js-cookie"
 import { csrf } from "./auth";
 import { dump } from "./utils";
 import { DuplicateRequestError } from "../types/errors/DuplicateRequestError";
+import { Any } from "../types/types";
 
 axios.defaults.withCredentials = true;
 const apiAxios = (() => {
@@ -30,7 +31,24 @@ const apiAxios = (() => {
     window.console.log(config);
     config.paramsSerializer = {
       serialize: (params) => {
-
+        console.log('SERIALIZATION', JSON.stringify(params));
+        const stack = [params];
+        let c:Record<string,Any>|undefined;
+        while((c = stack.pop())!== undefined){
+          for(const key in c){
+            if(Object.hasOwn(c,key)){
+              switch(typeof c[key]){
+                case 'string':
+                  console.log(`string ${key} => ${c[key]}`);
+                  c[key] = "'"+c[key];
+                  break;
+                  case 'object':
+                    stack.push(c[key]);
+                    break;
+              }
+            }
+          }
+        }
         const result = qs.stringify(params, {
           arrayFormat: "brackets",
           encode: false,
@@ -122,6 +140,7 @@ export const apiRequest = async <
         }
       };
     }
+    // AxiosResponse<SuccessResponseType<EndpointResponse>, any>
     signal = apiController.set(beforeAbortSync);
     response = await call<SuccessResponseType<R>>(path, actualRequest, {
       signal: signal
@@ -143,7 +162,7 @@ export const apiRequest = async <
         error: apiError
       };
     }
-    if (axios.isAxiosError<R>(error)) {
+    if (axios.isAxiosError<(ErrorResponseType<E> | undefined)>(error)) {
       apiController.call('axiosError',error);
       if(error.status === 419){
         const xsrfHeaderName = error.config?.xsrfHeaderName ?? 'X-Xsrf-Token';
@@ -164,7 +183,7 @@ export const apiRequest = async <
           success: false,
           status: response.status,
           statusText: response.statusText,
-          error: response.data as (ErrorResponseType<E> | undefined)
+          error: response.data
         };
       }
     }
