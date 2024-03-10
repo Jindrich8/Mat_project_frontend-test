@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ApiController } from "../../../types/composed/apiController";
-import { apiGet } from "../../../utils/api";
+import { apiRequest } from "../../../utils/api";
 import { UserPasswordErrorResponseDetails } from "../../dtos/errors/error_response";
 import { UserPasswordRequest } from "../../dtos/request";
 
 const updatePassword = async(request: UserPasswordRequest,controller:ApiController) =>{
-  const response = await apiGet<
-  UserPasswordRequest,
+  const response = await apiRequest<
   undefined,
   UserPasswordErrorResponseDetails
   >
-  (`/api/user/password`,request,controller);
+  ('PUT',`/api/user/password`,request,controller);
   return response;
 }
 
