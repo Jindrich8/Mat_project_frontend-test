@@ -5,14 +5,15 @@ import { ErrorResponseType } from "../../types/composed/errorResponseType";
 import { User } from "../../types/composed/user";
 import { ApiError, ResponseError } from "../../types/errors/types";
 import { updateProfile as apiUpdateProfile } from '../../api/user/profile/send';
-import { HttpStatusCode } from "axios";
+import { AxiosResponse, HttpStatusCode } from "axios";
 import { ApiController } from "../../types/composed/apiController";
-import { Lfunc } from "../../types/types";
+import { Any, Lfunc } from "../../types/types";
 import Cookies from "js-cookie";
 import { AuthContextType } from "./context";
 import { RequestOptions } from "../../utils/api";
 import { logIn, logOut } from "../../utils/auth";
 import { LoginRequest } from "../../api/dtos/request";
+import {ErrorDetail } from "../../types/composed/apiTypes";
 
 type Error<D extends ApplicationErrorInformation['details']> = ApiError<ErrorResponseType<D>>;
 
@@ -26,7 +27,7 @@ export const authState = hookstate<AuthContextType>({
 export const isNotUnathenticatedError = <D extends ApplicationErrorInformation['details'],>(error: Error<D>):
     error is ErrorNoUnathenticated<D> => {
     return error.status !== HttpStatusCode.Unauthorized
-        && error.error?.error.details?.code !== -10 satisfies UnauthenticatedError['code']
+        && error.error?.error?.details?.code !== -10 satisfies UnauthenticatedError['code']
 };
 
 export const removeAuthCookie = () => {
@@ -74,19 +75,20 @@ const setSignedIn = (args: { user: User, error: undefined } | { user: null, erro
     }
 };
 
-export const handleErrorResponse = <D extends ApplicationErrorInformation['details'],>(error: Error<D>) => {
+export const handleErrorResponse = (error: AxiosResponse<ErrorResponseType<ErrorDetail> | undefined, Any>) => {
     if (!isNotUnathenticatedError(error)) {
         setSignedOut();
     }
-    if(error.error?.error.details?.code === -12 satisfies AlreadyAuthenticatedError['code'] && !authState.signedIn.value){
+    
+    if(error.data?.error.details?.code === -12 satisfies AlreadyAuthenticatedError['code'] && !authState.signedIn.value){
         setSignedIn({
             user: null,
             error:{
                 status:error.status,
                 statusText:error.statusText,
                 error:{
-                    user_info:error.error.error.user_info,
-                    details:error.error.error.details
+                    user_info:error.data.error.user_info,
+                    details:error.data.error.details
                 }
             }
         });
