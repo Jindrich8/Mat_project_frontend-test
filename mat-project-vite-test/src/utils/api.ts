@@ -50,7 +50,7 @@ const apiAxios = (() => {
           }
         }
         const result = qs.stringify(params, {
-          arrayFormat: "brackets",
+          arrayFormat: "indices",
           encode: false,
         });
         window.console.log(`paramsSerializer: '${JSON.stringify(params)}' -> '${JSON.stringify(result)}'`);
@@ -80,7 +80,7 @@ export type RequestOptions = {
 
 const RequestVersion = Symbol("RequestVersion");
 const DuplicateRequest = Symbol("DuplicateRequest");
-type ApiMethod = "GET" | "POST" | "PUT";
+type ApiMethod = "GET" | "POST" | "PUT" | "DELETE";
 const XsrfTokenCookieName = 'XSRF-TOKEN';
 
 const versionsAreSame = (controller: ApiController, version: number) => {
@@ -127,6 +127,9 @@ export const apiRequest = async <
       case 'PUT':
         call = apiObj.put;
         break;
+      case 'DELETE':
+        call = apiObj.delete;
+        break;
       default:
         throw new Error(`Undefined method '${method}`);
     }
@@ -142,14 +145,19 @@ export const apiRequest = async <
     }
     // AxiosResponse<SuccessResponseType<EndpointResponse>, any>
     signal = apiController.set(beforeAbortSync);
-    response = await call<SuccessResponseType<R>>(path, actualRequest, {
+    response = await (method === 'DELETE' ?
+    call<SuccessResponseType<R>>(path,{
+      signal:signal
+    })
+    : call<SuccessResponseType<R>>(path, actualRequest, {
       signal: signal
-    });
+    }));
     apiController.call('success',response);
   }
   catch (error) {
     apiController.call('error', error);
-    console.log("Error: " + (error && typeof error === "object" ? dump(error) : error));
+    console.log("Error: " + typeof error + " " + (error && typeof error === "object" ? dump(error) : error));
+    console.log(JSON.stringify(error));
     if (signal?.aborted && error instanceof DOMException &&
       (error.name === "AbortError" || error.name === "CanceledError")) {
       const apiError =
@@ -162,13 +170,16 @@ export const apiRequest = async <
         error: apiError
       };
     }
+    
     if (axios.isAxiosError<(ErrorResponseType<E> | undefined)>(error)) {
       apiController.call('axiosError',error);
-      if(error.status === 419){
+      if(error.status === 419 || error.status == null || error.code === "ERR_NETWORK"){
         const xsrfHeaderName = error.config?.xsrfHeaderName ?? 'X-Xsrf-Token';
         const xsrfToken = error.config?.headers[xsrfHeaderName] ?? undefined;
         if (xsrfToken === undefined || Cookies.get(XsrfTokenCookieName) === xsrfToken) {
           Cookies.remove(XsrfTokenCookieName);
+          console.log("CSRF token removed");
+          csrf();
         }
         console.log("CSRF token mismatch");
       }
@@ -186,6 +197,11 @@ export const apiRequest = async <
           error: response.data
         };
       }
+    }
+    else if(error === undefined){
+      Cookies.remove(XsrfTokenCookieName);
+      console.log("CSRF token removed");
+      csrf();
     }
     console.log("Throwing");
     throw error;
@@ -233,5 +249,12 @@ export const apiPut = async <
   return apiRequest<R, E>('PUT', path, {
     data: request
   }, apiController,options);
+};
+
+export const apiDelete = async <
+  R extends EndpointResponse,
+  E extends ErrorDetail
+>(path: string, apiController: ApiController,options:RequestOptions|undefined = undefined) => {
+  return apiRequest<R, E>('DELETE', path, undefined, apiController,options);
 };
 
