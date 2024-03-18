@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
-import { Box, ComboboxItem, OptionsFilter, Select } from "@mantine/core";
+import { Box, ComboboxData, ComboboxItem, MantineStyleProps, OptionsFilter, Select } from "@mantine/core";
 import { matchSorter } from "match-sorter";
 import React from "react";
 
-interface Props extends BasicStyledCmpProps {
-  options:{label:string,value:string}[],
+type Props = MantineStyleProps & BasicStyledCmpProps & {
+  options:ComboboxData,
   placeholder?:string,
-  value?:string,
+  value?:string|null,
   required?:boolean
   error?:string
   label?:React.ReactNode
@@ -33,6 +33,8 @@ const SearchableSelect:FC<Props> = ({
   required,
   placeholder,
   style,
+  label,
+  "aria-label":ariaLabel,
   onChange,
   ...baseProps
 }) => {
@@ -44,15 +46,19 @@ const SearchableSelect:FC<Props> = ({
         },[onChange,selId]
     );
   return (
-      <Box style={style}>
+      <Box style={style} {...baseProps}>
     <Select data={options} 
     selectFirstOptionOnChange
     onChange={onSelectionChange}
+    placeholder={placeholder}
     error={error}
     filter={filter}
     value={value}
     searchable
-    {...baseProps} />
+    label={label}
+    aria-label={ariaLabel}
+    required={required}
+     />
     </Box>
   )
 };
