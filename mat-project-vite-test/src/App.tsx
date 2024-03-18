@@ -6,6 +6,7 @@ import './App.css';
 import '@mantine/core/styles.css';
 import '@mantine/code-highlight/styles.css';
 import 'mantine-datatable/styles.css';
+import '@mantine/dates/styles.css';
 
 
 import { MantineProvider,createTheme } from '@mantine/core';
@@ -18,8 +19,6 @@ import {
 } from "react-router-dom";
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
-import { ConfigProps as SanctumConfigProps, Sanctum} from 'react-sanctum';
-import { env } from './utils/vite';
 import axios from 'axios';
 import { Create } from './pages/task/Create';
 import { Csrf } from './pages/Csrf';
@@ -31,6 +30,11 @@ import { Layout } from './pages/Layout';
 import { ProfileInfo } from './pages/profile/ProfileInfo';
 import { TaskList } from './pages/task/TaskList';
 import { TaskDetail } from './pages/task/TaskDetail';
+import { Update } from './pages/task/Update';
+import { MyTaskList } from './pages/task/MyTaskList';
+import { MyTaskDetail } from './pages/task/MyTaskDetail';
+import { ReviewDetail } from './pages/review/ReviewDetail';
+import { ReviewList } from './pages/review/ReviewList';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -59,10 +63,15 @@ const router = createBrowserRouter(
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/task/list" element={<TaskList />} />
+      <Route path="/task/myList" element={<MyTaskList />} />
+      <Route path="/task/:taskId/myDetail" element={<MyTaskDetail />} />
       <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
-      <Route path="/task/:reviewId/review" element={<Review/>}/>
+      <Route path="/task/review/list" element={<AuthProtectionCmp><ReviewList/></AuthProtectionCmp>}/>
+      <Route path="/task/review/:reviewId/show" element={<AuthProtectionCmp><Review/></AuthProtectionCmp>}/>
+      <Route path="/task/review/:reviewId/detail" element={<AuthProtectionCmp><ReviewDetail/></AuthProtectionCmp>}/>
       <Route path="/task/:taskId/take" element={<Take/>}/>
       <Route path="/task/:taskId/detail" element={<TaskDetail/>}/>
+      <Route path="/task/:taskId/update" element={<AuthProtectionCmp allowedRole={'teacher'}><Update /></AuthProtectionCmp>} />
      <Route index
      element={<Home />}
      />
@@ -70,24 +79,14 @@ const router = createBrowserRouter(
   )
 );
 
-const sanctumConfig:SanctumConfigProps = {
-  apiUrl: env.VITE_SANCTUM_API_URL,
-  csrfCookieRoute: env.VITE_SANCTUM_CSRF_COOKIE_ROUTE,
-  signInRoute: env.VITE_SIGN_IN_ROUTE,
-  signOutRoute: env.VITE_SIGN_OUT_ROUTE,
-  userObjectRoute: env.VITE_USER_OBJECT_ROUTE
-};
-
 function App() {
   axios.defaults.withCredentials = true;
   axios.defaults.withXSRFToken = true;
-  return <Sanctum config={sanctumConfig} checkOnInit={false}>
-    <AuthContextProvider>
+  return (<AuthContextProvider>
       <MantineProvider theme={theme}>
         <RouterProvider router={router} />
       </MantineProvider>
-    </AuthContextProvider>
-  </Sanctum>;
+    </AuthContextProvider>);
 }
 
 
