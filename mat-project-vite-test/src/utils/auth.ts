@@ -29,6 +29,7 @@ const logIn = async (request:LoginRequest) => {
 };
 
 const csrf = async ():Promise<AxiosResponse | undefined> => {
+    console.log('csrf token request');
     const response = await api().get('/sanctum/csrf-cookie');
     if (response.status !== 200 && response.status !== 204) {
         return response;
