@@ -15,9 +15,9 @@ import {
 import React, { FC, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthMethods } from '../components/Auth/auth';
-import { useErrorResponse } from '../utils/hooks';
 import { LoginErrorDetails } from '../api/dtos/errors/error_response';
 import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
+import { ErrorResponseState } from '../types/types';
 //import { logIn } from '../utils/auth';
 
 interface Props {
@@ -36,7 +36,7 @@ const Login: FC<Props> = () => {
     });
 
     const [formError, setFormError] = useState<LoginErrorDetails | undefined>(undefined);
-    const [error, setError] = useErrorResponse<typeof signIn>();
+    const [error, setError] = React.useState<ErrorResponseState<typeof signIn>>();
 
     const clearError = React.useCallback(() => {
         setError(undefined);
@@ -48,17 +48,14 @@ const Login: FC<Props> = () => {
 
     const navigateTo = useNavigate();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const navigate = () => navigateTo('/');
-
-    const submitLogin: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    const submitLogin = React.useCallback<React.FormEventHandler<HTMLFormElement>>(async (e) => {
         e.preventDefault();
         console.log("Login submit\n");
         const email = state.email.get();
         const password = state.password.get();
         const response = await signIn({ email, password });
         if (response.success) {
-            navigate();
+            navigateTo('/');
         }
         else if (response.isServerError) {
             if (response.error?.error.details.code === 1) {
@@ -75,7 +72,7 @@ const Login: FC<Props> = () => {
         if (!response.success) {
             state.password.set("");
         }
-    }
+    },[navigateTo, setError, signIn, state.email, state.password]);
 
     return (
         <Container size={420} my={40} >

@@ -10,7 +10,6 @@ import { VerticalTask } from "./Vertical/VerticalTask";
 import { HorizontalTask } from "./Horizontal/HorizontalTask";
 import { evaluateTask } from "../../api/task/take/send";
 import { EvaluateTaskRequest } from "../../api/dtos/request";
-import { useErrorResponse } from "../../utils/hooks";
 import { useDisclosure } from "@mantine/hooks";
 import { dump } from "../../utils/utils";
 import styles from "./ShowTaskStyle.module.css"
@@ -18,6 +17,7 @@ import { createAuthApiController } from "../../components/Auth/auth";
 import { Review, toReview } from "../review/Review";
 import { ReviewCmp } from "../review/ReviewCmp";
 import { LoaderCmp } from "../../components/LoaderCmp";
+import { ErrorResponseState } from "../../types/types";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
@@ -30,13 +30,13 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
      );
 
     const [review,setReview] = React.useState(undefined as (Review|undefined));
-    const [takeError,setTakeError] = useErrorResponse<typeof takeTask>();
+    const [takeError,setTakeError] = React.useState<ErrorResponseState<typeof takeTask>>();
 
     const clearTakeError = React.useCallback(() => {
       setTakeError(undefined);
   },[setTakeError]);
 
-    const [evaluateError,setEvaluateError] = useErrorResponse<typeof evaluateTask>();
+    const [evaluateError,setEvaluateError] = React.useState<ErrorResponseState<typeof evaluateTask>>();
 
     const clearEvaluateError = React.useCallback(() => {
       setEvaluateError(undefined);

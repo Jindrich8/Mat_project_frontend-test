@@ -33,9 +33,11 @@ const createReview = (response:ReviewTaskResponse):Review => {
     }
 };
 
+const PERCENTAGE_PRECISION = 2;
 
 
-export {type BaseReview, createReview as toReview,type RenderCmp };
+
+export {type BaseReview, createReview as toReview,type RenderCmp,PERCENTAGE_PRECISION };
 
 
 

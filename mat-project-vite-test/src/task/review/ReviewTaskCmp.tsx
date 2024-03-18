@@ -4,11 +4,11 @@ import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { getTaskReview } from "../../api/task/review/get";
 import { toReview } from "./Review";
-import { useErrorResponse } from "../../utils/hooks";
 import { useLocation, useParams } from "react-router-dom";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ReviewCmp } from "./ReviewCmp";
 import { LoaderCmp } from "../../components/LoaderCmp";
+import { ErrorResponseState } from "../../types/types";
 
 type Props =  BasicStyledCmpProps;
 
@@ -29,7 +29,7 @@ const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
       ()=>reviewFromApi ?? reviewFromLoc,
     [reviewFromApi,reviewFromLoc]
     );
-    const [reviewError,setReviewError] = useErrorResponse<typeof getTaskReview>();
+    const [reviewError,setReviewError] = React.useState<ErrorResponseState<typeof getTaskReview>>();
 
     const clearReviewError = React.useCallback(() => {
       setReviewError(undefined);
