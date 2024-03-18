@@ -96,9 +96,17 @@ export const handleErrorResponse = (error: AxiosResponse<ErrorResponseType<Error
 };
 
 const HandleErrorResponseCallback = Symbol('handleErrorResponseCallback');
+//const HandleAxiosErrorResponseCallback = Symbol('handleAxiosErrorResponseCallback');
+
+// const handleAxiosErrorResponseCallback:ApiControllerCallbacks['axiosError'] = (error) => {
+//     if(error.status === 419 || error.status == null || error.code === "ERR_NETWORK"){
+//         setSignedOut();
+//     }
+// };
 export const createAuthApiController = () => {
     const c  = new ApiController();
-    c.setCallback('serverError',HandleErrorResponseCallback,handleErrorResponse);
+     c.setCallback('serverError',HandleErrorResponseCallback,handleErrorResponse);
+    // c.setCallback('axiosError',HandleAxiosErrorResponseCallback,handleAxiosErrorResponseCallback);
     return c;
 }
 

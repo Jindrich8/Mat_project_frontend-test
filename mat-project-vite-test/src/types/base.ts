@@ -33,5 +33,31 @@ type NoneOf<T,U> = {
 
 type EitherOrNoneOf<T,U> = (Either<T,U> | NoneOf<T,U>);
 
+type UnionToIntersection<U> = (
+    U extends never ? never : (arg: U) => never
+  ) extends (arg: infer I) => void
+    ? I
+    : never;
+  
+  type UnionToTuple<T> = UnionToIntersection<
+    T extends never ? never : (t: T) => T
+  > extends (_: never) => infer W
+    ? [...UnionToTuple<Exclude<T, W>>, W]
+    : [];
 
-export {type Opaque, type Either,type NoneOf, type EitherOrNoneOf,type Only, type AtLeastOneOf};
+    // https://github.com/microsoft/TypeScript/issues/31153#issuecomment-1942683335
+    type OmitFromMappedType<Type, ToOmit> = {
+        [Property in keyof Type as Exclude<Property, ToOmit>]: Type[Property];
+      };
+
+
+export {
+    type Opaque, 
+    type Either,
+    type NoneOf, 
+    type EitherOrNoneOf,
+    type Only, 
+    type AtLeastOneOf,
+    type UnionToTuple,
+    type OmitFromMappedType
+};

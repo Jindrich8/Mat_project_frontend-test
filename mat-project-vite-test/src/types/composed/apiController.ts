@@ -98,3 +98,12 @@ export class ApiController {
             : { exists: false };
     }
 }
+
+
+type GetFunctionsFromCallbacks<T extends Record<PropertyKey,Record<PropertyKey,unknown>>> = {
+    [key in keyof T]: RecordValue<T[key]>;
+};
+
+type ApiControllerCallbacks = GetFunctionsFromCallbacks<Callbacks>;
+
+export {type ApiControllerCallbacks};
