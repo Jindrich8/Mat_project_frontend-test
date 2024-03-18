@@ -1,8 +1,8 @@
 import { ApiController } from "../../../types/composed/apiController";
 import { apiGet } from "../../../utils/api";
-import { TaskReviewGetErrorResponseDetails } from "../../dtos/errors/error_response";
-import { GetTaskReviewRequest, TaskReviewDetailRequest } from "../../dtos/request";
-import { ReviewTaskResponse } from "../../dtos/success_response";
+import { ReviewDetailErrorResponseDetails, TaskReviewGetErrorResponseDetails, TaskReviewListErrorResponseDetails } from "../../dtos/errors/error_response";
+import { GetTaskReviewRequest, ListTaskReviewsRequest, TaskReviewDetailRequest } from "../../dtos/request";
+import { ListTaskReviewsResponse, ReviewTaskResponse, TaskReviewDetailResponse } from "../../dtos/success_response";
 
 export const getTaskReview = async(request: GetTaskReviewRequest,id:string,controller:ApiController) =>{
     const response = await apiGet<
@@ -14,12 +14,22 @@ export const getTaskReview = async(request: GetTaskReviewRequest,id:string,contr
     return response;
   }
 
-  export const getTaskReviewDetail  =async(request: TaskReviewDetailRequest,id:string,controller:ApiController) =>{
-    const response = await apiGet<
+  export const getTaskReviewDetail  =async(id:string,controller:ApiController) =>{
+    const response = apiGet<
     TaskReviewDetailRequest,
-    ReviewTaskResponse,
-    TaskReviewGetErrorResponseDetails
+    TaskReviewDetailResponse,
+    ReviewDetailErrorResponseDetails
     >
-    (`/api/review/${id}/get`,request,controller);
+    (`/api/review/${id}/detail`,null,controller);
+    return response;
+  }
+
+  export const listTaskReviews = async(request:ListTaskReviewsRequest,controller:ApiController) =>{
+    const response = apiGet<
+    ListTaskReviewsRequest,
+    ListTaskReviewsResponse,
+    TaskReviewListErrorResponseDetails
+    >
+    (`/api/review/list`,request,controller);
     return response;
   }
