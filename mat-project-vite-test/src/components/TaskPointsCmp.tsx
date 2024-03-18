@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
 import { Box, Group, Text } from "@mantine/core";
 import { ExercisePointsCmp } from "./ExercisePointsCmp";
+import { PERCENTAGE_PRECISION } from "../task/review/Review";
 
 interface Props extends BasicStyledCmpProps {
   has: number;
@@ -15,7 +16,7 @@ const TaskPointsCmp: FC<Props> = ({ has, max, ...rest }) => {
       <Box ml={'auto'} mr={'lg'} pr={'lg'} ta={'end'}>
         <Text variant={'text'} size={'lg'}>
           <strong>
-            {'~'}{(has / max * 100).toFixed(2)}%
+            {'~'}{(has / max * 100).toFixed(PERCENTAGE_PRECISION)}%
           </strong>
         </Text>
       </Box>
