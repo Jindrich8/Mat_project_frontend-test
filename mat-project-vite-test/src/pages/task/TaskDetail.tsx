@@ -2,11 +2,11 @@ import React, { FC, useEffect } from "react"
 import { getTaskDetail } from "../../api/task/detail/get";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Group, Stack, Text } from "@mantine/core";
-import { useErrorResponse } from "../../utils/hooks";
+import { Button, Group, Stack, Text, Title } from "@mantine/core";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { TagsCmp } from "../../components/Tags/TagsCmp";
 import { LoaderCmp } from "../../components/LoaderCmp";
+import { ErrorResponseState } from "../../types/types";
 
 interface Props {
 
@@ -28,7 +28,7 @@ const TaskDetail: FC<Props> = () => {
             score: number
         }
     } | undefined));
-    const [error,setError] = useErrorResponse<typeof getTaskDetail>();
+    const [error,setError] = React.useState<ErrorResponseState<typeof getTaskDetail>>();
     const clearError = React.useCallback(() => setError(undefined),[setError]);
 
     useEffect(() => {
@@ -75,16 +75,18 @@ const TaskDetail: FC<Props> = () => {
              />}
         {!taskDetail ? <LoaderCmp /> : (
             <Stack align={'center'}>
-                <Text>{taskDetail.name}</Text>
+                <Title order={1}>{taskDetail.name}</Title>
                 <Text>{taskDetail.description}</Text>
-                <Text>Difficulty: {taskDetail?.difficulty}</Text>
+                <Text >Difficulty: {taskDetail?.difficulty}</Text>
                 <Group><Text>Class range: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
                 <Text>Author: {taskDetail.author}</Text>
                 <Group><Text>Tags: </Text><TagsCmp tags={taskDetail.tags} /></Group>
                 {taskDetail.taskReview && (
                     <Group>
                         <Text>Review: </Text>
-                        <Link to={`task/${taskDetail.taskReview.id}/review`}>{taskDetail.taskReview.score}</Link>
+                        <Link to={`/task/review/${taskDetail.taskReview.id}/detail`}>
+                            {'~'+(taskDetail.taskReview.score*100).toFixed(2)+'%'}
+                            </Link>
                     </Group>)
                 }
                 <Button onClick={takeTask}>Take</Button>

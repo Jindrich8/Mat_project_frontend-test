@@ -1,6 +1,7 @@
-import { ActionIcon, AppShell, Avatar, Burger, Group, Menu, Stack, Text, UnstyledButton} from "@mantine/core";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ActionIcon, AppShell, Avatar, Box, Burger, Group, Menu, Stack, Text, UnstyledButton} from "@mantine/core";
 import React, { FC } from "react"
-import { Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuthMethods } from "../components/Auth/auth";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuthContext } from "../components/Auth/context";
@@ -28,17 +29,14 @@ const Layout: FC<Props> = () => {
         <AppShell
             header={{ height: 60 }}
             navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
-            padding="md"
         >
             <AppShell.Header>
                 <Group h="100%" px="md">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Group ml="xl" gap={'md'} visibleFrom="sm" w={'100%'}>
-                            <UnstyledButton>Home</UnstyledButton>
-                            <UnstyledButton>Blog</UnstyledButton>
-                            <UnstyledButton>Contacts</UnstyledButton>
-                            <UnstyledButton>Support</UnstyledButton>
+                            <UnstyledButton><Link to='/task/myList'>Moje úlohy</Link></UnstyledButton>
+                            <UnstyledButton><Link to='/task/review/list'>Vyhodnocení</Link></UnstyledButton>
                             {auth.signedIn.value &&
                     <div style={{marginLeft:'auto'}}><Menu
                         withArrow
@@ -80,14 +78,14 @@ const Layout: FC<Props> = () => {
             </AppShell.Header>
 
             <AppShell.Navbar py="md" px={4}>
-                <Stack gap={'md'} ml={'md'}>
+              { /* <Stack gap={'md'} ml={'md'}> */}
                     <UnstyledButton>Home</UnstyledButton>
                     <UnstyledButton>Blog</UnstyledButton>
                     <UnstyledButton>Contacts</UnstyledButton>
                     <UnstyledButton>Support</UnstyledButton>
                    
 
-                </Stack>
+               {/* </Stack>*/}
             </AppShell.Navbar>
 
             <AppShell.Main mih={'100vh'} display={'flex'} style={{ flexDirection: 'column' }}>

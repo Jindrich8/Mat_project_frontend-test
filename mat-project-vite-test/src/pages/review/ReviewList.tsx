@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
-import { listTasks } from "../../api/task/list/get";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
-import { Button, Group, Modal, Pill, PillGroup, Stack, Switch, Text, TextInput } from "@mantine/core";
-import { AuthorInfo, EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Button, Group, Modal, Pill, PillGroup, RangeSlider, RangeSliderProps, Stack, Switch, Text, TextInput } from "@mantine/core";
+import { AuthorInfo1, EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TagsCmp } from "../../components/Tags/TagsCmp";
 import { EyeIconCmp } from "../../components/Icons/EyeIconCmp";
 import { ListRangeCmp } from "../../components/ListRange/ListRangeCmp";
@@ -18,7 +17,6 @@ import { useHookstate } from "@hookstate/core";
 import { ListTasksRequest } from "../../api/dtos/request";
 import { UnionToTuple } from "../../types/base";
 import { ErrorResponseState } from "../../types/types";
-import { PERCENTAGE_PRECISION } from "../../task/review/Review";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
 import { useDisclosure } from "@mantine/hooks";
 import { RestoreIconCmp } from "../../components/Icons/RestoreIconCmp";
@@ -27,25 +25,44 @@ import { MultiColSortCmp } from "../../components/MultiColSort/MultiColSortCmp";
 import { ArrowSortIconCmp } from "../../components/Icons/ArrowSortIconCmp";
 import { FilterSettingsIconCmp } from "../../components/Icons/FilterSettingsIconCmp";
 import { DataTableCmp, DataTableCmpProps } from "../../components/DataTable/DataTableCmp";
+import { listTaskReviews } from "../../api/task/review/get";
+import { TrashIconCmp } from "../../components/Icons/TrashIconCmp";
+import { deleteReview as apiDeleteReview } from "../../api/task/review/delete";
+import { SuccessAlertCmp } from "../../components/SuccessAlert/SuccessAlertCmp";
+import { DateTimeRangeInputCmp } from "../../components/DateTimeRangeInput/DateTimeRangeInputCmp";
+import { DateValue } from "@mantine/dates";
+import { PercentRangeSliderCmp } from "../../components/PercentRangeSlider/PercentRangeSliderCmp";
 
 interface Props {
 
 }
 
+/*
+            id: t.id,
+            score:t.score,
+            evaluation_timestamp:t.evaluation_timestamp,
+            name: t.task_preview_info.name,
+            minClass: t.task_preview_info.class_range.min,
+            maxClass: t.task_preview_info.class_range.max,
+            tags: t.task_preview_info.tags,
+            author: t.task_preview_info.author,
+            difficulty: t.task_preview_info.difficulty
+*/
 type Rec = {
   id: string,
+  score:number,
+  evaluationTimestamp:string,
   name: string,
   difficulty: OrderedEnumElement,
   minClass: OrderedEnumElement,
   maxClass: OrderedEnumElement,
   tags: EnumElement[],
-  taskReview?: { id: string, score: number },
-  author: AuthorInfo
+  author: AuthorInfo1
 };
 const basicColProps = { draggable: true, resizable: true };
 
 const rowIdPrefix = 'task-row-';
-const key = 'task-list-resizable-columns';
+const key = 'review-list-resizable-columns';
 const limit = 50;
 const listTasksControl = createAuthApiController();
 
@@ -89,23 +106,50 @@ const serializeOrderByObj = (ci: number, dir: 'ASC' | 'DESC') => {
   return (ci + "") + (dir === 'DESC' ? 'D' : '');
 };
 
+const getDateParam = (params:URLSearchParams,key:string) =>{
+    const value = params.get(key);
+    return value ? new Date(value) : undefined;
+  }
+
+  const serializeDate = (date:Date) => {
+    return date.toISOString();
+  }
+  
+  const getTimestampParam = (params:URLSearchParams,key:string) => {
+    return getDateParam(params,key)?.toISOString();
+  }
+
 const validOrderByColsSet = {
   "name": true,
   "difficulty": true,
   "class_range": true,
+  "evaluation_timestamp": true,
+  "score": true,
 } satisfies Record<string, true>;
 
 const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
 
 
+/*
+            id: t.id,
+            score:t.score,
+            evaluation_timestamp:t.evaluation_timestamp,
+            name: t.task_preview_info.name,
+            minClass: t.task_preview_info.class_range.min,
+            maxClass: t.task_preview_info.class_range.max,
+            tags: t.task_preview_info.tags,
+            author: t.task_preview_info.author,
+            difficulty: t.task_preview_info.difficulty
+*/
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
   'name': "Name",
+  'evaluationTimestamp': 'Evaluation timestamp',
   'difficulty': "Difficulty",
   'minClass': "Min class",
   'maxClass': "Max class",
   'tags': "Tags",
-  'taskReview': "Task review",
+  'score' : "Score",
   'author': "Author",
 };
 
@@ -120,7 +164,9 @@ const columnAccessorAndTitle = (accessor: string) => {
   };
 }
 
-const TaskList: FC<Props> = () => {
+const deleteTaskReviewControl = createAuthApiController();
+
+const ReviewList: FC<Props> = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -129,6 +175,8 @@ const TaskList: FC<Props> = () => {
     sortedDifficulties: Array<{ orderedId: number, name: string }>,
     sortedClasses: Array<{ orderedId: number, name: string }>
   } | undefined>(undefined);
+
+  const [successAlert,setSuccessAlert] = React.useState<{message:string}>();
 
   const [error, setError] = React.useState<ErrorResponseState>();
   const clearError = React.useCallback(() => setError(undefined), [setError]);
@@ -167,7 +215,7 @@ const TaskList: FC<Props> = () => {
     }
   }, [createInfo, setError]);
 
-  console.log("Rerendering TaskListCmp");
+  console.log("Rerendering ReviewListCmp");
   const [page, setPage] = React.useState<
     {
       records?: Rec[] | undefined,
@@ -179,11 +227,56 @@ const TaskList: FC<Props> = () => {
 
   const [tags, setTags] = React.useState<string[] | null | undefined>(emptyArrayToUndef(searchParams.getAll('tags[]')));
 
-  const navigateToTaskDetail = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+  const [scoreRange,setScoreRange] = React.useState<{
+    min?:number,
+    max?:number
+  }>({
+  });
+
+  const onScoreRangeChange = React.useCallback<NonNullable<RangeSliderProps['onChange']>>((value) =>{
+    setScoreRange({
+        min:value[0] === 0 ? undefined : value[0],
+        max:value[1] === 100 ? undefined : value[1]
+    });
+  },[]);
+
+  const navigateToReviewDetail = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
     e.stopPropagation(); // prevent
     const id = e.currentTarget.dataset['id'];
-    navigate(`/task/${id}/detail`);
+    navigate(`/task/review/${id}/detail`);
   }, [navigate]);
+
+  const deleteReview = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>(async(e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    const index = e.currentTarget.dataset['index'];
+    if(id !== undefined && index !== undefined){
+      const numIndex = Number(index);
+    const response = await apiDeleteReview(id,deleteTaskReviewControl);
+    if(response.success){
+      setSuccessAlert({
+        message: `Task with id '${id}' deleted successfully`
+      });
+      setPage(prev => {
+        let newRecords = prev?.records;
+        const records = prev?.records;
+        if(records !== undefined){
+          newRecords = [...records];
+          newRecords.splice(numIndex,1);
+        }
+       return {...prev,records:newRecords};
+      });
+    }
+    else if(response.isServerError){
+      setError({
+        status:response.status,
+        statusText:response.statusText,
+        error:response.error?.error
+      });
+    }
+  }
+  }, []);
+
 
   
 
@@ -198,12 +291,21 @@ const TaskList: FC<Props> = () => {
       } as const,
       {
         ...columnAccessorAndTitle('name'),
-        toggleable: true,
         ...basicColProps,
+        toggleable:true,
         render(record) {
           return (<Text w={'min-content'} m={'auto'}>{record.name}</Text>);
         },
       } as const,
+     {
+        ...columnAccessorAndTitle('score'),
+        ...basicColProps,
+        toggleable:true,
+        render(record) {
+            const score = record.score;
+          return (<Text w={'min-content'} m={'auto'}>{(score * 100).toFixed(2)+'%'}</Text>);
+        },
+     },
       {
         ...columnAccessorAndTitle('difficulty'),
         toggleable: true,
@@ -240,12 +342,12 @@ const TaskList: FC<Props> = () => {
         }
       } as const,
       {
-        ...columnAccessorAndTitle('taskReview'),
+        ...columnAccessorAndTitle('evaluationTimestamp'),
         toggleable: true,
         ...basicColProps,
         render: (_record, _index) => {
-          const review = _record.taskReview;
-          return (review ? <Link to={`/task/review/${review.id}/show`}>{'~' + (review.score * 100).toFixed(PERCENTAGE_PRECISION) + '%'}</Link> : '-');
+          const timestamp = _record.evaluationTimestamp;
+          return (<Text>{timestamp}</Text>);
         }
       } as const,
       {
@@ -259,22 +361,31 @@ const TaskList: FC<Props> = () => {
       {
         title: 'Row Actions',
         accessor: '#',
+        toggleable: false,
         draggable: false,
         resizable: false,
         render: (_record, _index) => {
           return (<Group wrap={'nowrap'}>
             <ActionIconCmp
               data-id={_record.id}
-              onClick={navigateToTaskDetail}
+              onClick={navigateToReviewDetail}
               title={'Show detail'}
             >
               <EyeIconCmp />
+            </ActionIconCmp>
+            <ActionIconCmp
+              data-index={_index}
+              data-id={_record.id}
+              onClick={deleteReview}
+              title={'Delete review'}
+            >
+              <TrashIconCmp />
             </ActionIconCmp>
           </Group>);
         }
       } as const
     ] satisfies DataTableColumn<Rec>[]
-  }), [navigateToTaskDetail]);
+  }), [deleteReview, navigateToReviewDetail]);
 
   const {
     effectiveColumns,
@@ -307,6 +418,7 @@ const TaskList: FC<Props> = () => {
       console.log('Actual fetch records');
       const difficultyRange = getNumRangeParam(searchParams, 'Difficulty');
       const classRange = getNumRangeParam(searchParams, 'Class');
+      const scoreRange = getNumRangeParam(searchParams, 'Score');
       const orderBy = searchParams.getAll('sort[]')?.map(o => {
         const obj = orderByParamToObj(o);
         return {
@@ -316,7 +428,7 @@ const TaskList: FC<Props> = () => {
       }).filter(o => validOrderByColsSet[o.filter_name] ?? false) as ListTasksRequest['order_by'];
       console.log("ORDER BY TO API");
       console.debug(orderBy);
-      const response = await listTasks({
+      const response = await listTaskReviews({
         options:{
           limit: limit,
         cursor: searchParams.get('cursor') ?? null
@@ -331,6 +443,14 @@ const TaskList: FC<Props> = () => {
           class_range: {
             min: Number((classRange[0] ?? createInfo.sortedClasses[0].orderedId)),
             max: Number((classRange[1] ?? arrayLast(createInfo.sortedClasses).orderedId))
+          },
+          evaluation_timestamp_range:{
+            min: getTimestampParam(searchParams,'evaluatedFrom'),
+            max: getTimestampParam(searchParams,'evaluatedTill')
+          },
+          score_range:{
+            min: scoreRange[0],
+            max: scoreRange[1]
           }
         },
         order_by: orderBy
@@ -340,16 +460,20 @@ const TaskList: FC<Props> = () => {
         setPage({
           prevCursor: data.config.prev_cursor,
           nextCursor: data.config.next_cursor,
-          records: data.tasks.map(t => ({
+          records: data.reviews.map(t => {
+            const evaluationTimestamp = (new Date(t.evaluation_timestamp)).toLocaleString();
+            return ({
             id: t.id,
-            name: t.name,
-            minClass: t.class_range.min,
-            maxClass: t.class_range.max,
-            tags: t.tags,
-            taskReview: t.task_review,
-            author: t.author,
-            difficulty: t.difficulty
-          }))
+            score:t.score,
+            evaluationTimestamp:evaluationTimestamp,
+            name: t.task_preview_info.name,
+            minClass: t.task_preview_info.class_range.min,
+            maxClass: t.task_preview_info.class_range.max,
+            tags: t.task_preview_info.tags,
+            author: t.task_preview_info.author,
+            difficulty: t.task_preview_info.difficulty
+          });
+        })
         });
       }
       else if (response.isServerError) {
@@ -390,6 +514,23 @@ const TaskList: FC<Props> = () => {
     [searchParams, tags]
   );
 
+  const [evaluatedFrom,setEvaluatedFrom] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'evaluatedFrom'));
+  const [evaluatedTill,setEvaluatedTill] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'evaluatedTill'));
+
+  const actualEvaluationRange = {
+    min: nundef(evaluatedFrom,getDateParam(searchParams, 'evaluatedFrom')) ?? null,
+    max: nundef(evaluatedTill,getDateParam(searchParams,'evaluatedTill')) ?? null
+  };
+
+  const onEvaluationRangeChange = React.useCallback((type:'from'|'to',value:DateValue) => {
+    if(type === 'from'){
+      setEvaluatedFrom(value);
+    }
+    else{
+      setEvaluatedTill(value);
+    }
+  },[]);
+
   const actualDifficultyRange = {
     min: nundef(difficultyRange.min, tryStrToNum(searchParams.get('minDifficulty'), undefined)) ?? undefined,
     max: nundef(difficultyRange.max, tryStrToNum(searchParams.get('maxDifficulty'), undefined)) ?? undefined,
@@ -406,6 +547,16 @@ const TaskList: FC<Props> = () => {
     maxError: classRange.maxError
   };
 
+
+
+  const actualScoreRange = React.useMemo(()=>{
+    const score = [
+        nundef(scoreRange.min, tryStrToNum(searchParams.get('minScore'), undefined)) ?? 0,
+        nundef(scoreRange.max, tryStrToNum(searchParams.get('maxScore'), undefined)) ?? 100
+      ] as const;
+      return score;
+  },[scoreRange.max, scoreRange.min, searchParams]);
+
   console.log(`actualDifficultyRange: ${JSON.stringify(actualDifficultyRange)}`);
 
   const actualName = nundef(name, searchParams.get('name')) ?? '';
@@ -421,21 +572,28 @@ const TaskList: FC<Props> = () => {
 
   const filter = React.useCallback(() => {
     const params = new URLSearchParams();
-    if (name !== undefined) {
-      setSearchParam(params, 'name', name ?? undefined);
-    }
-    if (tags !== undefined) {
-      setSearchParam(params, 'tags[]', tags ?? undefined);
-    }
-    setRangeParamIfNotUndef(params, 'Class', classRange);
-    setRangeParamIfNotUndef(params, 'Difficulty', difficultyRange);
-    if (sorting.value !== undefined && sorting.value.length > 0) {
-      console.debug('Filter sort: ', sorting.value);
-      setSearchParam(params, 'sort[]', sorting.value.map(v => serializeOrderByObj(v.ci, v.dir)));
-    }
+      if (name !== undefined) {
+          setSearchParam(params, 'name', name ?? undefined);
+      }
+      if (tags !== undefined) {
+          setSearchParam(params, 'tags[]', tags ?? undefined);
+      }
+      if (evaluatedFrom != null) {
+          setSearchParam(params, 'evaluatedFrom', serializeDate(evaluatedFrom));
+      }
+      if (evaluatedTill != null) {
+          setSearchParam(params, 'evaluatedTill', serializeDate(evaluatedTill));
+      }
+      setRangeParamIfNotUndef(params, 'Class', classRange);
+      setRangeParamIfNotUndef(params, 'Difficulty', difficultyRange);
+      if (sorting.value !== undefined && sorting.value.length > 0) {
+          console.debug('Filter sort: ', sorting.value);
+          setSearchParam(params, 'sort[]', sorting.value.map(v => serializeOrderByObj(v.ci, v.dir)));
+      }
+    setRangeParamIfNotUndef(params, 'Score', scoreRange);
 
     setSearchParams(params);
-  }, [classRange, difficultyRange, name, setSearchParams, sorting.value, tags]);
+  }, [classRange, difficultyRange, evaluatedFrom, evaluatedTill, name, scoreRange, setSearchParams, sorting.value, tags]);
 
   const cursors = React.useMemo(()=>({
     prev:page?.prevCursor,
@@ -494,10 +652,21 @@ const TaskList: FC<Props> = () => {
       </Group>);
   }, [columnsToggleSettingsModal, filterSettingsModal, orderByModal, sorting.value]);
 
+  const clearSuccessAlert = React.useCallback(() => {
+    setSuccessAlert(undefined);
+  },[]);
+
 
   const firstRowId = page?.records ? (page.records.at(0)?.id ?? null) : undefined;
   return (
     <>
+     {successAlert && <SuccessAlertCmp
+    withCloseButton
+    onClose={clearSuccessAlert}
+    >
+      {successAlert.message}
+      </SuccessAlertCmp>
+    }
       {error && <ApiErrorAlertCmp
         status={error.status}
         statusText={error.statusText}
@@ -512,7 +681,7 @@ const TaskList: FC<Props> = () => {
               value={actualName}
               onChange={onNameChange}
             />
-            <SearchableMultiSelect
+             <SearchableMultiSelect
               options={createInfo?.tags ?? []}
               onChange={setTags}
               value={actualTags}
@@ -521,7 +690,11 @@ const TaskList: FC<Props> = () => {
               label={'Tags'}
             />
           </Group>
-        <Stack visibleFrom={'md'}>
+          <PercentRangeSliderCmp
+            value={actualScoreRange}
+            onChange={onScoreRangeChange}
+             />
+        <Stack visibleFrom={'md'} mt={'lg'}>
           <ListRangeCmp
             label={'Difficulty range'}
             {...actualDifficultyRange}
@@ -534,9 +707,16 @@ const TaskList: FC<Props> = () => {
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
+             <DateTimeRangeInputCmp
+          fromLabel={'Evaluated from'}
+          toLabel={'Evaluated till'}
+          fromValue={actualEvaluationRange.min}
+          toValue={actualEvaluationRange.max}
+          onChange={onEvaluationRangeChange}
+          />
     </Stack>
         </Stack>
-        <Button w={'fit-content'} onClick={filter}>Filter</Button>
+        <Button w={'fit-content'} onClick={filter} mt={'lg'} mb={'md'}>Filter</Button>
       </Stack>
       <DataTableCmp
       setCursor={setCursor}
@@ -553,11 +733,9 @@ const TaskList: FC<Props> = () => {
         opened={columnsToggleSettingsModal[0]}
         onClose={columnsToggleSettingsModal[1].close}
         withinPortal={false}
-        lockScroll={false}
-        styles={{content:{maxHeight:'85vh'}}}
         withCloseButton>
-        <Stack mih={'fit-content'} mah={'80vh'}>
-          <Group mah={'30vh'}>
+        <Stack>
+          <Group>
             <ActionIconCmp title={'Restore colums toggle'} onClick={resetColumnsToggle}>
               <RestoreIconCmp />
             </ActionIconCmp>
@@ -565,7 +743,6 @@ const TaskList: FC<Props> = () => {
             <Button onClick={resetColumnsOrder}>Reset order</Button>
           </Group>
           <Stack style={{ flexWrap: 'wrap' }}
-          mah={'50vh'}
             onChange={columnsToggleSettingsSwitchesWrapperOnChange}>
             {columnsToggle.filter(c => c.toggleable).map((c,i) => {
               return (
@@ -581,11 +758,8 @@ const TaskList: FC<Props> = () => {
       <Modal
         opened={orderByModal[0]}
         onClose={orderByModal[1].close}
-        w={'100%'}
-        m={0}
-        p={0}
         withCloseButton>
-        <Stack w={'100%'} align={'center'}>
+        <Stack>
           <MultiColSortCmp
             values={sorting}
             columns={validOrderByCols}
@@ -624,5 +798,5 @@ const TaskList: FC<Props> = () => {
   )
 };
 
-export { TaskList, type Props as TaskListProps };
+export { ReviewList, type Props as ReviewListProps };
 

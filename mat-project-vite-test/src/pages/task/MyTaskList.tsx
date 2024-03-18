@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
-import { listTasks } from "../../api/task/list/get";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
 import { Button, Group, Modal, Pill, PillGroup, Stack, Switch, Text, TextInput } from "@mantine/core";
-import { AuthorInfo, EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { TagsCmp } from "../../components/Tags/TagsCmp";
+import { EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { EyeIconCmp } from "../../components/Icons/EyeIconCmp";
 import { ListRangeCmp } from "../../components/ListRange/ListRangeCmp";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
@@ -18,7 +16,6 @@ import { useHookstate } from "@hookstate/core";
 import { ListTasksRequest } from "../../api/dtos/request";
 import { UnionToTuple } from "../../types/base";
 import { ErrorResponseState } from "../../types/types";
-import { PERCENTAGE_PRECISION } from "../../task/review/Review";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
 import { useDisclosure } from "@mantine/hooks";
 import { RestoreIconCmp } from "../../components/Icons/RestoreIconCmp";
@@ -27,29 +24,48 @@ import { MultiColSortCmp } from "../../components/MultiColSort/MultiColSortCmp";
 import { ArrowSortIconCmp } from "../../components/Icons/ArrowSortIconCmp";
 import { FilterSettingsIconCmp } from "../../components/Icons/FilterSettingsIconCmp";
 import { DataTableCmp, DataTableCmpProps } from "../../components/DataTable/DataTableCmp";
+import { listMyTasks } from "../../api/task/myList/get";
+import { DateValue } from "@mantine/dates";
+import { DateTimeRangeInputCmp } from "../../components/DateTimeRangeInput/DateTimeRangeInputCmp";
+import { TagsCmp } from "../../components/Tags/TagsCmp";
+import { EditIconCmp } from "../../components/Icons/EditIconCmp";
+import { TrashIconCmp } from "../../components/Icons/TrashIconCmp";
+import { deleteTask as apiDeleteTask } from "../../api/task/delete/delete";
+import { SuccessAlertCmp } from "../../components/SuccessAlert/SuccessAlertCmp";
 
 interface Props {
 
 }
 
+/*
+  id: string;
+  name: string;
+  difficulty: OrderedEnumElement;
+  class_range: OrderedEnumRange;
+  creation_timestamp: string;
+  modification_timestamp?: string;
+  tags: EnumElement[];
+  */
 type Rec = {
-  id: string,
-  name: string,
-  difficulty: OrderedEnumElement,
-  minClass: OrderedEnumElement,
-  maxClass: OrderedEnumElement,
-  tags: EnumElement[],
-  taskReview?: { id: string, score: number },
-  author: AuthorInfo
+  id: string;
+  name: string;
+  difficulty: OrderedEnumElement;
+  minClass: OrderedEnumElement;
+  maxClass: OrderedEnumElement;
+  creation_timestamp: string;
+  modification_timestamp?: string;
+  tags: EnumElement[];
 };
 const basicColProps = { draggable: true, resizable: true };
 
 const rowIdPrefix = 'task-row-';
-const key = 'task-list-resizable-columns';
+const key = 'mytask-list-resizable-columns';
 const limit = 50;
 const listTasksControl = createAuthApiController();
 
 const taskCreateInfoControl = createAuthApiController();
+
+const deleteTaskControl = createAuthApiController();
 
 const setRangeParamIfNotUndef = <T,>(params: URLSearchParams, keyBase: string, range: {
   min?: T,
@@ -93,11 +109,21 @@ const validOrderByColsSet = {
   "name": true,
   "difficulty": true,
   "class_range": true,
+  "creation_timestamp": true,
+  "modification_timestamp": true
 } satisfies Record<string, true>;
 
 const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
 
-
+/*
+  id: string;
+  name: string;
+  difficulty: OrderedEnumElement;
+  class_range: OrderedEnumRange;
+  creation_timestamp: string;
+  modification_timestamp?: string;
+  tags: EnumElement[];
+  */
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
   'name': "Name",
@@ -105,8 +131,8 @@ const columnAccessorToTitleDict: Record<string, string> = {
   'minClass': "Min class",
   'maxClass': "Max class",
   'tags': "Tags",
-  'taskReview': "Task review",
-  'author': "Author",
+  'creation_timestamp': "Creation timestamp",
+  'modification_timestamp': "Modification timestamp"
 };
 
 const columnAccessorToTitle = (accessor: string) => {
@@ -118,9 +144,22 @@ const columnAccessorAndTitle = (accessor: string) => {
     title: columnAccessorToTitle(accessor),
     accessor: accessor
   };
+};
+
+const getDateParam = (params:URLSearchParams,key:string) =>{
+  const value = params.get(key);
+  return value ? new Date(value) : undefined;
 }
 
-const TaskList: FC<Props> = () => {
+const serializeDate = (date:Date) => {
+  return date.toISOString();
+}
+
+const getTimestampParam = (params:URLSearchParams,key:string) => {
+  return getDateParam(params,key)?.toISOString();
+}
+
+const MyTaskList: FC<Props> = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -129,6 +168,8 @@ const TaskList: FC<Props> = () => {
     sortedDifficulties: Array<{ orderedId: number, name: string }>,
     sortedClasses: Array<{ orderedId: number, name: string }>
   } | undefined>(undefined);
+
+  const [successAlert,setSuccessAlert] = React.useState<{message:string}>();
 
   const [error, setError] = React.useState<ErrorResponseState>();
   const clearError = React.useCallback(() => setError(undefined), [setError]);
@@ -167,7 +208,7 @@ const TaskList: FC<Props> = () => {
     }
   }, [createInfo, setError]);
 
-  console.log("Rerendering TaskListCmp");
+  console.log("Rerendering MyTaskListCmp");
   const [page, setPage] = React.useState<
     {
       records?: Rec[] | undefined,
@@ -179,14 +220,64 @@ const TaskList: FC<Props> = () => {
 
   const [tags, setTags] = React.useState<string[] | null | undefined>(emptyArrayToUndef(searchParams.getAll('tags[]')));
 
+  const [createdFrom,setCreatedFrom] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'createdFrom'));
+  const [createdTill,setCreatedTill] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'createdTill'));
+
+  const [updatedFrom,setUpdatedFrom] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'updatedFrom'));
+  const [updatedTill,setUpdatedTill] = React.useState<DateValue|undefined>(getDateParam(searchParams, 'updatedTill'));
+
   const navigateToTaskDetail = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
     e.stopPropagation(); // prevent
     const id = e.currentTarget.dataset['id'];
-    navigate(`/task/${id}/detail`);
+    navigate(`/task/${id}/myDetail`);
   }, [navigate]);
 
-  
+  const navigateToTaskUpdate = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    navigate(`/task/${id}/update`);
+  }, [navigate]);
 
+  const deleteTask = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>(async(e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    const index = e.currentTarget.dataset['index'];
+    if(id !== undefined && index !== undefined){
+      const numIndex = Number(index);
+    const response = await apiDeleteTask(id,deleteTaskControl);
+    if(response.success){
+      setSuccessAlert({
+        message: `Task with id '${id}' deleted successfully`
+      });
+      setPage(prev => {
+        let newRecords = prev?.records;
+        const records = prev?.records;
+        if(records !== undefined){
+          newRecords = [...records];
+          newRecords.splice(numIndex,1);
+        }
+       return {...prev,records:newRecords};
+      });
+    }
+    else if(response.isServerError){
+      setError({
+        status:response.status,
+        statusText:response.statusText,
+        error:response.error?.error
+      });
+    }
+  }
+  }, []);
+
+  /*
+  id: string;
+  name: string;
+  difficulty: OrderedEnumElement;
+  class_range: OrderedEnumRange;
+  creation_timestamp: string;
+  modification_timestamp?: string;
+  tags: EnumElement[];
+  */
   const columns = React.useMemo(() => ({
     key: key,
     columns: [
@@ -240,20 +331,23 @@ const TaskList: FC<Props> = () => {
         }
       } as const,
       {
-        ...columnAccessorAndTitle('taskReview'),
+        ...columnAccessorAndTitle('creation_timestamp'),
         toggleable: true,
         ...basicColProps,
+        noWrap: true,
         render: (_record, _index) => {
-          const review = _record.taskReview;
-          return (review ? <Link to={`/task/review/${review.id}/show`}>{'~' + (review.score * 100).toFixed(PERCENTAGE_PRECISION) + '%'}</Link> : '-');
+          const timestamp = _record['creation_timestamp'];
+          return (<Text>{timestamp}</Text>);
         }
       } as const,
       {
-        ...columnAccessorAndTitle('author'),
+        ...columnAccessorAndTitle('modification_timestamp'),
         toggleable: true,
         ...basicColProps,
+        noWrap: true,
         render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record.author.name}</Text>);
+          const timestamp = _record['modification_timestamp'] ?? '-';
+          return (<Text>{timestamp}</Text>);
         }
       } as const,
       {
@@ -266,15 +360,30 @@ const TaskList: FC<Props> = () => {
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskDetail}
-              title={'Show detail'}
+              title={'Show my detail'}
             >
               <EyeIconCmp />
+            </ActionIconCmp>
+            <ActionIconCmp
+              data-id={_record.id}
+              onClick={navigateToTaskUpdate}
+              title={'Update'}
+            >
+              <EditIconCmp />
+            </ActionIconCmp>
+            <ActionIconCmp
+              data-index={_index}
+              data-id={_record.id}
+              onClick={deleteTask}
+              title={'Delete'}
+            >
+              <TrashIconCmp />
             </ActionIconCmp>
           </Group>);
         }
       } as const
     ] satisfies DataTableColumn<Rec>[]
-  }), [navigateToTaskDetail]);
+  }), [deleteTask, navigateToTaskDetail, navigateToTaskUpdate]);
 
   const {
     effectiveColumns,
@@ -299,7 +408,7 @@ const TaskList: FC<Props> = () => {
       }
       return params;
     });
-  }, [setSearchParams])
+  }, [setSearchParams]);
 
   const fetchRecords = React.useCallback(async () => {
     console.log('Changing fetch records');
@@ -316,7 +425,7 @@ const TaskList: FC<Props> = () => {
       }).filter(o => validOrderByColsSet[o.filter_name] ?? false) as ListTasksRequest['order_by'];
       console.log("ORDER BY TO API");
       console.debug(orderBy);
-      const response = await listTasks({
+      const response = await listMyTasks({
         options:{
           limit: limit,
         cursor: searchParams.get('cursor') ?? null
@@ -331,6 +440,14 @@ const TaskList: FC<Props> = () => {
           class_range: {
             min: Number((classRange[0] ?? createInfo.sortedClasses[0].orderedId)),
             max: Number((classRange[1] ?? arrayLast(createInfo.sortedClasses).orderedId))
+          },
+          creation_timestamp_range:{
+            min: getTimestampParam(searchParams,'createdFrom'),
+            max: getTimestampParam(searchParams,'createdTill')
+          },
+          modification_timestamp_range:{
+            min: getTimestampParam(searchParams,'updatedFrom'),
+            max: getTimestampParam(searchParams,'updatedTill')
           }
         },
         order_by: orderBy
@@ -340,16 +457,22 @@ const TaskList: FC<Props> = () => {
         setPage({
           prevCursor: data.config.prev_cursor,
           nextCursor: data.config.next_cursor,
-          records: data.tasks.map(t => ({
+          records: data.tasks.map(t => {
+            let modificationTimestamp = t.modification_timestamp;
+            if(modificationTimestamp){
+              modificationTimestamp = (new Date(modificationTimestamp)).toLocaleString();
+            }
+              return ({
             id: t.id,
             name: t.name,
             minClass: t.class_range.min,
             maxClass: t.class_range.max,
             tags: t.tags,
-            taskReview: t.task_review,
-            author: t.author,
+            creation_timestamp: (new Date(t.creation_timestamp)).toLocaleString(),
+            modification_timestamp: modificationTimestamp,
             difficulty: t.difficulty
-          }))
+          });
+        })
         });
       }
       else if (response.isServerError) {
@@ -410,6 +533,36 @@ const TaskList: FC<Props> = () => {
 
   const actualName = nundef(name, searchParams.get('name')) ?? '';
 
+  const actualCreationRange = {
+    min: nundef(createdFrom,getDateParam(searchParams, 'createdFrom')) ?? null,
+    max: nundef(createdTill,getDateParam(searchParams,'createdTill')) ?? null
+  };
+
+  const actualModificationRange = {
+    min: nundef(updatedFrom,getDateParam(searchParams, 'updatedFrom')) ?? null,
+    max: nundef(updatedTill,getDateParam(searchParams,'updatedTill')) ?? null
+  };
+
+  const onCreationRangeChange = React.useCallback((type:'from'|'to',value:DateValue) => {
+    if(type === 'from'){
+      setCreatedFrom(value);
+    }
+    else{
+      setCreatedTill(value);
+    }
+  },[]);
+
+  const onModificationRangeChange = React.useCallback((type:'from'|'to',value:DateValue) => {
+    if(type === 'from'){
+      setUpdatedFrom(value);
+    }
+    else{
+      setUpdatedTill(value);
+    }
+  },[]);
+
+
+
   const sorting = useHookstate<{
     dir: "ASC" | "DESC";
     ci: number;
@@ -427,6 +580,18 @@ const TaskList: FC<Props> = () => {
     if (tags !== undefined) {
       setSearchParam(params, 'tags[]', tags ?? undefined);
     }
+    if(createdFrom != null){
+      setSearchParam(params, 'createdFrom',serializeDate(createdFrom));
+    }
+    if(createdTill != null){
+      setSearchParam(params,'createdTill',serializeDate(createdTill));
+    }
+    if(updatedFrom != null){
+      setSearchParam(params, 'updatedFrom',serializeDate(updatedFrom));
+    }
+    if(updatedTill != null){
+      setSearchParam(params,'updatedTill',serializeDate(updatedTill));
+    }
     setRangeParamIfNotUndef(params, 'Class', classRange);
     setRangeParamIfNotUndef(params, 'Difficulty', difficultyRange);
     if (sorting.value !== undefined && sorting.value.length > 0) {
@@ -435,7 +600,7 @@ const TaskList: FC<Props> = () => {
     }
 
     setSearchParams(params);
-  }, [classRange, difficultyRange, name, setSearchParams, sorting.value, tags]);
+  }, [classRange, createdFrom, createdTill, difficultyRange, name, setSearchParams, sorting.value, tags, updatedFrom, updatedTill]);
 
   const cursors = React.useMemo(()=>({
     prev:page?.prevCursor,
@@ -494,10 +659,21 @@ const TaskList: FC<Props> = () => {
       </Group>);
   }, [columnsToggleSettingsModal, filterSettingsModal, orderByModal, sorting.value]);
 
+  const clearSuccessAlert = React.useCallback(() => {
+    setSuccessAlert(undefined);
+  },[]);
+
 
   const firstRowId = page?.records ? (page.records.at(0)?.id ?? null) : undefined;
   return (
     <>
+    {successAlert && <SuccessAlertCmp 
+    withCloseButton
+    onClose={clearSuccessAlert}
+    >
+      {successAlert.message}
+      </SuccessAlertCmp>
+    }
       {error && <ApiErrorAlertCmp
         status={error.status}
         statusText={error.statusText}
@@ -521,7 +697,7 @@ const TaskList: FC<Props> = () => {
               label={'Tags'}
             />
           </Group>
-        <Stack visibleFrom={'md'}>
+        <Stack align={'center'} visibleFrom={'md'}>
           <ListRangeCmp
             label={'Difficulty range'}
             {...actualDifficultyRange}
@@ -533,6 +709,20 @@ const TaskList: FC<Props> = () => {
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
+          />
+          <DateTimeRangeInputCmp
+          fromLabel={'Created from'}
+          toLabel={'Created till'}
+          fromValue={actualCreationRange.min}
+          toValue={actualCreationRange.max}
+          onChange={onCreationRangeChange}
+          />
+          <DateTimeRangeInputCmp
+          fromLabel={'Modified from'}
+          toLabel={'Modified till'}
+          fromValue={actualModificationRange.min}
+          toValue={actualModificationRange.max}
+          onChange={onModificationRangeChange}
           />
     </Stack>
         </Stack>
@@ -553,11 +743,9 @@ const TaskList: FC<Props> = () => {
         opened={columnsToggleSettingsModal[0]}
         onClose={columnsToggleSettingsModal[1].close}
         withinPortal={false}
-        lockScroll={false}
-        styles={{content:{maxHeight:'85vh'}}}
         withCloseButton>
-        <Stack mih={'fit-content'} mah={'80vh'}>
-          <Group mah={'30vh'}>
+        <Stack>
+          <Group>
             <ActionIconCmp title={'Restore colums toggle'} onClick={resetColumnsToggle}>
               <RestoreIconCmp />
             </ActionIconCmp>
@@ -565,11 +753,11 @@ const TaskList: FC<Props> = () => {
             <Button onClick={resetColumnsOrder}>Reset order</Button>
           </Group>
           <Stack style={{ flexWrap: 'wrap' }}
-          mah={'50vh'}
+          w={'fit-content'}
             onChange={columnsToggleSettingsSwitchesWrapperOnChange}>
             {columnsToggle.filter(c => c.toggleable).map((c,i) => {
               return (
-                <Group key={`toggle-col-${i}`} w={'fit-content'}>
+                <Group key={`toggle-col-${i}`}>
                   <Text>{columnAccessorToTitle(c.accessor)}</Text>
                   <Switch defaultChecked={c.toggled} data-columnaccesor={c.accessor} />
                 </Group>
@@ -581,11 +769,8 @@ const TaskList: FC<Props> = () => {
       <Modal
         opened={orderByModal[0]}
         onClose={orderByModal[1].close}
-        w={'100%'}
-        m={0}
-        p={0}
         withCloseButton>
-        <Stack w={'100%'} align={'center'}>
+        <Stack>
           <MultiColSortCmp
             values={sorting}
             columns={validOrderByCols}
@@ -606,7 +791,7 @@ const TaskList: FC<Props> = () => {
               label={'Tags'}
             />
           </Group>
-
+            <Stack w={'100%'} align={'center'}>
           <ListRangeCmp
             label={'Difficulty range'}
             {...actualDifficultyRange}
@@ -619,10 +804,25 @@ const TaskList: FC<Props> = () => {
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
+           <DateTimeRangeInputCmp
+          fromLabel={'Created from'}
+          toLabel={'Created till'}
+          fromValue={actualCreationRange.min}
+          toValue={actualCreationRange.max}
+          onChange={onCreationRangeChange}
+          />
+          <DateTimeRangeInputCmp
+          fromLabel={'Modified from'}
+          toLabel={'Modified till'}
+          fromValue={actualModificationRange.min}
+          toValue={actualModificationRange.max}
+          onChange={onModificationRangeChange}
+          />
+          </Stack>
       </Modal>
     </>
   )
 };
 
-export { TaskList, type Props as TaskListProps };
+export { MyTaskList, type Props as MyTaskListProps };
 

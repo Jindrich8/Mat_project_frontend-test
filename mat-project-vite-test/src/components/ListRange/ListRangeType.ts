@@ -14,7 +14,11 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
         minError:undefined,
         maxError:undefined
     });
-    const setRange = React.useCallback((type: 'min' | 'max', value: number | undefined) => {
+
+
+
+
+    const setRange = React.useCallback((type: 'min' | 'max', value: number | undefined,other?:number|null) => {
         setSt(prev => {
             const newState: typeof prev = {
                 min: prev.min,
@@ -22,7 +26,17 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
                 minError: undefined,
                 maxError: undefined
             };
-            newState[type] = value;
+            if(type === 'min'){
+                newState.min = value ?? null;
+                if(other !== undefined){
+                newState.max = other;
+                }
+            }else{
+                newState.max = value ?? null;
+                if(other !== undefined){
+                newState.min = other;
+                }
+            }
             if (value !== undefined) {
                 if (type === "min") {
                     if ((options[value] ?? undefined) === undefined) {
@@ -45,7 +59,19 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
         });
     },[options]);
 
-return [st,setRange] as const;
+    const setError = React.useCallback((minError?:string|null,maxError?:string|null) => {
+        setSt(prev => {
+            if(minError !== undefined){
+                prev.minError = minError ?? undefined;
+            }
+            if(maxError !== undefined){
+                prev.maxError = maxError ?? undefined;
+            }
+            return {...prev};
+        })
+    },[]);
+
+return [st,setRange,setError] as const;
 }
 
 export const getListMinMaxError = (options:unknown[],min?: number, max?: number,change?:'min'|'max') => {

@@ -1,0 +1,25 @@
+.editor{
+    height: 100%;
+    flex-grow:1;
+    height: 100%;
+    width: 100%;
+    min-height: '25rem'
+}
+
+.rootStack, .rootForm, .rootTabs, .sourceTabPanel,.tabsPanel{
+    display:flex;
+    flex-direction: column;
+    height: 100%;
+     width: 100%;
+     flex-grow: 1;
+}
+
+.sourceEditorWrapper, .sourceEditorWrapper>*{
+    display:flex;
+    flex-grow:1;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    min-height: 25rem
+}
+

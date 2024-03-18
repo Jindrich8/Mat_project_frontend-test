@@ -1,6 +1,6 @@
 import './Home.css'
 import { FC } from "react"
-import { Text } from "@mantine/core";
+import { SortableExampleCmp } from '../components/Sortable/Example/SortableExampleCmp';
 
 interface Props {
 }
@@ -12,7 +12,7 @@ const Home:FC<Props> = () => {
   // <ShowTaskCmp className={classes.secondRow} style={{flexGrow:1,padding:'3rem 1rem',boxSizing:'border-box'}} 
   // taskId={'2'} />
   // </Stack>);
-  return (<Text>Home</Text>)
+  return (<SortableExampleCmp />);
 };
 
 export { Home, type Props as HomeProps };
