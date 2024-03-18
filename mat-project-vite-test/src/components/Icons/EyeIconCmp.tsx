@@ -1,7 +1,6 @@
 import React, { FC } from "react"
 
 interface Props {
-
 }
 
 const EyeIconCmp: FC<Props> = () => {
