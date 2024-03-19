@@ -13,11 +13,12 @@ import {
 } from '@mantine/core';
 //import axios from 'axios';
 import React, { FC, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuthMethods } from '../components/Auth/auth';
 import { LoginErrorDetails } from '../api/dtos/errors/error_response';
 import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
 import { ErrorResponseState } from '../types/types';
+import { useAuthContext } from '../components/Auth/context';
 //import { logIn } from '../utils/auth';
 
 interface Props {
@@ -34,6 +35,7 @@ const Login: FC<Props> = () => {
         rememberMe: false,
         validationError: undefined as string | undefined
     });
+    const auth =useAuthContext();
 
     const [formError, setFormError] = useState<LoginErrorDetails | undefined>(undefined);
     const [error, setError] = React.useState<ErrorResponseState<typeof signIn>>();
@@ -74,7 +76,7 @@ const Login: FC<Props> = () => {
         }
     },[navigateTo, setError, signIn, state.email, state.password]);
 
-    return (
+    return (auth.signedIn.value ? <Navigate to="/" /> :
         <Container size={420} my={40} >
             <Title ta="center">
                 Welcome back!

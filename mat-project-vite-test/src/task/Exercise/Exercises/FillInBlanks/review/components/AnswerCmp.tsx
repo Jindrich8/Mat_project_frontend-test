@@ -4,7 +4,7 @@ import { AnswerTextCmp } from "../../../../../../components/AnswerText/AnswerTex
 import { BasicStyledCmpProps } from "../../../../../../types/props/props";
 
 interface Props extends BasicStyledCmpProps {
-userText:string;
+userText?:string;
 correctText?:string;
 }
 

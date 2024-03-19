@@ -39,7 +39,10 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
     const currentEntry = task.entries[currentIndex];
 
     return (
-        <Stack h={'100%'}  justify={'stretch'} style={{ flexGrow:1, boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} px={'xl'} 
+        <Stack h={'100%'}  
+        justify={'stretch'}
+         style={{ flexGrow:1, boxSizing: 'border-box', maxHeight: '100vh', padding: 0 }} 
+         px={'xl'} 
         component={'form'}
         display={'flex'}
         onSubmit={onFormSubmit}>
@@ -50,8 +53,7 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
                 </Stack>
                 <Button type={'submit'} style={{ float: 'right' }}>Odeslat</Button>
             </Box>
-            <Box style={{ flexGrow: 1, overflowY: 'auto' }}
-                
+            <Box mih={'18rem'} style={{ flexGrow: 1, overflowY: 'auto' }}
             >
                 <currentEntry.renderCmp
                     num={currentIndex + 1 as PositiveInt}

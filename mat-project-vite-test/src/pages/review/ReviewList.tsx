@@ -32,6 +32,7 @@ import { SuccessAlertCmp } from "../../components/SuccessAlert/SuccessAlertCmp";
 import { DateTimeRangeInputCmp } from "../../components/DateTimeRangeInput/DateTimeRangeInputCmp";
 import { DateValue } from "@mantine/dates";
 import { PercentRangeSliderCmp } from "../../components/PercentRangeSlider/PercentRangeSliderCmp";
+import { PlayerPlayIconCmp } from "../../components/Icons/PlayerPlayIconCmp";
 
 interface Props {
 
@@ -246,6 +247,12 @@ const ReviewList: FC<Props> = () => {
     navigate(`/task/review/${id}/detail`);
   }, [navigate]);
 
+  const navigateToShowReview = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    navigate(`/task/review/${id}/show`);
+  }, [navigate]);
+
   const deleteReview = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>(async(e) => {
     e.stopPropagation(); // prevent
     const id = e.currentTarget.dataset['id'];
@@ -368,6 +375,13 @@ const ReviewList: FC<Props> = () => {
           return (<Group wrap={'nowrap'}>
             <ActionIconCmp
               data-id={_record.id}
+              onClick={navigateToShowReview}
+              title={'Show review'}
+            >
+              <PlayerPlayIconCmp />
+            </ActionIconCmp>
+            <ActionIconCmp
+              data-id={_record.id}
               onClick={navigateToReviewDetail}
               title={'Show detail'}
             >
@@ -385,7 +399,7 @@ const ReviewList: FC<Props> = () => {
         }
       } as const
     ] satisfies DataTableColumn<Rec>[]
-  }), [deleteReview, navigateToReviewDetail]);
+  }), [deleteReview, navigateToReviewDetail, navigateToShowReview]);
 
   const {
     effectiveColumns,

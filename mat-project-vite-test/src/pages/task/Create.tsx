@@ -1,8 +1,9 @@
-import { FC } from "react"
+import React, { FC } from "react"
 import { UpdateTaskPageCmp, UpdateTaskPageCmpProps } from "../../components/UpdateTaskPage/UpdateTaskPageCmp";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { createTask } from "../../api/task/create/create";
 import { TaskCreateErrorDetails } from "../../api/dtos/errors/error_response";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
 
@@ -103,84 +104,87 @@ const defaultSource = `<document>
 
 const createTaskControl = createAuthApiController();
 const getInitialSource = ()=>defaultSource;
-const action:UpdateTaskPageCmpProps['action'] = async({name,display,difficulty,classRange,isPublic,source,tags}) =>{
 
-    if(!source || source.length < 1){
-        return {
-            generalError:true,
-            value:{
-            message:'Task source cannot be empty.'
-            }
-        };
-    }
-    
-   const response = await createTask({
-    task:{
-        name,
-        display,
-        difficulty,
-        class_range:classRange,
-        is_public:isPublic,
-        source,
-        tags:tags as [string,...string[]]
-    }
-    },
-    createTaskControl
-    );
-    if(response.success){
-        alert(`Task successfuly created! TaskId: ${response.body.data.taskId}`);
-    }
-    else if(response.isServerError){
-        if(response.error?.error?.details?.code === 1 satisfies TaskCreateErrorDetails['code']){
-            const data = response.error.error.details.errorData;
-            const classRangeError = {
-                error:undefined as (string|undefined),
-                minError:undefined as (string|undefined),
-                maxError:undefined as (string|undefined)
+const Create: FC<Props> = () => {
+
+    const navigate = useNavigate();
+
+    const action = React.useCallback<UpdateTaskPageCmpProps['action']>(async({name,display,difficulty,classRange,isPublic,source,tags}) =>{
+
+        if(!source || source.length < 1){
+            return {
+                generalError:true,
+                value:{
+                message:'Task source cannot be empty.'
+                }
             };
-            const apiClassRangeError = data.class_range?.error;
-            if(apiClassRangeError){
-            if(apiClassRangeError === 'min_max_swapped'){
-                classRangeError.error = "Min should be less than or equal to max.";
-            }
-            else{
-                if(apiClassRangeError?.invalidMin){
-                    classRangeError.minError = "Invalid class selected.";
-                }
-                if(apiClassRangeError?.invalidMax){
-                    classRangeError.maxError = "Invalid class selected.";
-                }
-            }
         }
+        
+       const response = await createTask({
+        task:{
+            name,
+            display,
+            difficulty,
+            class_range:classRange,
+            is_public:isPublic,
+            source,
+            tags:tags as [string,...string[]]
+        }
+        },
+        createTaskControl
+        );
+        if(response.success){
+            navigate('/task/myList');
+        }
+        else if(response.isServerError){
+            if(response.error?.error?.details?.code === 1 satisfies TaskCreateErrorDetails['code']){
+                const data = response.error.error.details.errorData;
+                const classRangeError = {
+                    error:undefined as (string|undefined),
+                    minError:undefined as (string|undefined),
+                    maxError:undefined as (string|undefined)
+                };
+                const apiClassRangeError = data.class_range?.error;
+                if(apiClassRangeError){
+                if(apiClassRangeError === 'min_max_swapped'){
+                    classRangeError.error = "Min should be less than or equal to max.";
+                }
+                else{
+                    if(apiClassRangeError?.invalidMin){
+                        classRangeError.minError = "Invalid class selected.";
+                    }
+                    if(apiClassRangeError?.invalidMax){
+                        classRangeError.maxError = "Invalid class selected.";
+                    }
+                }
+            }
+                return {
+                    generalError:false,
+                    value:{
+                        isFormError:true,
+                        error:{
+                            name:data.name?.message,
+                            difficulty:data.difficulty?.message,
+                            tags:data.tags?.message,
+                            classRange:classRangeError
+                        }
+                    }
+                };
+            }
             return {
                 generalError:false,
                 value:{
-                    isFormError:true,
+                    isFormError:false,
                     error:{
-                        name:data.name?.message,
-                        difficulty:data.difficulty?.message,
-                        tags:data.tags?.message,
-                        classRange:classRangeError
+                    status:response.status,
+                    statusText:response.statusText,
+                    error:response.error?.error
                     }
                 }
             };
         }
-        return {
-            generalError:false,
-            value:{
-                isFormError:false,
-                error:{
-                status:response.status,
-                statusText:response.statusText,
-                error:response.error?.error
-                }
-            }
-        };
-    }
-    return undefined;
-};
-
-const Create: FC<Props> = () => {
+        return undefined;
+    },[navigate]);
    
     return (
         <UpdateTaskPageCmp

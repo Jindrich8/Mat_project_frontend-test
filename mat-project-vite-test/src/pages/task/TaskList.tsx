@@ -27,6 +27,7 @@ import { MultiColSortCmp } from "../../components/MultiColSort/MultiColSortCmp";
 import { ArrowSortIconCmp } from "../../components/Icons/ArrowSortIconCmp";
 import { FilterSettingsIconCmp } from "../../components/Icons/FilterSettingsIconCmp";
 import { DataTableCmp, DataTableCmpProps } from "../../components/DataTable/DataTableCmp";
+import { PlayerPlayIconCmp } from "../../components/Icons/PlayerPlayIconCmp";
 
 interface Props {
 
@@ -185,6 +186,12 @@ const TaskList: FC<Props> = () => {
     navigate(`/task/${id}/detail`);
   }, [navigate]);
 
+  const navigateToTaskTake = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    navigate(`/task/${id}/take`);
+  }, [navigate]);
+
   
 
   const columns = React.useMemo(() => ({
@@ -265,6 +272,13 @@ const TaskList: FC<Props> = () => {
           return (<Group wrap={'nowrap'}>
             <ActionIconCmp
               data-id={_record.id}
+              onClick={navigateToTaskTake}
+              title={'Take task'}
+            >
+              <PlayerPlayIconCmp />
+            </ActionIconCmp>
+            <ActionIconCmp
+              data-id={_record.id}
               onClick={navigateToTaskDetail}
               title={'Show detail'}
             >
@@ -274,7 +288,7 @@ const TaskList: FC<Props> = () => {
         }
       } as const
     ] satisfies DataTableColumn<Rec>[]
-  }), [navigateToTaskDetail]);
+  }), [navigateToTaskDetail, navigateToTaskTake]);
 
   const {
     effectiveColumns,

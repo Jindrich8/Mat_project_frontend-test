@@ -1,29 +1,28 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ActionIcon, AppShell, Avatar, Box, Burger, Group, Menu, Stack, Text, UnstyledButton} from "@mantine/core";
-import React, { FC } from "react"
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useAuthMethods } from "../components/Auth/auth";
+import { Accordion, AccordionControl, AccordionItem, AccordionPanel, AppShell, Burger, Group, Stack, UnstyledButton } from "@mantine/core";
+import { FC } from "react"
+import { Outlet, useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { useAuthContext } from "../components/Auth/context";
+import { UserMenuCmp } from "../components/UserMenu/UserMenuCmp";
+import { BtnLinkCmp } from "../components/BtnLink/BtnLinkCmp";
+import { AuthVisibleCmp } from "../components/AuthVisible/AuthVisibleCmp";
+import React from "react";
+import { useAuthMethods } from "../components/Auth/auth";
 
 interface Props {
 
 }
 
 const Layout: FC<Props> = () => {
-    const { signOut } = useAuthMethods();
-    const navigate = useNavigate();
     const [opened, { toggle }] = useDisclosure();
     const auth = useAuthContext();
+    const { signOut } = useAuthMethods();
+    const navigate = useNavigate();
 
     const onLogOut = React.useCallback(() => {
         signOut();
         navigate('/login');
     }, [signOut, navigate]);
-
-    const onProfile = React.useCallback(() => {
-        navigate('/profile/info');
-    },[navigate]);
 
     return (
         <AppShell
@@ -35,60 +34,48 @@ const Layout: FC<Props> = () => {
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Group ml="xl" gap={'md'} visibleFrom="sm" w={'100%'}>
-                            <UnstyledButton><Link to='/task/myList'>Moje úlohy</Link></UnstyledButton>
-                            <UnstyledButton><Link to='/task/review/list'>Vyhodnocení</Link></UnstyledButton>
-                            {auth.signedIn.value &&
-                    <div style={{marginLeft:'auto'}}><Menu
-                        withArrow
-                        position="bottom"
-                        transitionProps={{ transition: 'pop' }}
-                        withinPortal
-                    >
-                        <Menu.Target>
-                            <ActionIcon id={'actionIcon'} variant="default" ml={'auto'}>
-                                <Group>
-                                <Avatar />
-                                {auth.user.value && <Text>{auth.user.value?.email}</Text>}
-                                </Group>
-                            </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Item onClick={onProfile}>
-                                Profile
-                            </Menu.Item>
-                            <Menu.Item
-                                onClick={onLogOut}
-                            >
-                                Logout
-                            </Menu.Item>
-
-                            <Menu.Divider />
-
-                            <Menu.Label>Danger zone</Menu.Label>
-                            <Menu.Item
-                                color="red"
-                            >
-                                Delete account
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu></div>}
+                        {!auth.signedIn.value && <BtnLinkCmp to='/login'>Login</BtnLinkCmp>}
+                            <BtnLinkCmp to='/task/list'>Tasks</BtnLinkCmp>
+                            <AuthVisibleCmp>
+                                    {auth.user.value?.role === 'teacher' &&
+                                        (<><BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>
+                                        <BtnLinkCmp to='/task/create'>Create task</BtnLinkCmp></>
+                                        )
+                                    }
+                                    <BtnLinkCmp to="/task/review/list">Reviews</BtnLinkCmp>
+                                    <div style={{ marginLeft: 'auto' }}>
+                        <UserMenuCmp />
+                    </div>
+                            </AuthVisibleCmp>
                         </Group>
                     </Group>
                 </Group>
             </AppShell.Header>
 
             <AppShell.Navbar py="md" px={4}>
-              { /* <Stack gap={'md'} ml={'md'}> */}
-                    <UnstyledButton>Home</UnstyledButton>
-                    <UnstyledButton>Blog</UnstyledButton>
-                    <UnstyledButton>Contacts</UnstyledButton>
-                    <UnstyledButton>Support</UnstyledButton>
-                   
-
-               {/* </Stack>*/}
+                <Stack gap={'md'} ml={'md'}>
+                <BtnLinkCmp to='/task/list'>Tasks</BtnLinkCmp>
+                <AuthVisibleCmp><Stack>
+                    {auth.user.value?.role === 'teacher' &&
+                        <BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>
+                    }
+                    <BtnLinkCmp to="/task/review/list">Reviews</BtnLinkCmp>
+                    <Accordion>
+                    <AccordionItem value={'profile'}>
+                            <AccordionControl fw={'normal'}>Profile</AccordionControl>
+                            <AccordionPanel>
+                            <Stack>
+                                            <BtnLinkCmp to='/profile/info'>Profile</BtnLinkCmp>
+                                            <UnstyledButton onClick={onLogOut}>Logout</UnstyledButton>
+                                        </Stack>
+                            </AccordionPanel>
+                            </AccordionItem>
+                    </Accordion>
+                </Stack></AuthVisibleCmp>
+                </Stack>
             </AppShell.Navbar>
 
-            <AppShell.Main mih={'100vh'} display={'flex'} style={{ flexDirection: 'column' }}>
+            <AppShell.Main mih={'100vh'} display={'flex'} style={{ flexDirection: 'column', paddingBottom:0 }}>
                 <Outlet />
             </AppShell.Main>
         </AppShell>

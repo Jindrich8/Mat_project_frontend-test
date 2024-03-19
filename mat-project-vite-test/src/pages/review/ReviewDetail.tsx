@@ -90,6 +90,11 @@ const ReviewDetail: FC<Props> = () => {
   }
     },[navigate, reviewId]);
 
+    const navigateShowReview = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+        e.stopPropagation(); // prevent
+        navigate(`/task/review/${reviewId}/show`);
+      }, [navigate, reviewId]);
+
     return (
         <Stack>
             {error && <ApiErrorAlertCmp 
@@ -111,6 +116,7 @@ const ReviewDetail: FC<Props> = () => {
                 }
                 <Group>
                     <Button onClick={deleteReview}>Delete</Button>
+                    <Button onClick={navigateShowReview}>Show</Button>
                 </Group>
             </Stack>)
         }

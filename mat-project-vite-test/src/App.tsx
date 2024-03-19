@@ -23,7 +23,6 @@ import axios from 'axios';
 import { Create } from './pages/task/Create';
 import { Csrf } from './pages/Csrf';
 import { Take } from './pages/task/Take';
-import { Review } from './pages/task/Review';
 import { AuthContextProvider } from './components/Auth/AuthContextProvider';
 import { AuthProtectionCmp } from './components/AuthProtectionCmp';
 import { Layout } from './pages/Layout';
@@ -35,6 +34,7 @@ import { MyTaskList } from './pages/task/MyTaskList';
 import { MyTaskDetail } from './pages/task/MyTaskDetail';
 import { ReviewDetail } from './pages/review/ReviewDetail';
 import { ReviewList } from './pages/review/ReviewList';
+import { GetReview } from './pages/review/GetReview';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -59,15 +59,15 @@ const router = createBrowserRouter(
       <Route path="/login" 
       element={<Login/>}
       />
+      <Route path="/register" element={<Register/>}/>
       <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
-      <Route path="/register" element={<Register/>}/>
       <Route path="/task/list" element={<TaskList />} />
       <Route path="/task/myList" element={<MyTaskList />} />
       <Route path="/task/:taskId/myDetail" element={<MyTaskDetail />} />
       <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
       <Route path="/task/review/list" element={<AuthProtectionCmp><ReviewList/></AuthProtectionCmp>}/>
-      <Route path="/task/review/:reviewId/show" element={<AuthProtectionCmp><Review/></AuthProtectionCmp>}/>
+      <Route path="/task/review/:reviewId/show" element={<AuthProtectionCmp><GetReview/></AuthProtectionCmp>}/>
       <Route path="/task/review/:reviewId/detail" element={<AuthProtectionCmp><ReviewDetail/></AuthProtectionCmp>}/>
       <Route path="/task/:taskId/take" element={<Take/>}/>
       <Route path="/task/:taskId/detail" element={<TaskDetail/>}/>

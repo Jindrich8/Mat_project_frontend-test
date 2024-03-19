@@ -62,7 +62,7 @@ const ReviewTaskCmp:FC<Props> = ({style,...baseProps}) => {
     const reviewToDisplay = review ?? reviewFromLoc;
   return (
     <Stack style={{boxSizing:'border-box',maxHeight:'100vh',...style}} {...baseProps}>
-    <Box style={{flexGrow:1,paddingBottom:'1rem'}}>
+    <Box style={{flexGrow:1,paddingBottom:0, display:'flex',flexDirection:'column'}}>
       {reviewError ? (
       <ApiErrorAlertCmp 
       status={reviewError.status}

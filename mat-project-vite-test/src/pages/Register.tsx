@@ -11,11 +11,13 @@ import {
 } from '@mantine/core';
 //import axios from 'axios';
 import React, { FC, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { register } from '../utils/auth';
 import { ApiErrorAlertCmp } from '../components/ApiErrorAlertCmp';
 import { ApplicationErrorInformation, RegisterErrorDetails } from '../api/dtos/errors/error_response';
 import { dump } from '../utils/utils';
+import { fetchUser } from '../components/Auth/auth';
+import { useAuthContext } from '../components/Auth/context';
 
 interface Props {
 }
@@ -35,6 +37,7 @@ const Register: FC<Props> = () => {
     const [formError,setFormError] = useState<RegisterErrorDetails['errorData']|undefined>(undefined);
 
     const onChange = React.useCallback(() => setFormError(undefined),[]);
+    const auth =useAuthContext();
     
     const state = useHookstate({
         name:"",
@@ -68,6 +71,7 @@ console.log("refresh");
        });
             console.log("Response: "+dump(response));
             if(response.success){
+                fetchUser();
                 navigate();
             }
             else if(response.isServerError){
@@ -87,7 +91,7 @@ console.log("refresh");
             return false;
     };
 
-    return (
+    return (auth.signedIn.value ? <Navigate to="/" /> :
         <Container size={420} my={40}>
             <Title ta="center">
                 Welcome back!
@@ -155,6 +159,7 @@ console.log("refresh");
                 />
                 <Checkbox 
                 label="Is teacher" 
+                mt="md"
                 checked={state.isTeacher.value} 
                 onChange={(e)=>state.isTeacher.set(e.target.checked)} 
                 />

@@ -3,7 +3,7 @@ import styles from "./AnswerTextCmpStyle.module.css"
 import { BasicStyledCmpProps } from "../../types/props/props";
 
 interface Props extends BasicStyledCmpProps {
-userText:string;
+userText?:string;
 correctText?:string;
 }
 

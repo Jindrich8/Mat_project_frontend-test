@@ -17,7 +17,11 @@ const FillInBlanksReviewCmp: FC<FillInBlanksReviewCmpProps> = React.memo(({ uiDa
             {uiData.map((d, i) => {
                 return (typeof d === 'string' ?
                     <span className={styles.textCmp} key={i}>{strStartAndEndWsToNbsp(d)}</span>
-                    : (<AnswerCmp style={{verticalAlign:'middle'}} userText={d.userValue} key={i} correctText={d.correctValue} />
+                    : (<AnswerCmp 
+                        style={{verticalAlign:'middle'}} 
+                        userText={d.userValue ?? undefined} 
+                        key={i} 
+                        correctText={d.correctValue} />
                     )
                 );
             })}

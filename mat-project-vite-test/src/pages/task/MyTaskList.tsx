@@ -32,6 +32,7 @@ import { EditIconCmp } from "../../components/Icons/EditIconCmp";
 import { TrashIconCmp } from "../../components/Icons/TrashIconCmp";
 import { deleteTask as apiDeleteTask } from "../../api/task/delete/delete";
 import { SuccessAlertCmp } from "../../components/SuccessAlert/SuccessAlertCmp";
+import { PlayerPlayIconCmp } from "../../components/Icons/PlayerPlayIconCmp";
 
 interface Props {
 
@@ -238,6 +239,12 @@ const MyTaskList: FC<Props> = () => {
     navigate(`/task/${id}/update`);
   }, [navigate]);
 
+  const navigateToTaskTake = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>((e) => {
+    e.stopPropagation(); // prevent
+    const id = e.currentTarget.dataset['id'];
+    navigate(`/task/${id}/take`);
+  }, [navigate]);
+
   const deleteTask = React.useCallback<React.MouseEventHandler<HTMLButtonElement>>(async(e) => {
     e.stopPropagation(); // prevent
     const id = e.currentTarget.dataset['id'];
@@ -357,6 +364,13 @@ const MyTaskList: FC<Props> = () => {
         resizable: false,
         render: (_record, _index) => {
           return (<Group wrap={'nowrap'}>
+              <ActionIconCmp
+              data-id={_record.id}
+              onClick={navigateToTaskTake}
+              title={'Take task'}
+            >
+              <PlayerPlayIconCmp />
+            </ActionIconCmp>
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskDetail}
@@ -383,7 +397,7 @@ const MyTaskList: FC<Props> = () => {
         }
       } as const
     ] satisfies DataTableColumn<Rec>[]
-  }), [deleteTask, navigateToTaskDetail, navigateToTaskUpdate]);
+  }), [deleteTask, navigateToTaskDetail, navigateToTaskTake, navigateToTaskUpdate]);
 
   const {
     effectiveColumns,

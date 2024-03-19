@@ -1,6 +1,6 @@
 import { useHookstate } from "@hookstate/core";
 import { Alert, Button, Stack, TextInput } from "@mantine/core";
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { ApiError, ResponseError } from "../types/errors/types";
 import { ApiErrorAlertCmp } from "./ApiErrorAlertCmp";
 import { useAuthMethods } from "./Auth/auth";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ProfileFormCmp:FC<Props> = () => {
-    const {updateProfile} = useAuthMethods();
+    const {updateProfile,refreshProfile} = useAuthMethods();
     const auth = useAuthContext();
     
     const state = useHookstate({
@@ -20,6 +20,10 @@ const ProfileFormCmp:FC<Props> = () => {
         email:auth.user.value?.email,
         isEditing:false as boolean
     });
+
+    useEffect(() =>{
+        refreshProfile();
+    },[refreshProfile]);
 
 
     const [alert,setAlert] = React.useState<undefined|{

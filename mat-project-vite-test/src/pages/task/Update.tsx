@@ -3,7 +3,7 @@ import { UpdateTaskPageCmp, UpdateTaskPageCmpProps } from "../../components/Upda
 import { getTaskSource } from "../../api/task/source/get";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { getMyTaskDetail } from "../../api/task/myDetail/get";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { updateTask } from "../../api/task/update/send";
 import { TaskUpdateErrorDetails } from "../../api/dtos/errors/error_response";
 
@@ -17,6 +17,7 @@ const updateTaskControl = createAuthApiController();
 
 const Update:FC<Props> = () => {
     const {taskId} = useParams();
+    const navigate = useNavigate();
 
     const getInitialFilters = React.useCallback<NonNullable<UpdateTaskPageCmpProps['getInitialFilters']>>(async()=>{
         const response = await getMyTaskDetail(taskId + '',getMyTaskDetailControl);
@@ -94,7 +95,7 @@ const Update:FC<Props> = () => {
         updateTaskControl
         );
         if(response.success){
-            alert("Task updated successfully.");
+            navigate("/task/myList");
         }
         else if(response.isServerError){
             if(response.error?.error?.details?.code === 1 satisfies TaskUpdateErrorDetails['code']){

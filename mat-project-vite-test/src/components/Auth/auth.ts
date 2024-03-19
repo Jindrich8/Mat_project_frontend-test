@@ -200,9 +200,7 @@ export const signIn: typeof logIn = async (request: LoginRequest) => {
                 error: undefined
             });
         }
-        else if (response.isServerError) {
-            await fetchUser();
-        }
+        await fetchUser();
         return response;
     }
     else if (authState.user.value) {
@@ -255,13 +253,14 @@ export const signOut: typeof logOut = async () => {
     return response;
 };
 
-
+const refreshProfile = fetchUser;
 
 const authMethods = {
     signIn,
     signOut,
     updateProfile,
-    handleErrorResponse
+    handleErrorResponse,
+    refreshProfile
 };
 
 export const useAuthMethods = () => authMethods;

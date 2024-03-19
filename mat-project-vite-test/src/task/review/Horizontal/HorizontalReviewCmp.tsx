@@ -1,4 +1,4 @@
-import { Box, Button, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Button, Group, Stack, Text, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { addOneToOrder, isNotNullNorUndef, isNullOrUndef } from "../../../utils/utils";
@@ -41,13 +41,13 @@ const HorizontalReviewCmp: FC<Props> = React.memo(({ task: taskArg, order }) => 
             </Group>
             <Text>{task.description}</Text>
             </Stack>
-            <Box style={{overflowY: 'auto' }}>
+            <Stack mih={'18rem'} style={{ flexGrow:1, overflowY: 'auto' }}>
                 <currentEntry.renderCmp
                     num={currentIndex + 1 as PositiveInt}
                     order={addOneToOrder(order)}
                 />
-            </Box>
-            <div style={{marginTop:'auto'}} data-index-stop onClick={onClick}>
+            </Stack>
+            <div style={{marginTop:'auto', marginBottom:'5rem'}} data-index-stop onClick={onClick}>
                 <Button.Group >
                     {task.entries.map((_, i) =>
                         <Button key={i} data-index={i} variant={'filled'}>
