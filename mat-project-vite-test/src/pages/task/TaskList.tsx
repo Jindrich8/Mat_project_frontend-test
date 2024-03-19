@@ -96,6 +96,7 @@ const validOrderByColsSet = {
   "class_range": true,
 } satisfies Record<string, true>;
 
+//@ts-expect-error Object.keys does not infer properties type
 const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
 
 
@@ -120,6 +121,7 @@ const columnAccessorAndTitle = (accessor: string) => {
     accessor: accessor
   };
 }
+
 
 const TaskList: FC<Props> = () => {
 
@@ -600,10 +602,11 @@ const TaskList: FC<Props> = () => {
         p={0}
         withCloseButton>
         <Stack w={'100%'} align={'center'}>
-          <MultiColSortCmp
+          {sorting.value !== undefined && <MultiColSortCmp
+          //@ts-expect-error Typescript could not infer that sorting is not undefined
             values={sorting}
             columns={validOrderByCols}
-          />
+          />}
         </Stack>
       </Modal>
       <Modal

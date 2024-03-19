@@ -114,6 +114,7 @@ const validOrderByColsSet = {
   "modification_timestamp": true
 } satisfies Record<string, true>;
 
+//@ts-expect-error Object.keys does not infer properties type
 const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
 
 /*
@@ -785,10 +786,11 @@ const MyTaskList: FC<Props> = () => {
         onClose={orderByModal[1].close}
         withCloseButton>
         <Stack>
-          <MultiColSortCmp
+         {sorting.value !== undefined && <MultiColSortCmp
+         //@ts-expect-error Typescript could not infer that sorting is not undefined
             values={sorting}
             columns={validOrderByCols}
-          />
+          />}
         </Stack>
       </Modal>
       <Modal

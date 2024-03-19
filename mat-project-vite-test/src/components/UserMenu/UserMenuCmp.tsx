@@ -4,7 +4,6 @@ import React, { FC } from "react"
 import { useNavigate } from "react-router-dom";
 import { useAuthMethods } from "../Auth/auth";
 import { useAuthContext } from "../Auth/context";
-import { ActionIconCmp } from "../ActionIcon/ActionIconCmp";
 
 interface Props {
 

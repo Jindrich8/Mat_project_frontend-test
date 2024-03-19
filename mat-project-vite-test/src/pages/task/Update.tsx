@@ -145,7 +145,7 @@ const Update:FC<Props> = () => {
             };
         }
         return undefined;
-    },[taskId]);
+    },[navigate, taskId]);
 
   return (
     <>

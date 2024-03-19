@@ -21,7 +21,6 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import axios from 'axios';
 import { Create } from './pages/task/Create';
-import { Csrf } from './pages/Csrf';
 import { Take } from './pages/task/Take';
 import { AuthContextProvider } from './components/Auth/AuthContextProvider';
 import { AuthProtectionCmp } from './components/AuthProtectionCmp';
@@ -35,6 +34,8 @@ import { MyTaskDetail } from './pages/task/MyTaskDetail';
 import { ReviewDetail } from './pages/review/ReviewDetail';
 import { ReviewList } from './pages/review/ReviewList';
 import { GetReview } from './pages/review/GetReview';
+import { ResetPassword } from './pages/ResetPassword';
+import { ForgotPassword } from './pages/ForgotPassword';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -59,8 +60,9 @@ const router = createBrowserRouter(
       <Route path="/login" 
       element={<Login/>}
       />
+      <Route path="/forgot-password" element={<ForgotPassword />}/>
+      <Route path="/reset-password/:token" element={<ResetPassword />}/>
       <Route path="/register" element={<Register/>}/>
-      <Route path="/csrf" element={<Csrf/>}/>
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
       <Route path="/task/list" element={<TaskList />} />
       <Route path="/task/myList" element={<MyTaskList />} />

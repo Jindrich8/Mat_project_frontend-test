@@ -3,7 +3,6 @@ import {
     TextInput,
     PasswordInput,
     Checkbox,
-    Anchor,
     Paper,
     Title,
     Text,
@@ -121,9 +120,9 @@ const Login: FC<Props> = () => {
                         checked={state.rememberMe.get()}
                         onChange={(e) => state.rememberMe.set(e.target.checked)}
                         label="Remember me" />
-                    <Anchor component="button" size="sm">
+                    <Link to="/forgot-password">
                         Forgot password?
-                    </Anchor>
+                    </Link>
                 </Group>
                 <Button fullWidth mt="xl" type={'submit'}>
                     Sign in

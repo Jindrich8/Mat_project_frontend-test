@@ -3,7 +3,7 @@ import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
-import { Button, Group, Modal, Pill, PillGroup, RangeSlider, RangeSliderProps, Stack, Switch, Text, TextInput } from "@mantine/core";
+import { Button, Group, Modal, Pill, PillGroup, RangeSliderProps, Stack, Switch, Text, TextInput } from "@mantine/core";
 import { AuthorInfo1, EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { TagsCmp } from "../../components/Tags/TagsCmp";
@@ -128,6 +128,7 @@ const validOrderByColsSet = {
   "score": true,
 } satisfies Record<string, true>;
 
+//@ts-expect-error Object.keys does not infer type of keys
 const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
 
 
@@ -705,6 +706,7 @@ const ReviewList: FC<Props> = () => {
             />
           </Group>
           <PercentRangeSliderCmp
+          //@ts-expect-error actualScoreRange cannot be assigned to mutable type
             value={actualScoreRange}
             onChange={onScoreRangeChange}
              />
@@ -774,10 +776,11 @@ const ReviewList: FC<Props> = () => {
         onClose={orderByModal[1].close}
         withCloseButton>
         <Stack>
-          <MultiColSortCmp
+        {sorting.value !== undefined && <MultiColSortCmp
+         //@ts-expect-error Typescript could not infer that sorting is not undefined
             values={sorting}
             columns={validOrderByCols}
-          />
+          />}
         </Stack>
       </Modal>
       <Modal
