@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
 import { BasicStyledCmpProps } from "../../types/props/props";
-import { Box, ComboboxData, MultiSelect, MultiSelectProps, Text } from "@mantine/core";
+import { Box, ComboboxData, MultiSelect, MultiSelectProps } from "@mantine/core";
 import { matchSorter } from "match-sorter";
 import { OptionsFilter } from "@mantine/core";
 

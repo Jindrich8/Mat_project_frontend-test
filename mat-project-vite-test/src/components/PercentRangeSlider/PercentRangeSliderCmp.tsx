@@ -1,5 +1,5 @@
 import { RangeSlider, RangeSliderProps } from "@mantine/core";
-import React, { FC } from "react"
+import { FC } from "react"
 
 interface Props extends Omit<RangeSliderProps,'min'|'max'|'marks'> {
     
@@ -25,6 +25,7 @@ const PercentRangeSliderCmp:FC<Props> = (props) => {
     <RangeSlider
     min={0}
     max={100}
+    minRange={0}
     w={'100%'}
     marks={marks}
     {...props}

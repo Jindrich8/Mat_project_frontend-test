@@ -11,7 +11,7 @@ import { EyeIconCmp } from "../../components/Icons/EyeIconCmp";
 import { ListRangeCmp } from "../../components/ListRange/ListRangeCmp";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
 import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
-import { arrayLast, dump, nundef, setSearchParam, tryStrToNum } from "../../utils/utils";
+import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
 import { ListTasksRequest } from "../../api/dtos/request";
@@ -237,8 +237,8 @@ const ReviewList: FC<Props> = () => {
 
   const onScoreRangeChange = React.useCallback<NonNullable<RangeSliderProps['onChange']>>((value) =>{
     setScoreRange({
-        min:value[0] === 0 ? undefined : value[0],
-        max:value[1] === 100 ? undefined : value[1]
+        min:value[0] === 0 ? 0 : value[0],
+        max:value[1] === 100 ? 100 : value[1]
     });
   },[]);
 
@@ -476,11 +476,10 @@ const ReviewList: FC<Props> = () => {
           prevCursor: data.config.prev_cursor,
           nextCursor: data.config.next_cursor,
           records: data.reviews.map(t => {
-            const evaluationTimestamp = (new Date(t.evaluation_timestamp)).toLocaleString();
             return ({
             id: t.id,
             score:t.score,
-            evaluationTimestamp:evaluationTimestamp,
+            evaluationTimestamp:utcStrTimestampToLocalStr(t.evaluation_timestamp),
             name: t.task_preview_info.name,
             minClass: t.task_preview_info.class_range.min,
             maxClass: t.task_preview_info.class_range.max,

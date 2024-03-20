@@ -108,8 +108,8 @@ const DataTableCmp = <Rec extends {
         hash.current = firstRowIdHash;
         prevTableScrollPos.current = null;
       }
+      document.getElementById(hash.current)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       if (window.location.hash !== '#' + hash.current) {
-        document.getElementById(hash.current)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
         setUrlHashNoRefresh(hash.current);
         console.log("Changing hash");
       }

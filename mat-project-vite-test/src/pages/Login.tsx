@@ -2,7 +2,6 @@ import { useHookstate } from '@hookstate/core';
 import {
     TextInput,
     PasswordInput,
-    Checkbox,
     Paper,
     Title,
     Text,
@@ -116,10 +115,6 @@ const Login: FC<Props> = () => {
                     error={formError?.errorData.password?.message}
                     required mt="md" />
                 <Group justify="space-between" mt="lg">
-                    <Checkbox
-                        checked={state.rememberMe.get()}
-                        onChange={(e) => state.rememberMe.set(e.target.checked)}
-                        label="Remember me" />
                     <Link to="/forgot-password">
                         Forgot password?
                     </Link>

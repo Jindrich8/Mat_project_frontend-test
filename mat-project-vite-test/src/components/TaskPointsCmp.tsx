@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
 import { Box, Group, Text } from "@mantine/core";
 import { ExercisePointsCmp } from "./ExercisePointsCmp";

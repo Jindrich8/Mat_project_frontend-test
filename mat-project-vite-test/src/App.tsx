@@ -10,7 +10,6 @@ import '@mantine/dates/styles.css';
 
 
 import { MantineProvider,createTheme } from '@mantine/core';
-import { Home } from './pages/Home';
 import {
   createRoutesFromElements,
   createBrowserRouter,
@@ -64,7 +63,6 @@ const router = createBrowserRouter(
       <Route path="/reset-password/:token" element={<ResetPassword />}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
-      <Route path="/task/list" element={<TaskList />} />
       <Route path="/task/myList" element={<MyTaskList />} />
       <Route path="/task/:taskId/myDetail" element={<MyTaskDetail />} />
       <Route path="/task/create" element={<AuthProtectionCmp allowedRole={'teacher'}><Create/></AuthProtectionCmp>}/>
@@ -75,7 +73,7 @@ const router = createBrowserRouter(
       <Route path="/task/:taskId/detail" element={<TaskDetail/>}/>
       <Route path="/task/:taskId/update" element={<AuthProtectionCmp allowedRole={'teacher'}><Update /></AuthProtectionCmp>} />
      <Route index
-     element={<Home />}
+     element={<TaskList />}
      />
     </Route>
   )

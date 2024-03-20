@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, Suspense, lazy, useEffect, useState } from "react"
 import { SearchableMultiSelect, SearchableMultiSelectProps } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
 import { EditorProps } from "@monaco-editor/react";
 import { Box, Button, Checkbox, Group, Stack, Tabs, TabsProps, Text, TextInput } from "@mantine/core";
@@ -12,8 +12,10 @@ import { ErrorAlertCmp } from "../../components/ErrorAlertCmp";
 import { createAuthApiController } from "../../components/Auth/auth";
 import { Any } from "../../types/types";
 import { useListRange } from "../../components/ListRange/ListRangeType";
-import { XMLEditorCmp } from "../XMLEditor/XMLEditorCmp";
 import styles from "./UpdateTaskPageCmpStyles.module.css";
+import { LoaderCmp } from "../LoaderCmp";
+
+
 
 type Resp<T, E> = {
     success: true,
@@ -97,6 +99,7 @@ const NAME_MAX_LEN = 50;
 const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,action,actionLabel }) => {
     // const editor = useMonaco();
     const editorRef = React.useRef<Any>(null);
+    const [XMLEditorCmp,setXMLEditorCmp] = React.useState<typeof import("../XMLEditor/XMLEditorCmp")['XMLEditorCmp']>();
 
     const sourceChanged = React.useRef<boolean>(false);
     console.log("Rerendering Create");
@@ -293,6 +296,10 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
     const onTabChange = React.useCallback<NonNullable<TabsProps['onChange']>>(async (value) => {
         if (value === 'source') {
             if (editorValue.current === undefined) {
+                setXMLEditorCmp(
+                    lazy(() => import("../XMLEditor/XMLEditorCmp")
+                .then(({ XMLEditorCmp }) => ({ default: XMLEditorCmp })))
+                );
                 if (getInitialSource) {
                     const sourceResp = getInitialSource();
                     let source = undefined;
@@ -523,13 +530,16 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                         </Group>
                     </Tabs.Panel>
                     <Tabs.Panel value={'source'} className={styles.tabsPanel}>
+                        <Suspense fallback={<LoaderCmp />}>
                         <Box className={styles.sourceEditorWrapper}>
-                            <XMLEditorCmp
+                            {XMLEditorCmp && <XMLEditorCmp
                                 defaultValue={defaultSource}
                                 className={styles.editor}
                                 editorRef={editorRef}
                                 onChange={onEditorValueChange} />
+                            }
                         </Box>
+                        </Suspense>
                     </Tabs.Panel>
                 </Tabs>
             </form>

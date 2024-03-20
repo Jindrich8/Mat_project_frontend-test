@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import { FC } from "react"
 import { Resource } from "../Resource/ResourceTypes";
 import { BasicProps } from "../../../types/props/props";
 import { Stack, Title, TitleOrder } from "@mantine/core";

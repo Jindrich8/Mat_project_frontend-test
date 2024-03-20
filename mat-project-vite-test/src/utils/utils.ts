@@ -3,6 +3,10 @@ import { Int } from "../types/primitives/Integer";
 import { Immutable, ImmutableObject } from "@hookstate/core";
 import { Any } from "../types/types";
 
+const utcStrTimestampToLocalStr = (timestamp:string) => {
+  return (new Date(timestamp)).toLocaleString();
+};
+
 const setSearchParam = (params:URLSearchParams,key:string,value:string|undefined|string[]) => {
   if(value === undefined){
     params.delete(key);
@@ -209,6 +213,7 @@ const strStartAndEndWsToNbsp =(d:string) => {
 }
 
 export {
+  utcStrTimestampToLocalStr,
   setSearchParam,
   tryStrToNum,
   nundef,

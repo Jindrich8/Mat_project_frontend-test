@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react"
+import { FC, PropsWithChildren } from "react"
 import styles from "./CollapseCmpStyle.module.css"
 import { AccordionChevron } from "@mantine/core";
 

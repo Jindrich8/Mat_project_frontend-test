@@ -1,5 +1,5 @@
 import { Pill } from "@mantine/core";
-import React, { FC } from "react";
+import { FC } from "react";
 import styles from "./TagsCmpStyle.module.css";
 
 interface Props {

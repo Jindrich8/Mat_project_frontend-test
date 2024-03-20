@@ -35,7 +35,7 @@ const Layout: FC<Props> = () => {
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Group ml="xl" gap={'md'} visibleFrom="sm" w={'100%'}>
                         {!auth.signedIn.value && <BtnLinkCmp to='/login'>Login</BtnLinkCmp>}
-                            <BtnLinkCmp to='/task/list'>Tasks</BtnLinkCmp>
+                            <BtnLinkCmp to='/'>Tasks</BtnLinkCmp>
                             <AuthVisibleCmp>
                                     {auth.user.value?.role === 'teacher' &&
                                         (<><BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>
@@ -54,7 +54,7 @@ const Layout: FC<Props> = () => {
 
             <AppShell.Navbar py="md" px={4}>
                 <Stack gap={'md'} ml={'md'}>
-                <BtnLinkCmp to='/task/list'>Tasks</BtnLinkCmp>
+                <BtnLinkCmp to='/'>Tasks</BtnLinkCmp>
                 <AuthVisibleCmp><Stack>
                     {auth.user.value?.role === 'teacher' &&
                         <BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>

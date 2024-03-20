@@ -134,7 +134,7 @@ const Create: FC<Props> = () => {
         createTaskControl
         );
         if(response.success){
-            navigate('/task/myList');
+            navigate(`/task/${response.body.data.taskId}/myDetail`);
         }
         else if(response.isServerError){
             if(response.error?.error?.details?.code === 1 satisfies TaskCreateErrorDetails['code']){

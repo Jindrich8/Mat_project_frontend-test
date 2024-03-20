@@ -10,7 +10,7 @@ import { EyeIconCmp } from "../../components/Icons/EyeIconCmp";
 import { ListRangeCmp } from "../../components/ListRange/ListRangeCmp";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
 import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
-import { arrayLast, dump, nundef, setSearchParam, tryStrToNum } from "../../utils/utils";
+import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
 import { ListTasksRequest } from "../../api/dtos/request";
@@ -56,6 +56,7 @@ type Rec = {
   creation_timestamp: string;
   modification_timestamp?: string;
   tags: EnumElement[];
+  isPublic:boolean;
 };
 const basicColProps = { draggable: true, resizable: true };
 
@@ -133,6 +134,7 @@ const columnAccessorToTitleDict: Record<string, string> = {
   'minClass': "Min class",
   'maxClass': "Max class",
   'tags': "Tags",
+  'isPublic': "Is public",
   'creation_timestamp': "Creation timestamp",
   'modification_timestamp': "Modification timestamp"
 };
@@ -359,6 +361,16 @@ const MyTaskList: FC<Props> = () => {
         }
       } as const,
       {
+        ...columnAccessorAndTitle('isPublic'),
+        toggleable: true,
+        ...basicColProps,
+        noWrap: true,
+        render: (_record, _index) => {
+          console.log('isPublic');
+          return (<Text>{_record.isPublic ? "True" : "False"}</Text>);
+        }
+      } as const,
+      {
         title: 'Row Actions',
         accessor: '#',
         draggable: false,
@@ -475,7 +487,7 @@ const MyTaskList: FC<Props> = () => {
           records: data.tasks.map(t => {
             let modificationTimestamp = t.modification_timestamp;
             if(modificationTimestamp){
-              modificationTimestamp = (new Date(modificationTimestamp)).toLocaleString();
+              modificationTimestamp = utcStrTimestampToLocalStr(modificationTimestamp);
             }
               return ({
             id: t.id,
@@ -483,9 +495,10 @@ const MyTaskList: FC<Props> = () => {
             minClass: t.class_range.min,
             maxClass: t.class_range.max,
             tags: t.tags,
-            creation_timestamp: (new Date(t.creation_timestamp)).toLocaleString(),
+            creation_timestamp: utcStrTimestampToLocalStr(t.creation_timestamp),
             modification_timestamp: modificationTimestamp,
-            difficulty: t.difficulty
+            difficulty: t.difficulty,
+            isPublic: t.is_public
           });
         })
         });

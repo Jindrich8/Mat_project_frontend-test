@@ -95,7 +95,7 @@ const Update:FC<Props> = () => {
         updateTaskControl
         );
         if(response.success){
-            navigate("/task/myList");
+            navigate(`/task/${taskId}/myDetail`);
         }
         else if(response.isServerError){
             if(response.error?.error?.details?.code === 1 satisfies TaskUpdateErrorDetails['code']){

@@ -8,6 +8,7 @@ import { LoaderCmp } from "../../components/LoaderCmp";
 import { ErrorResponseState } from "../../types/types";
 import { getMyTaskDetail } from "../../api/task/myDetail/get";
 import { deleteTask as apiDeleteTask } from "../../api/task/delete/delete";
+import { utcStrTimestampToLocalStr } from "../../utils/utils";
 
 interface Props {
 
@@ -39,14 +40,18 @@ const MyTaskDetail: FC<Props> = () => {
             const response = await getMyTaskDetail(id, taskDetailControl);
             if (response.success) {
                 const task = response.body.data.task;
+                let modificationTimestamp = task.modification_timestamp;
+                if(modificationTimestamp != null){
+                    modificationTimestamp = utcStrTimestampToLocalStr(modificationTimestamp);
+                }
                 setMyTaskDetail({
                     name: task.name,
                     description: task.description ?? '',
                     minClass: task.class_range.min.name,
                     maxClass: task.class_range.max.name,
                     tags: task.tags.map(tag => tag.name),
-                    creationTimestamp: task.creation_timestamp,
-                    modificationTimestamp: task.modification_timestamp ?? undefined,
+                    creationTimestamp: utcStrTimestampToLocalStr(task.creation_timestamp),
+                    modificationTimestamp: modificationTimestamp  ?? undefined,
                     orientation:task.orientation,
                     isPublic:task.is_public,
                     version:task.version,
@@ -101,7 +106,7 @@ const MyTaskDetail: FC<Props> = () => {
                 <Group><Text>Class range: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
                 <Text>Orientation: {taskDetail.orientation}</Text>
                 <Group><Text>Tags: </Text><TagsCmp tags={taskDetail.tags} /></Group>
-                <Group><Text>Is public: </Text><Text>{taskDetail.isPublic}</Text></Group>
+                <Group><Text>Is public: </Text><Text>{taskDetail.isPublic ? "True" : "False"}</Text></Group>
                 <Group><Text>Version: </Text><Text>{taskDetail.version}</Text></Group>
                 <Group><Text>Created at: </Text><Text>{taskDetail.creationTimestamp}</Text></Group>
                 {taskDetail.modificationTimestamp && 
