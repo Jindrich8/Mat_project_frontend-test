@@ -18,6 +18,8 @@ import { Review, toReview } from "../review/Review";
 import { ReviewCmp } from "../review/ReviewCmp";
 import { LoaderCmp } from "../../components/LoaderCmp";
 import { ErrorResponseState } from "../../types/types";
+import { ModalCmp } from "../../components/Modal/ModalCmp";
+import { useNavigate } from "react-router-dom";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
@@ -31,6 +33,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
 
     const [review,setReview] = React.useState(undefined as (Review|undefined));
     const [takeError,setTakeError] = React.useState<ErrorResponseState<typeof takeTask>>();
+    const navigate = useNavigate();
 
     const clearTakeError = React.useCallback(() => {
       setTakeError(undefined);
@@ -45,10 +48,13 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
       onClose:() => setEvaluateError(undefined)
     });
 
+    
+
     const reviewModalClose = React.useCallback(() =>{
       console.log('review modal closed');
-      setReview(undefined)
-    },[]);
+      setReview(undefined);
+      navigate(-1);
+    },[navigate]);
 
 
     useEffect(() => {
@@ -117,7 +123,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
           <VerticalCmp task={task} order={2} onSubmit={onSubmit} />)
       )}
       </Box>
-      <Modal opened={evaluateErrModalOpened} onClose={evaluateErrModalMethods.close}>
+      <ModalCmp opened={evaluateErrModalOpened} onClose={evaluateErrModalMethods.close}>
         {evaluateError && 
         <ApiErrorAlertCmp 
         withoutCloseButton
@@ -127,26 +133,25 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         onClose={clearEvaluateError}
          />
         }
-      </Modal>
+      </ModalCmp>
       <Modal.Root 
       trapFocus
       returnFocus
       closeOnClickOutside={false}
       opened={!!review} 
       onClose={reviewModalClose} 
-      style={{height:'100%'}} 
+      className={styles.reviewModalRoot}
       fullScreen
       radius={0}
-      transitionProps={{ transition: 'fade', duration: 20 }}
       >
         <Modal.Overlay>
-        <Modal.Content display={'flex'} w={'100%'} style={{flexDirection:'column',flexGrow:1}}>
-          <Modal.Header display={'flex'} style={{flexDirection:'row',justifyContent:'space-between'}}>
+        <Modal.Content className={styles.reviewModalContent}>
+          <Modal.Header className={styles.reviewModalHeader}>
             <div></div>
           <Modal.Title>Review</Modal.Title>
-            <Modal.CloseButton style={{marginLeft:0}}/>
+            <Modal.CloseButton className={styles.reviewModalCloseBtn} />
           </Modal.Header>
-          <Modal.Body display={'flex'} style={{flexDirection:'column',flexGrow:1}}>
+          <Modal.Body display={'flex'} className={styles.reviewModalBody}>
         {review && <ReviewCmp review={review} order={2} />}
         </Modal.Body>
         </Modal.Content>

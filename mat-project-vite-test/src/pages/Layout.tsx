@@ -26,6 +26,7 @@ const Layout: FC<Props> = () => {
 
     return (
         <AppShell
+        maw={'100vw'}
             header={{ height: 60 }}
             navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
         >

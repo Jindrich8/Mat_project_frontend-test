@@ -3,7 +3,7 @@ import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
-import { Button, Group, Modal, Pill, PillGroup, RangeSliderProps, Stack, Switch, Text, TextInput } from "@mantine/core";
+import { Button, Group, Pill, PillGroup, RangeSliderProps, Stack, Switch, Text, TextInput } from "@mantine/core";
 import { AuthorInfo1, EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { TagsCmp } from "../../components/Tags/TagsCmp";
@@ -33,6 +33,7 @@ import { DateTimeRangeInputCmp } from "../../components/DateTimeRangeInput/DateT
 import { DateValue } from "@mantine/dates";
 import { PercentRangeSliderCmp } from "../../components/PercentRangeSlider/PercentRangeSliderCmp";
 import { PlayerPlayIconCmp } from "../../components/Icons/PlayerPlayIconCmp";
+import { ModalCmp } from "../../components/Modal/ModalCmp";
 
 interface Props {
 
@@ -744,7 +745,7 @@ const ReviewList: FC<Props> = () => {
       renderBarBtns={renderTableBarBtns}
       refetchRecords={fetchRecords}
       />
-      <Modal
+      <ModalCmp
         opened={columnsToggleSettingsModal[0]}
         onClose={columnsToggleSettingsModal[1].close}
         withinPortal={false}
@@ -769,8 +770,8 @@ const ReviewList: FC<Props> = () => {
             })}
           </Stack>
         </Stack>
-      </Modal>
-      <Modal
+      </ModalCmp>
+      <ModalCmp
         opened={orderByModal[0]}
         onClose={orderByModal[1].close}
         withCloseButton>
@@ -781,8 +782,8 @@ const ReviewList: FC<Props> = () => {
             columns={validOrderByCols}
           />}
         </Stack>
-      </Modal>
-      <Modal
+      </ModalCmp>
+      <ModalCmp
       opened={filterSettingsModal[0]}
       onClose={filterSettingsModal[1].close}
       withinPortal={false}
@@ -809,7 +810,7 @@ const ReviewList: FC<Props> = () => {
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
-      </Modal>
+      </ModalCmp>
     </>
   )
 };

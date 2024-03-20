@@ -3,7 +3,7 @@ import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
 import { createAuthApiController } from "../../components/Auth/auth";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
-import { Button, Group, Modal, Pill, PillGroup, Stack, Switch, Text, TextInput } from "@mantine/core";
+import { Button, Group, Pill, PillGroup, Stack, Switch, Text, TextInput } from "@mantine/core";
 import { EnumElement, OrderedEnumElement } from "../../api/dtos/success_response";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { EyeIconCmp } from "../../components/Icons/EyeIconCmp";
@@ -33,6 +33,7 @@ import { TrashIconCmp } from "../../components/Icons/TrashIconCmp";
 import { deleteTask as apiDeleteTask } from "../../api/task/delete/delete";
 import { SuccessAlertCmp } from "../../components/SuccessAlert/SuccessAlertCmp";
 import { PlayerPlayIconCmp } from "../../components/Icons/PlayerPlayIconCmp";
+import { ModalCmp } from "../../components/Modal/ModalCmp";
 
 interface Props {
 
@@ -767,7 +768,7 @@ const MyTaskList: FC<Props> = () => {
       renderBarBtns={renderTableBarBtns}
       refetchRecords={fetchRecords}
       />
-      <Modal
+      <ModalCmp
         opened={columnsToggleSettingsModal[0]}
         onClose={columnsToggleSettingsModal[1].close}
         withinPortal={false}
@@ -793,8 +794,8 @@ const MyTaskList: FC<Props> = () => {
             })}
           </Stack>
         </Stack>
-      </Modal>
-      <Modal
+      </ModalCmp>
+      <ModalCmp
         opened={orderByModal[0]}
         onClose={orderByModal[1].close}
         withCloseButton>
@@ -805,8 +806,8 @@ const MyTaskList: FC<Props> = () => {
             columns={validOrderByCols}
           />}
         </Stack>
-      </Modal>
-      <Modal
+      </ModalCmp>
+      <ModalCmp
       opened={filterSettingsModal[0]}
       onClose={filterSettingsModal[1].close}
       withinPortal={false}
@@ -848,7 +849,7 @@ const MyTaskList: FC<Props> = () => {
           onChange={onModificationRangeChange}
           />
           </Stack>
-      </Modal>
+      </ModalCmp>
     </>
   )
 };

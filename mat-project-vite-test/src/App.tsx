@@ -35,6 +35,7 @@ import { ReviewList } from './pages/review/ReviewList';
 import { GetReview } from './pages/review/GetReview';
 import { ResetPassword } from './pages/ResetPassword';
 import { ForgotPassword } from './pages/ForgotPassword';
+import { AppErrorElement } from './AppErrorElement';
 
 const theme = createTheme({
   /** Your theme override here */
@@ -55,6 +56,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
     element={<Layout/>}
+    errorElement={<AppErrorElement />}
     >
       <Route path="/login" 
       element={<Login/>}

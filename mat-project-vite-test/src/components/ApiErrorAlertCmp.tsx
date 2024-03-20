@@ -1,10 +1,11 @@
 import { FC } from "react"
 import { BasicStyledCmpProps } from "../types/props/props";
 import { ErrorAlertCmp, ErrorAlertCmpProps } from "./ErrorAlertCmp";
-import { Button, Modal, Text } from "@mantine/core";
+import { Button, Text } from "@mantine/core";
 import { ApplicationErrorInformation } from "../api/dtos/errors/error_response";
 import { useDisclosure } from "@mantine/hooks";
 import { JsonViewCmp } from "./JsownView/JsonViewCmp";
+import { ModalCmp } from "./Modal/ModalCmp";
 interface Props extends BasicStyledCmpProps {
   error?: ApplicationErrorInformation,
   status: number,
@@ -25,14 +26,14 @@ const ApiErrorAlertCmp: FC<Props> = ({ error, status, statusText,onClose,without
         {error.details?.errorData !== undefined && <Button onClick={open}>Data</Button>}
         </>
       }
-        <Modal
+        <ModalCmp
           opened={opened}
           onClose={close}
           title="Error data"
           centered
           >
             <JsonViewCmp json={error?.details?.errorData} />
-        </Modal>
+        </ModalCmp>
     </ErrorAlertCmp>
   );
 };
