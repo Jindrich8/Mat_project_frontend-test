@@ -2,7 +2,7 @@ import React, { FC, useEffect } from "react"
 import { toTask } from "./Task";
 import { HorizontalCmp } from "./Horizontal/HorizontalCmp";
 import { VerticalCmp } from "./Vertical/VerticalCmp";
-import { Box, Modal, Stack } from "@mantine/core";
+import { Box, Button, Group, Modal, Stack, Text } from "@mantine/core";
 import { takeTask } from "../../api/task/take/get";
 import { BasicStyledCmpProps } from "../../types/props/props";
 import { ApiErrorAlertCmp } from "../../components/ApiErrorAlertCmp";
@@ -14,25 +14,62 @@ import { useDisclosure } from "@mantine/hooks";
 import { dump } from "../../utils/utils";
 import styles from "./ShowTaskStyle.module.css"
 import { createAuthApiController } from "../../components/Auth/auth";
-import { Review, toReview } from "../review/Review";
+import { toReview } from "../review/Review";
 import { ReviewCmp } from "../review/ReviewCmp";
 import { LoaderCmp } from "../../components/LoaderCmp";
 import { ErrorResponseState } from "../../types/types";
 import { ModalCmp } from "../../components/Modal/ModalCmp";
 import { useNavigate } from "react-router-dom";
+import { ReviewTaskResponse } from "../../api/dtos/success_response";
 
 type Props = {taskId:string} & BasicStyledCmpProps;
 
 const evaluateTaskControl = createAuthApiController();
 
+const reviewKeyPrefix = "task-review-data";
+
 const takeTaskControl = createAuthApiController();
 const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
+  const reviewKey = reviewKeyPrefix+taskId;
   const [task,setTask] = React.useState(
     undefined as (HorizontalTask|VerticalTask|undefined)
      );
 
-    const [review,setReview] = React.useState(undefined as (Review|undefined));
+  const [review, setReview] = React.useState(() => {
+    const storedReview = sessionStorage.getItem(reviewKey);
+    try {
+      if (storedReview) {
+        const parsedReview = JSON.parse(storedReview);
+        if (parsedReview) {
+          return toReview(parsedReview);
+        }
+      }
+    }
+    catch { /* empty */ }
+    return undefined;
+  });
+
+  const currentHref = React.useRef<string|undefined>(undefined);
+
+  useEffect(() => {
+    currentHref.current = window.location.href;
+    return () => {
+      if(window.location.href !== currentHref.current) {
+      sessionStorage.removeItem(reviewKey);
+      }
+    };
+  });
+    const [submittedData,setSubmittedData] = React.useState<EvaluateTaskRequest['exercises']|undefined>(undefined);
     const [takeError,setTakeError] = React.useState<ErrorResponseState<typeof takeTask>>();
+    const onConfirmModalClose = React.useCallback(() => {
+      setSubmittedData(undefined);
+    },[]);
+
+    const setReviewToStorage = React.useCallback((data:ReviewTaskResponse)=>{
+      setReview(toReview(data));
+      sessionStorage.setItem(reviewKey,JSON.stringify(data));
+    },[reviewKey]);
+    
     const navigate = useNavigate();
 
     const clearTakeError = React.useCallback(() => {
@@ -53,8 +90,9 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
     const reviewModalClose = React.useCallback(() =>{
       console.log('review modal closed');
       setReview(undefined);
+      sessionStorage.removeItem(reviewKey);
       navigate(-1);
-    },[navigate]);
+    },[navigate, reviewKey]);
 
 
     useEffect(() => {
@@ -72,7 +110,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
           });
         }
       };
-      if(taskId !== undefined){
+      if(taskId !== undefined && !review){
         if(task === undefined || task?.id !== taskId){
           fetchTask(taskId);
         }
@@ -80,31 +118,34 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[task,taskId]);
 
-    
+    const evaluateTaskCallback = React.useCallback(async()=>{
+      if(task && submittedData){
+        const response = await evaluateTask(taskId,{
+          version:task.version+'',
+          exercises:submittedData
+        },evaluateTaskControl);
+        if(response.success){
+          setReviewToStorage(response.body.data);
+        }
+        else if(response.isServerError){
+          setEvaluateError(
+            {
+              status: response.status,
+              statusText: response.statusText,
+              error: response.error?.error
+            }
+          );
+          console.log(dump(response,2));
+          evaluateErrModalMethods.open();
+        }
+      }
+      setSubmittedData(undefined);
+    },[evaluateErrModalMethods, setReviewToStorage, submittedData, task, taskId]);
 
     const onSubmit = React.useCallback(async(values:EvaluateTaskRequest['exercises']) => {
       console.log("submit");
-      if(task){
-      const response = await evaluateTask(taskId,{
-        version:task.version+'',
-        exercises:values
-      },evaluateTaskControl);
-      if(response.success){
-        setReview(toReview(response.body.data));
-      }
-      else if(response.isServerError){
-        setEvaluateError(
-          {
-            status: response.status,
-            statusText: response.statusText,
-            error: response.error?.error
-          }
-        );
-        console.log(dump(response,2));
-        evaluateErrModalMethods.open();
-      }
-    }
-    },[evaluateErrModalMethods, setEvaluateError, task, taskId]);
+      setSubmittedData(values);
+    },[]);
 
   return (
     <Stack className={styles.container} style={style} {...baseProps}>
@@ -157,6 +198,16 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         </Modal.Content>
         </Modal.Overlay>
       </Modal.Root>
+      <ModalCmp opened={submittedData !== undefined} onClose={onConfirmModalClose} title={'Submit task?'}>
+          <Stack>
+            <Text fw={'bold'}>Do you really want to submit this task?</Text>
+            <Text size={'xs'}>This action is irreversible.</Text>
+            <Group>
+              <Button onClick={onConfirmModalClose}>Cancel</Button>
+              <Button onClick={evaluateTaskCallback}>Submit</Button>
+            </Group>
+          </Stack>
+      </ModalCmp>
     </Stack>
   )
 };
