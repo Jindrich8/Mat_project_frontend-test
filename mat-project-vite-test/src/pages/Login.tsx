@@ -6,7 +6,7 @@ import {
     Title,
     Text,
     Container,
-    Group,
+  //  Group,
     Button
 } from '@mantine/core';
 //import axios from 'axios';
@@ -114,11 +114,11 @@ const Login: FC<Props> = () => {
                     onChange={(e) => state.password.set(e.target.value)}
                     error={formError?.errorData.password?.message}
                     required mt="md" />
-                <Group justify="space-between" mt="lg">
+                {/* <Group justify="space-between" mt="lg">
                     <Link to="/forgot-password">
                         Forgot password?
                     </Link>
-                </Group>
+                </Group> */}
                 <Button fullWidth mt="xl" type={'submit'}>
                     Sign in
                 </Button>
