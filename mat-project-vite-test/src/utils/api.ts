@@ -13,11 +13,12 @@ import { csrf } from "./auth";
 import { dump } from "./utils";
 import { DuplicateRequestError } from "../types/errors/DuplicateRequestError";
 import { Any } from "../types/types";
+import { env } from "./vite";
 
 axios.defaults.withCredentials = true;
 const apiAxios = (() => {
   const instance = axios.create({
-    baseURL: 'http://localhost:8000/',
+    baseURL: env.VITE_MY_BACKEND_API_URL,
     // TODO: change this to true
     withCredentials: true,
     headers: {
@@ -68,7 +69,6 @@ const apiAxios = (() => {
 export const api = () => {
   console.log("Creating api...");
   // TODO: uncomment this
-
   console.log("Api created successfully...");
   return apiAxios;
 }
