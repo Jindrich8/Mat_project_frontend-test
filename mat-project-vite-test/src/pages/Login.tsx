@@ -58,7 +58,7 @@ const Login: FC<Props> = () => {
             navigateTo('/');
         }
         else if (response.isServerError) {
-            if (response.error?.error.details.code === 1) {
+            if (response.error?.error?.details?.code === 1 satisfies LoginErrorDetails['code']) {
                 setFormError(response.error.error.details);
             }
             else {

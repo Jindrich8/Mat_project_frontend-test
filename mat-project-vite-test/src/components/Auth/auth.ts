@@ -80,7 +80,7 @@ export const handleErrorResponse = (error: AxiosResponse<ErrorResponseType<Error
         setSignedOut();
     }
     
-    if(error.data?.error.details?.code === -12 satisfies AlreadyAuthenticatedError['code'] && !authState.signedIn.value){
+    if(error.data?.error?.details?.code === -12 satisfies AlreadyAuthenticatedError['code'] && !authState.signedIn.value){
         setSignedIn({
             user: null,
             error:{

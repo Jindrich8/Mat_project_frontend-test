@@ -75,7 +75,7 @@ console.log("refresh");
                 navigate();
             }
             else if(response.isServerError){
-                if(response.error?.error?.details.code === 1){
+                if(response.error?.error?.details?.code === 1){
                     setFormError(response.error.error.details.errorData);
                     console.log(dump(response.error.error.details));
                 }
