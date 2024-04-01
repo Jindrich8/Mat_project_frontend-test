@@ -335,7 +335,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
 
     const [defaultSource, setDefaultSource] = React.useState<string | undefined>(editorValue.current);
 
-    const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    const handleSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>(async (e) => {
         console.log("Submit task");
         e.preventDefault();
         e.stopPropagation();
@@ -419,14 +419,17 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
         }
         setTaskError(newTaskError);
         generalError.set(newGeneralError);
-    };
+    },[action, classRange.max, classRange.maxError, classRange.min, classRange.minError, generalError, setClassRangeError, state, tags]);
 
+    const onFormInvalid = React.useCallback<React.FormEventHandler<HTMLFormElement>>(async () => {
+        setActiveTab('filters');
+    },[]);
 
-
+    const [activeTab,setActiveTab] = React.useState<string|null>('filters');
     return (
         <Stack className={styles.rootStack} align={'center'}>
 
-            <form onSubmit={handleSubmit} className={styles.rootForm}>
+            <form onSubmit={handleSubmit} className={styles.rootForm} onInvalid={onFormInvalid}>
                 <Group w={'100%'} justify={'flex-end'}>
                     <Checkbox
                         checked={state.isPublic.value}
@@ -456,7 +459,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                         statusText={taskError.statusText}
                         onClose={clearTaskError}
                     />}
-                <Tabs defaultValue={'filters'} className={styles.rootTabs}>
+                <Tabs value={activeTab} onChange={setActiveTab} className={styles.rootTabs} keepMounted>
                     <Tabs.List>
                         <Tabs.Tab value={'filters'} bg={state.keys.every(key => 
                         // @ts-expect-error ts - cannot index state even with it's keys
@@ -471,6 +474,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                             <Stack w={'100%'} justify={'center'} m={'lg'} align={'center'}>
                                 <TextInput
                                     label={'Název'}
+                                    name={'name'}
                                     value={state.name.val.value}
                                     onChange={onNameChanged}
                                     error={state.name.err.value}
@@ -480,6 +484,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                 />
                                 <SearchableSelect
                                     label={'Orientace'}
+                                    name={'orientation'}
                                     value={state.orientation.val.value}
                                     error={state.orientation.err.value}
                                     options={[
@@ -497,6 +502,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                 />
                                 <SearchableMultiSelect
                                     options={createInfo?.tags ?? []}
+                                    name={'tags'}
                                     value={tags}
                                     onChange={onTagsChange}
                                     error={state.tags.err.value}
@@ -505,6 +511,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                 />
                                 <SearchableSelect
                                     options={createInfo?.difficulties ?? []}
+                                    name={'difficulty'}
                                     label={'Obtížnost'}
                                     value={state.difficulty.val.value}
                                     error={state.difficulty.err.value}
@@ -519,6 +526,8 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                     options={classesForCmp ?? []}
                                     required
                                     error={state.classRange.err.value}
+                                    minName={'min_class'}
+                                    maxName={'max_class'}
                                     label={'Rozsah tříd'}
                                     onChange={onClassRangeChange}
                                 />
@@ -527,7 +536,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
 
                         </Group>
                     </Tabs.Panel>
-                    <Tabs.Panel value={'source'} className={styles.tabsPanel}>
+                    <Tabs.Panel value={'source'} className={styles.tabsPanel} >
                         <Suspense fallback={<LoaderCmp />}>
                         <Box className={styles.sourceEditorWrapper}>
                             {XMLEditorCmp && <XMLEditorCmp

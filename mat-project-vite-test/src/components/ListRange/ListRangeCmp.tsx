@@ -13,10 +13,12 @@ type Props = MantineStyleProps &
         onChange?: (type: 'min' | 'max', value: number | undefined) => void,
         minError?:string,
         maxError?:string,
+        minName?:string,
+        maxName?:string
     };
 
 
-const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,label,required,error,...base}) => {
+const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,label,required,error,minName,maxName,...base}) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const data = React.useMemo(() =>
         options.map((opt, i) => ({
@@ -45,6 +47,7 @@ const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,lab
                             options={data}
                             value={min+''}
                             required={required}
+                            name={minName}
                             selId={'min'}
                             aria-label={'Min'}
                             onChange={onMinMaxChange}
@@ -57,6 +60,7 @@ const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,lab
                             options={data}
                             required={required}
                             value={max+''}
+                            name={maxName}
                             selId={'max'}
                             error={maxError}
                             onChange={onMinMaxChange}

@@ -200,7 +200,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
       </Modal.Root>
       <ModalCmp opened={submittedData !== undefined} onClose={onConfirmModalClose} title={'Odeslat úlohu?'}>
           <Stack>
-            <Text fw={'bold'}>Opravdu chceš odeslat uto úlohu?</Text>
+            <Text fw={'bold'}>Opravdu chceš odeslat tuto úlohu?</Text>
             <Text size={'xs'}>Tato akce je nevratná.</Text>
             <Group>
               <Button onClick={onConfirmModalClose}>Zrušit</Button>

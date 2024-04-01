@@ -204,7 +204,7 @@ const TaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render(record) {
-          return (<Text w={'min-content'} m={'auto'}>{record.name}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{record.name}</Text>);
         },
       } as const,
       {
@@ -213,7 +213,7 @@ const TaskList: FC<Props> = () => {
         ...basicColProps,
         render: (_record, _index) => {
           const difficulty = _record.difficulty;
-          return (<Text w={'min-content'} m={'auto'}>{difficulty.name}</Text>)
+          return (<Text w={'fit-content'} m={'auto'}>{difficulty.name}</Text>)
         }
       } as const,
       {
@@ -221,7 +221,7 @@ const TaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
         }
       } as const,
       {
@@ -229,7 +229,7 @@ const TaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record['maxClass']['name']}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{_record['maxClass']['name']}</Text>);
         }
       } as const,
       {

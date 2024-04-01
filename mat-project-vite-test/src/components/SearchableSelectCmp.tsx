@@ -14,6 +14,7 @@ type Props = MantineStyleProps & BasicStyledCmpProps & {
   label?:React.ReactNode
   selId?:NonNullable<unknown>
   style?:React.CSSProperties
+  name?:string
   ['aria-label']?:string
   onChange?:(option?:{label:string,value:string},selId?:NonNullable<unknown>)=> void
 }
@@ -36,6 +37,7 @@ const SearchableSelect:FC<Props> = ({
   label,
   "aria-label":ariaLabel,
   onChange,
+  name,
   ...baseProps
 }) => {
     const onSelectionChange = React.useCallback(
@@ -51,6 +53,7 @@ const SearchableSelect:FC<Props> = ({
     selectFirstOptionOnChange
     onChange={onSelectionChange}
     placeholder={placeholder}
+    name={name}
     error={error}
     filter={filter}
     value={value}

@@ -10,26 +10,26 @@ interface Props {
 }
 
 
-const defaultSource = `<document>
-    <description>
-        Popis úlohy
-    </description>
-    <entries>
-        <group>
-            <resources>
-                <resource>Zdroj 1 pro cvičení v této skupině</resource>
-                <resource>Zdroj 2 pro cvičení v této skupině</resource>
-            </resources>
-            <members>
+const defaultSource = `<dokument>
+    <popis>
+        Popis úlohy.
+    </popis>
+    <polozky>
+        <skupina>
+            <zdroje>
+                <zdroj>Zdroj 1 pro cvičení v této skupině.</zdroj>
+                <zdroj>Zdroj 2 pro cvičení v této skupině.</zdroj>
+            </zdroje>
+            <clenove>
                 <!--
                 Cvičení má 2 atributy:
-                type - typ cvičení
-                weight - váha cvičení, používá se při vyhodnocování při kterém značí váhu (důležitost) cvičení vzhledem k ostatním cvičením
+                typ - typ cvičení
+                vaha - váha cvičení, při vyhodnocování značí váhu (důležitost) cvičení vzhledem k ostatním cvičením
                 -->
-                <exercise type="FillInBlanks" weight="10">
-                    <instructions>
+                <cviceni typ="Doplnovacka" vaha="10">
+                    <instrukce>
                         Instrukce pro tuto doplňovačku.
-                    </instructions>
+                    </instrukce>
                     <!--
                     V doplňovačce lze použít 2 komponenty:
                     text input - textový vstup - [správná hodnota]
@@ -38,18 +38,18 @@ const defaultSource = `<document>
                     comboboxu),'\\'.
                     Aby možnosti mohly obsahovat tyto kontrolní znaky, tak se musí před řídícím znakem nacházet zpětné
                     lomítko '\\'.
-                    Zpětné lomítko se nesmí nacházet před neřídím znakem.
+                    Zpětné lomítko se nesmí nacházet před neřídícím znakem.
                     -->
-                    <content>
-                        černý ryb[í/ý]z, pozorovala pl[y/i]noucí řeku, [s/z]křížit meče,
+                    <obsah>
+                        černý ryb[í/ý]z, pozorovala pl[y/i]noucí řeku, [z/s]křížit meče,
                         [K]arel IV., l[i/y]dé v c[i/y]z[i]ně občas dávají sv[ý/í]m dětem opravdu podivná
                         jména, jako například [\\[****\\\\Pal2566\\]\\//Pavel]
-                    </content>
-                </exercise>
-                <exercise type="FixErrors" weight="20">
-                    <instructions>
-                        Instrukce pro toto opravování chyb
-                    </instructions>
+                    </obsah>
+                </cviceni>
+                <cviceni typ="OpravovaniChyb" vaha="20">
+                    <instrukce>
+                        Instrukce pro toto opravování chyb.
+                    </instrukce>
                     <!--
                     Opravování chyb se skládá ze dvou částí:
                         správného textu - text, na který musí žák špatný text opravit
@@ -57,49 +57,49 @@ const defaultSource = `<document>
                     Žák dostane špatný text a musí ho opravit tak, aby byl stejný jako správný text, který nevidí.
         
                     Hodnocení:
-                    Hodnotí se jak moc se opravený text liší od správného textu, čím jsou si podobnější, tím více bodů
+                    Hodnotí se, jak moc se opravený text liší od správného textu, čím jsou si podobnější, tím více bodů
                     dostane.
                     Pokud se opravený text od správného textu liší více nebo stejně jako zadaný text, tak bude uděleno
                     0 bodů.
                     -->
-                    <content>
-                        <correctText>
+                    <obsah>
+                        <spravnyText>
                             Šli jsme k panu starostovi pro radu.
-                        </correctText>
+                        </spravnyText>
                         <text>
                             Sli sme k panu starostu pro radu.
                         </text>
-                    </content>
-                </exercise>
-                <group>
-                    <resources>
-                        <resource>
-                            Zdroj pro cvičení v této vnořené skupině
-                        </resource>
-                    </resources>
-                    <members>
-                        <exercise type="FillInBlanks" weight="5">
-                            <instructions>Instrukce pro tuto doplňovačku ve vnořené skupině</instructions>
-                            <content>
-                                Skákal [p/l]es přes [o/vo]es a přes zelenou louku...
-                            </content>
-                        </exercise>
-                    </members>
-                </group>
-            </members>
-        </group>
-        <exercise type="FillInBlanks" weight="3">
-            <instructions>
+                    </obsah>
+                </cviceni>
+                <skupina>
+                    <zdroje>
+                        <zdroj>
+                            Zdroj pro cvičení v této vnořené skupině.
+                        </zdroj>
+                    </zdroje>
+                    <clenove>
+                        <cviceni typ="Doplnovacka" vaha="5">
+                            <instrukce>Instrukce pro tuto doplňovačku ve vnořené skupině.</instrukce>
+                            <obsah>
+                                Skákal [p/l]es přes [o/vo]ves a přes zelenou louku...
+                            </obsah>
+                        </cviceni>
+                    </clenove>
+                </skupina>
+            </clenove>
+        </skupina>
+        <cviceni typ="Doplnovacka" vaha="3">
+            <instrukce>
                 Instrukce pro tuto doplňovačku.
-            </instructions>
-            <content>
-                černý ryb[í/ý]z, pozorovala pl[y/i]noucí řeku, [s/z]křížit meče,
-                [K]arel IV., l[i/y]dé v c[i/y]z[i]ně občas dávají sv[ý/í]m dětem opravdu podivná jména,
-                jako například [\\[****\\\\Pal2566\\]\\//Pavel]
-            </content>
-        </exercise>
-    </entries>
-</document>
+            </instrukce>
+            <obsah>
+                černý ryb[í/ý]z, pozorovala pl[y/i]noucí řeku, [z/s]křížit meče,
+                [K]arel IV., l[i/y]dé v c[i/y]z[i]ně občas dávají sv[ý/í]m dětem opravdu podivná
+                jména, jako například [\\[****\\\\Pal2566\\]\\//Pavel]
+            </obsah>
+        </cviceni>
+    </polozky>
+</dokument>
 `;
 
 const createTaskControl = createAuthApiController();

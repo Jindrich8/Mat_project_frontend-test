@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DataTableColumn, useDataTableColumns } from "mantine-datatable";
 import React, { FC, useEffect } from "react"
 import { createAuthApiController } from "../../components/Auth/auth";
@@ -14,8 +13,7 @@ import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/Se
 import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
-import { ListTaskReviewsRequest, ListTasksRequest } from "../../api/dtos/request";
-import { UnionToTuple } from "../../types/base";
+import { ListTaskReviewsRequest } from "../../api/dtos/request";
 import { ErrorResponseState } from "../../types/types";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
 import { useDisclosure } from "@mantine/hooks";
@@ -296,7 +294,7 @@ const ReviewList: FC<Props> = () => {
         ...basicColProps,
         toggleable:true,
         render(record) {
-          return (<Text w={'min-content'} m={'auto'}>{record.name}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{record.name}</Text>);
         },
       } as const,
      {
@@ -305,31 +303,31 @@ const ReviewList: FC<Props> = () => {
         toggleable:true,
         render(record) {
             const score = record.score;
-          return (<Text w={'min-content'} m={'auto'}>{(score * 100).toFixed(2)+'%'}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{(score * 100).toFixed(2)+'%'}</Text>);
         },
      },
       {
         ...columnAccessorAndTitle('difficulty'),
         toggleable: true,
         ...basicColProps,
-        render: (_record, _index) => {
+        render: (_record) => {
           const difficulty = _record.difficulty;
-          return (<Text w={'min-content'} m={'auto'}>{difficulty.name}</Text>)
+          return (<Text w={'fit-content'} m={'auto'}>{difficulty.name}</Text>)
         }
       } as const,
       {
         ...columnAccessorAndTitle('minClass'),
         toggleable: true,
         ...basicColProps,
-        render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
+        render: (_record) => {
+          return (<Text w={'fit-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
         }
       } as const,
       {
         ...columnAccessorAndTitle('maxClass'),
         toggleable: true,
         ...basicColProps,
-        render: (_record, _index) => {
+        render: (_record) => {
           return (<Text w={'min-content'} m={'auto'}>{_record['maxClass']['name']}</Text>);
         }
       } as const,
@@ -338,7 +336,7 @@ const ReviewList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         noWrap: true,
-        render: (_record, _index) => {
+        render: (_record) => {
           const tags = _record['tags'];
           return (<TagsCmp tags={tags.map(tag => tag.name)} />);
         }
@@ -347,7 +345,7 @@ const ReviewList: FC<Props> = () => {
         ...columnAccessorAndTitle('evaluationTimestamp'),
         toggleable: true,
         ...basicColProps,
-        render: (_record, _index) => {
+        render: (_record) => {
           const timestamp = _record.evaluationTimestamp;
           return (<Text>{timestamp}</Text>);
         }
@@ -356,7 +354,7 @@ const ReviewList: FC<Props> = () => {
         ...columnAccessorAndTitle('author'),
         toggleable: true,
         ...basicColProps,
-        render: (_record, _index) => {
+        render: (_record) => {
           return (<Text w={'min-content'} m={'auto'}>{_record.author.name}</Text>);
         }
       } as const,

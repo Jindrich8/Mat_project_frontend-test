@@ -13,8 +13,7 @@ import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/Se
 import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
-import { ListMyTasksRequest, ListTasksRequest } from "../../api/dtos/request";
-import { UnionToTuple } from "../../types/base";
+import { ListMyTasksRequest } from "../../api/dtos/request";
 import { ErrorResponseState } from "../../types/types";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
 import { useDisclosure } from "@mantine/hooks";
@@ -296,7 +295,7 @@ const MyTaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render(record) {
-          return (<Text w={'min-content'} m={'auto'}>{record.name}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{record.name}</Text>);
         },
       } as const,
       {
@@ -305,7 +304,7 @@ const MyTaskList: FC<Props> = () => {
         ...basicColProps,
         render: (_record, _index) => {
           const difficulty = _record.difficulty;
-          return (<Text w={'min-content'} m={'auto'}>{difficulty.name}</Text>)
+          return (<Text w={'fit-content'} m={'auto'}>{difficulty.name}</Text>)
         }
       } as const,
       {
@@ -313,7 +312,7 @@ const MyTaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{_record['minClass']['name']}</Text>);
         }
       } as const,
       {
@@ -321,7 +320,7 @@ const MyTaskList: FC<Props> = () => {
         toggleable: true,
         ...basicColProps,
         render: (_record, _index) => {
-          return (<Text w={'min-content'} m={'auto'}>{_record['maxClass']['name']}</Text>);
+          return (<Text w={'fit-content'} m={'auto'}>{_record['maxClass']['name']}</Text>);
         }
       } as const,
       {
