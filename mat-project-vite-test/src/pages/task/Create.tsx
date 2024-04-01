@@ -189,7 +189,7 @@ const Create: FC<Props> = () => {
     return (
         <UpdateTaskPageCmp
         getInitialSource={getInitialSource}
-        actionLabel={'Create'}
+        actionLabel={'Vytvořit'}
         action={action}
          />
     );

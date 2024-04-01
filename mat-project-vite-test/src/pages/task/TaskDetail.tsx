@@ -77,19 +77,19 @@ const TaskDetail: FC<Props> = () => {
             <Stack align={'center'}>
                 <Title order={1}>{taskDetail.name}</Title>
                 <Text>{taskDetail.description}</Text>
-                <Text >Difficulty: {taskDetail?.difficulty}</Text>
-                <Group><Text>Class range: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
-                <Text>Author: {taskDetail.author}</Text>
-                <Group><Text>Tags: </Text><TagsCmp tags={taskDetail.tags} /></Group>
+                <Text>Obtížnost: {taskDetail?.difficulty}</Text>
+                <Group><Text>Rozsah tříd: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
+                <Text>Autor: {taskDetail.author}</Text>
+                <Group><Text>Štítky: </Text><TagsCmp tags={taskDetail.tags} /></Group>
                 {taskDetail.taskReview && (
                     <Group>
-                        <Text>Review: </Text>
+                        <Text>Vyhodnocení: </Text>
                         <Link to={`/task/review/${taskDetail.taskReview.id}/detail`}>
                             {'~'+(taskDetail.taskReview.score*100).toFixed(2)+'%'}
                             </Link>
                     </Group>)
                 }
-                <Button onClick={takeTask}>Take</Button>
+                <Button onClick={takeTask}>Vyplnit úlohu</Button>
             </Stack>)
         }
         </Stack>

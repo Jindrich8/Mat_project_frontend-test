@@ -33,8 +33,6 @@ import { MyTaskDetail } from './pages/task/MyTaskDetail';
 import { ReviewDetail } from './pages/review/ReviewDetail';
 import { ReviewList } from './pages/review/ReviewList';
 import { GetReview } from './pages/review/GetReview';
-import { ResetPassword } from './pages/ResetPassword';
-import { ForgotPassword } from './pages/ForgotPassword';
 import { AppErrorElement } from './AppErrorElement';
 
 const theme = createTheme({
@@ -61,8 +59,8 @@ const router = createBrowserRouter(
       <Route path="/login" 
       element={<Login/>}
       />
-      <Route path="/forgot-password" element={<ForgotPassword />}/>
-      <Route path="/reset-password/:token" element={<ResetPassword />}/>
+      {/*<Route path="/reset-password/:token" element={<ResetPassword />}/>*/}
+      {/*<Route path="/forgot-password" element={<ForgotPassword />}/>*/}
       <Route path="/register" element={<Register/>}/>
       <Route path="/profile/info" element={<AuthProtectionCmp><ProfileInfo/></AuthProtectionCmp>}/>
       <Route path="/task/myList" element={<MyTaskList />} />

@@ -141,7 +141,7 @@ const DataTableCmp = <Rec extends {
     <Stack mt={'md'}>
         <Group>
             {renderBarBtns()}
-            <ActionIconCmp title={'Reload data'} onClick={refetchRecords} mr={'1.5rem'}>
+            <ActionIconCmp title={'Aktualizovat data'} onClick={refetchRecords} mr={'1.5rem'}>
           <ReloadIconCmp />
         </ActionIconCmp>
         </Group>
@@ -160,9 +160,9 @@ const DataTableCmp = <Rec extends {
         contextMenu="W"
         records={records} />
            <Group>
-        <Button disabled={cursors.prev === undefined} onClick={firstPage}>First</Button>
-        <Button disabled={cursors.prev === undefined} onClick={prevPage}>Previous</Button>
-        <Button disabled={cursors.next === undefined} onClick={nextPage}>Next</Button>
+        <Button disabled={cursors.prev === undefined} onClick={firstPage}>První</Button>
+        <Button disabled={cursors.prev === undefined} onClick={prevPage}>Předchozí</Button>
+        <Button disabled={cursors.next === undefined} onClick={nextPage}>Další</Button>
       </Group>
     </Stack>
   );

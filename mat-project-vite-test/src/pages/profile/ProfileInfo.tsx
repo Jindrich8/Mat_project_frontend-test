@@ -12,13 +12,13 @@ const ProfileInfo: FC<Props> = () => {
     return (<>
         <Accordion variant={'separated'} chevronPosition={'right'}>
             <AccordionItem value={'profileForm'}>
-                <AccordionControl>Profile</AccordionControl>
+                <AccordionControl>Profil</AccordionControl>
                 <AccordionPanel>
                     <ProfileFormCmp />
                 </AccordionPanel>
             </AccordionItem>
             <AccordionItem value={'updatePasswordForm'}>
-                <AccordionControl>Update password</AccordionControl>
+                <AccordionControl>Upravit heslo</AccordionControl>
                 <AccordionPanel>
                     <UpdatePasswordFormCmp />
                 </AccordionPanel>

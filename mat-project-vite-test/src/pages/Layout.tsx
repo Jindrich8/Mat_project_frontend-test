@@ -35,15 +35,15 @@ const Layout: FC<Props> = () => {
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Group ml="xl" gap={'md'} visibleFrom="sm" w={'100%'}>
-                        {!auth.signedIn.value && <BtnLinkCmp to='/login'>Login</BtnLinkCmp>}
-                            <BtnLinkCmp to='/'>Tasks</BtnLinkCmp>
+                        {!auth.signedIn.value && <BtnLinkCmp to='/login'>Přihlásit se</BtnLinkCmp>}
+                            <BtnLinkCmp to='/'>Úlohy</BtnLinkCmp>
                             <AuthVisibleCmp>
                                     {auth.user.value?.role === 'teacher' &&
-                                        (<><BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>
-                                        <BtnLinkCmp to='/task/create'>Create task</BtnLinkCmp></>
+                                        (<><BtnLinkCmp to='/task/myList'>Moje úlohy</BtnLinkCmp>
+                                        <BtnLinkCmp to='/task/create'>Vytvořit úlohu</BtnLinkCmp></>
                                         )
                                     }
-                                    <BtnLinkCmp to="/task/review/list">Reviews</BtnLinkCmp>
+                                    <BtnLinkCmp to="/task/review/list">Vyhodnocení</BtnLinkCmp>
                                     <div style={{ marginLeft: 'auto' }}>
                         <UserMenuCmp />
                     </div>
@@ -55,19 +55,19 @@ const Layout: FC<Props> = () => {
 
             <AppShell.Navbar py="md" px={4}>
                 <Stack gap={'md'} ml={'md'}>
-                <BtnLinkCmp to='/'>Tasks</BtnLinkCmp>
+                <BtnLinkCmp to='/'>Úlohy</BtnLinkCmp>
                 <AuthVisibleCmp><Stack>
                     {auth.user.value?.role === 'teacher' &&
-                        <BtnLinkCmp to='/task/myList'>My tasks</BtnLinkCmp>
+                        <BtnLinkCmp to='/task/myList'>Moje úlohy</BtnLinkCmp>
                     }
-                    <BtnLinkCmp to="/task/review/list">Reviews</BtnLinkCmp>
+                    <BtnLinkCmp to="/task/review/list">Vyhodnocení</BtnLinkCmp>
                     <Accordion>
                     <AccordionItem value={'profile'}>
-                            <AccordionControl fw={'normal'}>Profile</AccordionControl>
+                            <AccordionControl fw={'normal'}>Profil</AccordionControl>
                             <AccordionPanel>
                             <Stack>
-                                            <BtnLinkCmp to='/profile/info'>Profile</BtnLinkCmp>
-                                            <UnstyledButton onClick={onLogOut}>Logout</UnstyledButton>
+                                            <BtnLinkCmp to='/profile/info'>Profil</BtnLinkCmp>
+                                            <UnstyledButton onClick={onLogOut}>Odhlásit se</UnstyledButton>
                                         </Stack>
                             </AccordionPanel>
                             </AccordionItem>

@@ -14,7 +14,7 @@ import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/Se
 import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
-import { ListTasksRequest } from "../../api/dtos/request";
+import { ListTaskReviewsRequest, ListTasksRequest } from "../../api/dtos/request";
 import { UnionToTuple } from "../../types/base";
 import { ErrorResponseState } from "../../types/types";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
@@ -121,16 +121,9 @@ const getDateParam = (params:URLSearchParams,key:string) =>{
     return getDateParam(params,key)?.toISOString();
   }
 
-const validOrderByColsSet = {
-  "name": true,
-  "difficulty": true,
-  "class_range": true,
-  "evaluation_timestamp": true,
-  "score": true,
-} satisfies Record<string, true>;
 
-//@ts-expect-error Object.keys does not infer type of keys
-const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
+const apiValidOrderByCols = ["name","difficulty","class_range","evaluation_timestamp","score"] as const;
+const validOrderByCols = ["Název","Obtížnost","Rozsah tříd","Datum a čas vyhodnocení","Skóre"] as const;
 
 
 /*
@@ -146,14 +139,14 @@ const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.
 */
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
-  'name': "Name",
-  'evaluationTimestamp': 'Evaluation timestamp',
-  'difficulty': "Difficulty",
-  'minClass': "Min class",
-  'maxClass': "Max class",
-  'tags': "Tags",
-  'score' : "Score",
-  'author': "Author",
+  'name': "Název",
+  'evaluationTimestamp': 'Datum a čas vyhodnocení',
+  'difficulty': "Obtížnost",
+  'minClass': "Min. třída",
+  'maxClass': "Max. třída",
+  'tags': "Štítky",
+  'score' : "Skóre",
+  'author': "Autor",
 };
 
 const columnAccessorToTitle = (accessor: string) => {
@@ -368,7 +361,7 @@ const ReviewList: FC<Props> = () => {
         }
       } as const,
       {
-        title: 'Row Actions',
+        title: 'Akce',
         accessor: '#',
         toggleable: false,
         draggable: false,
@@ -378,14 +371,14 @@ const ReviewList: FC<Props> = () => {
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToShowReview}
-              title={'Show review'}
+              title={'Zobrazit vyhodnocení'}
             >
               <PlayerPlayIconCmp />
             </ActionIconCmp>
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToReviewDetail}
-              title={'Show detail'}
+              title={'Zobrazit detail vyhodnocení'}
             >
               <EyeIconCmp />
             </ActionIconCmp>
@@ -393,7 +386,7 @@ const ReviewList: FC<Props> = () => {
               data-index={_index}
               data-id={_record.id}
               onClick={deleteReview}
-              title={'Delete review'}
+              title={'Smazat vyhodnocení'}
             >
               <TrashIconCmp />
             </ActionIconCmp>
@@ -435,13 +428,17 @@ const ReviewList: FC<Props> = () => {
       const difficultyRange = getNumRangeParam(searchParams, 'Difficulty');
       const classRange = getNumRangeParam(searchParams, 'Class');
       const scoreRange = getNumRangeParam(searchParams, 'Score');
-      const orderBy = searchParams.getAll('sort[]')?.map(o => {
-        const obj = orderByParamToObj(o);
-        return {
-          filter_name: validOrderByCols[obj.ci] ?? '',
-          type: obj.dir
-        };
-      }).filter(o => validOrderByColsSet[o.filter_name] ?? false) as ListTasksRequest['order_by'];
+      const orderBy:NonNullable<ListTaskReviewsRequest['order_by']> = [];
+      for(const rawSortPair of (searchParams.getAll('sort[]') ?? [])){
+        const obj = orderByParamToObj(rawSortPair);
+        const filterName = apiValidOrderByCols[obj.ci] ?? undefined;
+        if(filterName !== undefined){
+          orderBy.push({
+            filter_name: filterName,
+            type: obj.dir
+          });
+        }
+      }
       console.log("ORDER BY TO API");
       console.debug(orderBy);
       const response = await listTaskReviews({
@@ -645,7 +642,7 @@ const ReviewList: FC<Props> = () => {
     return (
       <Group style={{flexGrow:1}}>
         <Group ml={'xs'}>
-        <Text>Sorting: </Text>
+        <Text>Řazení: </Text>
         {sorting.value?.map((v,i) => {
           const label = validOrderByCols[v.ci];
           return (
@@ -657,10 +654,10 @@ const ReviewList: FC<Props> = () => {
         <ActionIconCmp title={'Filter'} hiddenFrom={'md'} onClick={filterSettingsModal[1].open} >
           <FilterSettingsIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Sorting'} onClick={orderByModal[1].open}>
+        <ActionIconCmp title={'Řazení'} onClick={orderByModal[1].open}>
           <ArrowSortIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Adjust columns'} onClick={columnsToggleSettingsModal[1].open}>
+        <ActionIconCmp title={'Nastavení sloupců'} onClick={columnsToggleSettingsModal[1].open}>
           <AdjustmentsIconCmp />
         </ActionIconCmp>
         </Group>
@@ -692,7 +689,7 @@ const ReviewList: FC<Props> = () => {
         <Stack align={'center'}>
           <Group w={'100%'} justify={'center'}>
             <TextInput
-              label={'Name'}
+              label={'Název'}
               value={actualName}
               onChange={onNameChange}
             />
@@ -702,7 +699,7 @@ const ReviewList: FC<Props> = () => {
               value={actualTags}
               required
               visibleFrom={'md'}
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
           <PercentRangeSliderCmp
@@ -712,27 +709,27 @@ const ReviewList: FC<Props> = () => {
              />
         <Stack visibleFrom={'md'} mt={'lg'}>
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
              <DateTimeRangeInputCmp
-          fromLabel={'Evaluated from'}
-          toLabel={'Evaluated till'}
+          fromLabel={'Vyhodnoceno od'}
+          toLabel={'Vyhodnoceno do'}
           fromValue={actualEvaluationRange.min}
           toValue={actualEvaluationRange.max}
           onChange={onEvaluationRangeChange}
           />
     </Stack>
         </Stack>
-        <Button w={'fit-content'} onClick={filter} mt={'lg'} mb={'md'}>Filter</Button>
+        <Button w={'fit-content'} onClick={filter} mt={'lg'} mb={'md'}>Filtrovat</Button>
       </Stack>
       <DataTableCmp
       setCursor={setCursor}
@@ -752,11 +749,11 @@ const ReviewList: FC<Props> = () => {
         withCloseButton>
         <Stack>
           <Group>
-            <ActionIconCmp title={'Restore colums toggle'} onClick={resetColumnsToggle}>
+            <ActionIconCmp title={'Obnovit sloupce'} onClick={resetColumnsToggle}>
               <RestoreIconCmp />
             </ActionIconCmp>
-            <Button onClick={resetColumnsWidth}>Reset width</Button>
-            <Button onClick={resetColumnsOrder}>Reset order</Button>
+            <Button onClick={resetColumnsWidth}>Obnovit šířky</Button>
+            <Button onClick={resetColumnsOrder}>Obnovit pořadí</Button>
           </Group>
           <Stack style={{ flexWrap: 'wrap' }}
             onChange={columnsToggleSettingsSwitchesWrapperOnChange}>
@@ -794,18 +791,18 @@ const ReviewList: FC<Props> = () => {
               onChange={setTags}
               value={actualTags}
               required
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
 
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}

@@ -1,8 +1,8 @@
-import { Group, InputLabel, Stack, Text } from "@mantine/core";
+import { Group, InputLabel, MantineStyleProps, Stack, Text } from "@mantine/core";
 import React, { FC } from "react"
 import { SearchableSelect, SearchableSelectProps } from "../SearchableSelectCmp";
 
-type Props =
+type Props = MantineStyleProps &
     {
         options: string[],
         label?: React.ReactNode
@@ -12,11 +12,11 @@ type Props =
         max?:number,
         onChange?: (type: 'min' | 'max', value: number | undefined) => void,
         minError?:string,
-        maxError?:string
+        maxError?:string,
     };
 
 
-const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,label,required,error}) => {
+const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,label,required,error,...base}) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const data = React.useMemo(() =>
         options.map((opt, i) => ({
@@ -36,8 +36,7 @@ const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,lab
    
 
     return (
-        <>
-            <Stack>
+            <Stack {...base}>
                 {label && <InputLabel required={required}>{label}</InputLabel>}
                 <Stack>
                     <Group id={'MultiSelectGroup'} align={'flex-start'} justify={'center'}>
@@ -67,7 +66,6 @@ const ListRangeCmp: FC<Props> = ({minError,maxError,options,onChange,min,max,lab
                     {error && <Text c={'red'}>{error}</Text>}
                 </Stack>
             </Stack>
-        </>
     )
 };
 

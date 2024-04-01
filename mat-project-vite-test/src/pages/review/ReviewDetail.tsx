@@ -106,17 +106,17 @@ const ReviewDetail: FC<Props> = () => {
             <Stack align={'center'}>
                 <Title order={1}>{taskDetail.name}</Title>
                 <Text>{taskDetail.description}</Text>
-                <Text >Difficulty: {taskDetail?.difficulty}</Text>
-                <Group><Text>Class range: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
-                <Group><Text>Points: </Text><ExercisePointsCmp {...taskDetail.points} /></Group>
-                <Group><Text>Tags: </Text><TagsCmp tags={taskDetail.tags} /></Group>
-                <Group><Text>Evaluated at: </Text><Text>{taskDetail.evaluationTimestamp}</Text></Group>
+                <Text >Obtížnost: {taskDetail?.difficulty}</Text>
+                <Group><Text>Rozsah tříd: </Text><Text>{taskDetail?.minClass} - </Text> <Text>{taskDetail?.maxClass}</Text></Group>
+                <Group><Text>Body: </Text><ExercisePointsCmp {...taskDetail.points} /></Group>
+                <Group><Text>Štítky: </Text><TagsCmp tags={taskDetail.tags} /></Group>
+                <Group><Text>Datum a čas vyhodnocení: </Text><Text>{taskDetail.evaluationTimestamp}</Text></Group>
                 {taskDetail.taskId != null && 
-                <Group><Link to={`/task/${taskDetail.taskId}/detail`}>Task</Link></Group>
+                <Group><Link to={`/task/${taskDetail.taskId}/detail`}>Úloha</Link></Group>
                 }
                 <Group>
-                    <Button onClick={deleteReview}>Delete</Button>
-                    <Button onClick={navigateShowReview}>Show</Button>
+                    <Button onClick={deleteReview}>Smazat</Button>
+                    <Button onClick={navigateShowReview}>Zobrazit</Button>
                 </Group>
             </Stack>)
         }

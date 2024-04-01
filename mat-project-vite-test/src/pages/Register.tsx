@@ -94,11 +94,11 @@ console.log("refresh");
     return (auth.signedIn.value ? <Navigate to="/" /> :
         <Container size={420} my={40}>
             <Title ta="center">
-                Welcome back!
+                Registrační formulář
             </Title>
             <Text c="dimmed" size="sm" ta="center" mt={5}>
-                ALready have an account?{' \n'}
-                <Link to={"/login"}>Sign in</Link>
+                Máte už účet?{' \n'}
+                <Link to={"/login"}>Přihlásit se</Link>
             </Text>
          {error && <ApiErrorAlertCmp 
          error={error.error} 
@@ -123,8 +123,8 @@ console.log("refresh");
                 type={'name'}
                 onChange={(e)=>state.name.set(e.target.value)}
                 value={state.name.get()}
-                label="Name" 
-                placeholder="Your name" 
+                label="Jméno" 
+                placeholder="Vaše jméno" 
                 mt={'md'}
                 error={formError?.name?.message}
                 required
@@ -135,13 +135,13 @@ console.log("refresh");
                 value={state.email.get()}
                 label="Email" 
                 mt={'md'}
-                placeholder="your@email.com"
+                placeholder="Váš@email.cz"
                 error={formError?.email?.message}
                 required
                 />
                 <PasswordInput 
-                label="Password" 
-                placeholder="Your password"
+                label="Heslo" 
+                placeholder="Vaše heslo"
                 minLength={8}
                 value={state.password.get()}
                 onChange={(e)=>state.password.set(e.target.value)}
@@ -150,21 +150,21 @@ console.log("refresh");
                 mt="md"
                  />
                     <PasswordInput 
-                label="Password confirmation" 
-                placeholder="Your password again"
+                label="Potvrzení hesla" 
+                placeholder="Vaše heslo znovu"
                 value={state.passwordConfirm.get()}
                 onChange={(e)=>state.passwordConfirm.set(e.target.value)}
                 required 
                 mt="md" 
                 />
                 <Checkbox 
-                label="Is teacher" 
+                label="Jsem učitel" 
                 mt="md"
                 checked={state.isTeacher.value} 
                 onChange={(e)=>state.isTeacher.set(e.target.checked)} 
                 />
                 <Button fullWidth mt="xl" type={'submit'}>
-                    Sign up
+                    Zaregistrovat se
                 </Button>
             </Paper>
         </Container>

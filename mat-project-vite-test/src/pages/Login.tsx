@@ -77,11 +77,11 @@ const Login: FC<Props> = () => {
     return (auth.signedIn.value ? <Navigate to="/" /> :
         <Container size={420} my={40} >
             <Title ta="center">
-                Welcome back!
+            Přihlašovací formulář
             </Title>
             <Text c="dimmed" size="sm" ta="center" mt={5}>
-                Do not have an account yet?{' \n'}
-                <Link to={'/register'} >Create account</Link>
+                Ještě nemáš účet?{' \n'}
+                <Link to={'/register'} >Zaregistrovat se</Link>
             </Text>
             {error && <ApiErrorAlertCmp
                 error={error.error}
@@ -104,12 +104,12 @@ const Login: FC<Props> = () => {
                     value={state.email.get()}
                     label="Email"
                     error={formError?.errorData.email?.message}
-                    placeholder="your@email.com"
+                    placeholder="Váš@email.cz"
                     mt={'md'}
                     required />
                 <PasswordInput
-                    label="Password"
-                    placeholder="Your password"
+                    label="Heslo"
+                    placeholder="Vaše heslo"
                     value={state.password.get()}
                     onChange={(e) => state.password.set(e.target.value)}
                     error={formError?.errorData.password?.message}
@@ -120,7 +120,7 @@ const Login: FC<Props> = () => {
                     </Link>
                 </Group> */}
                 <Button fullWidth mt="xl" type={'submit'}>
-                    Sign in
+                    Přihlásit se
                 </Button>
             </Paper>
         </Container>

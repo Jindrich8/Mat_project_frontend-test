@@ -1,7 +1,7 @@
 import React, { FC, Suspense, lazy, useEffect, useState } from "react"
 import { SearchableMultiSelect, SearchableMultiSelectProps } from "../../components/SearchableMultiSelect/SearchableMultiSelect";
 import { EditorProps } from "@monaco-editor/react";
-import { Box, Button, Checkbox, Group, Stack, Tabs, TabsProps, Text, TextInput } from "@mantine/core";
+import { Box, Button, Checkbox, Group, Stack, Tabs, Text, TextInput } from "@mantine/core";
 import { useHookstate } from "@hookstate/core";
 import { ApplicationErrorInformation } from "../../api/dtos/errors/error_response";
 import { getTaskCreateInfo } from "../../api/task/createInfo/createInfo";
@@ -208,6 +208,46 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
             };
             getValues();
         }
+        const fetchEditor = async () =>{
+            if (editorValue.current === undefined) {
+                setXMLEditorCmp(
+                    lazy(() => import("../XMLEditor/XMLEditorCmp")
+                .then(({ XMLEditorCmp }) => ({ default: XMLEditorCmp })))
+                );
+                if (getInitialSource) {
+                    const sourceResp = getInitialSource();
+                    let source = undefined;
+                    if (sourceResp instanceof Promise) {
+                        const response = await sourceResp;
+                        if (response) {
+                            if (!response.success) {
+                                const err = response.value;
+                                setTaskError({
+                                    status: err.status,
+                                    statusText: err.statusText,
+                                    error: err.error
+                                });
+                            }
+                            else {
+                                source = response.value;
+                            }
+                        }
+                    }
+                    else {
+                        source = sourceResp;
+                    }
+                    if (editorValue.current === undefined && source !== undefined) {
+                        editorValue.current = source;
+                        setDefaultSource(source);
+                        editorRef.current?.setValue(source);
+                    }
+                }
+                else {
+                    editorValue.current = '';
+                }
+            }
+        };
+        fetchEditor();
         // disable is needed, because without it, it causes infinite loop (hookstate as dependency problems)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getInitialFilters, setClassRange]);
@@ -292,48 +332,6 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
         setClassRange(type, value);
         state.classRange.err.set(undefined);
     }, [setClassRange, state.classRange.err]);
-
-    const onTabChange = React.useCallback<NonNullable<TabsProps['onChange']>>(async (value) => {
-        if (value === 'source') {
-            if (editorValue.current === undefined) {
-                setXMLEditorCmp(
-                    lazy(() => import("../XMLEditor/XMLEditorCmp")
-                .then(({ XMLEditorCmp }) => ({ default: XMLEditorCmp })))
-                );
-                if (getInitialSource) {
-                    const sourceResp = getInitialSource();
-                    let source = undefined;
-                    if (sourceResp instanceof Promise) {
-                        const response = await sourceResp;
-                        if (response) {
-                            if (!response.success) {
-                                const err = response.value;
-                                setTaskError({
-                                    status: err.status,
-                                    statusText: err.statusText,
-                                    error: err.error
-                                });
-                            }
-                            else {
-                                source = response.value;
-                            }
-                        }
-                    }
-                    else {
-                        source = sourceResp;
-                    }
-                    if (editorValue.current === undefined && source !== undefined) {
-                        editorValue.current = source;
-                        setDefaultSource(source);
-                        editorRef.current?.setValue(source);
-                    }
-                }
-                else {
-                    editorValue.current = '';
-                }
-            }
-        }
-    }, [getInitialSource]);
 
     const [defaultSource, setDefaultSource] = React.useState<string | undefined>(editorValue.current);
 
@@ -433,7 +431,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                     <Checkbox
                         checked={state.isPublic.value}
                         onChange={onIsPublicChanged}
-                        label={'Is public'}
+                        label={'Je veřejná'}
                     />
                     <Button type={'submit'}
                         style={{ maxWidth: 'fit-content', minWidth: 'fit-content', minHeight: '2.5rem', alignSelf: 'flex-end', margin: '1rem' }}>
@@ -445,9 +443,9 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                     withCloseButton
                     onClose={clearGeneralError}
                 >
-                    <Text>Message: {generalError.value.message}</Text>
+                    <Text>Zpráva: {generalError.value.message}</Text>
                     {generalError.value.description
-                        && <Text>Description: {generalError.value.description}</Text>}
+                        && <Text>Popis: {generalError.value.description}</Text>}
                 </ErrorAlertCmp>
                 }
                 {taskError
@@ -458,21 +456,21 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                         statusText={taskError.statusText}
                         onClose={clearTaskError}
                     />}
-                <Tabs defaultValue={'filters'} className={styles.rootTabs} onChange={onTabChange}>
+                <Tabs defaultValue={'filters'} className={styles.rootTabs}>
                     <Tabs.List>
                         <Tabs.Tab value={'filters'} bg={state.keys.every(key => 
                         // @ts-expect-error ts - cannot index state even with it's keys
                             state[key].err?.value === undefined) ? undefined : 'red'}>
-                            Filters
+                            Atributy
                         </Tabs.Tab>
-                        <Tabs.Tab value={'source'}>Source</Tabs.Tab>
+                        <Tabs.Tab value={'source'}>Zdroj</Tabs.Tab>
                     </Tabs.List>
                     <Tabs.Panel value={'filters'}>
                         <Group w={'100%'}>
 
                             <Stack w={'100%'} justify={'center'} m={'lg'} align={'center'}>
                                 <TextInput
-                                    label={'Name'}
+                                    label={'Název'}
                                     value={state.name.val.value}
                                     onChange={onNameChanged}
                                     error={state.name.err.value}
@@ -481,16 +479,16 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                     required
                                 />
                                 <SearchableSelect
-                                    label={'Orientation'}
+                                    label={'Orientace'}
                                     value={state.orientation.val.value}
                                     error={state.orientation.err.value}
                                     options={[
                                         {
-                                            label: 'horizontal',
+                                            label: 'Na šířku',
                                             value: 'horizontal'
                                         },
                                         {
-                                            label: 'vertical',
+                                            label: 'Na výšku',
                                             value: 'vertical'
                                         }
                                     ]}
@@ -503,11 +501,11 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                     onChange={onTagsChange}
                                     error={state.tags.err.value}
                                     required
-                                    label={'Tags'}
+                                    label={'Štítky'}
                                 />
                                 <SearchableSelect
                                     options={createInfo?.difficulties ?? []}
-                                    label={'Difficulty'}
+                                    label={'Obtížnost'}
                                     value={state.difficulty.val.value}
                                     error={state.difficulty.err.value}
                                     required
@@ -521,7 +519,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                     options={classesForCmp ?? []}
                                     required
                                     error={state.classRange.err.value}
-                                    label={'Class range'}
+                                    label={'Rozsah tříd'}
                                     onChange={onClassRangeChange}
                                 />
 

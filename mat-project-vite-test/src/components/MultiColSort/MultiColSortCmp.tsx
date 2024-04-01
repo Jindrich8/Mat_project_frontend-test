@@ -72,10 +72,10 @@ const MultiColSortCmp:FC<Props> = React.memo(({columns,values}) => {
             onClick={changeItemDir} 
             data-itemindex={i} 
             ml={'auto'}
-            title={`Change direction to ${dir === 'ASC' ? 'descending' : 'ascending'}`}>
+            title={`Seřadit ${dir === 'ASC' ? 'sestupně' : 'vzestupně'}`}>
                 {dir === 'ASC' ? <UpArrowIconCmp /> : <DownArrowIconCmp />}
             </ActionIconCmp>
-            <CloseButton onClick={onCloseBtnClick} data-itemindex={i} ></CloseButton>
+            <CloseButton onClick={onCloseBtnClick} data-itemindex={i}></CloseButton>
         </Group>);
     },[changeItemDir, columns, onCloseBtnClick, values]);
 
@@ -102,13 +102,14 @@ const MultiColSortCmp:FC<Props> = React.memo(({columns,values}) => {
     <Stack w={'100%'}>
         <SortableListCmp items={items} onSortEnd={onSortEnd} renderItem={renderItem} />
         <Box>
-            <SearchableSelect 
+            <SearchableSelect
+            label={'Sloupec'}
             value={item}
             options={availableColumns}
             onChange={onItemChange}
             
             />
-            <Button mt={'md'} onClick={addItem}>Add</Button>
+            <Button mt={'md'} onClick={addItem}>Přidat</Button>
         </Box>
     </Stack>
   );

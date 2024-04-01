@@ -152,7 +152,7 @@ const Update:FC<Props> = () => {
            <UpdateTaskPageCmp
         getInitialSource={getInitialSource}
         getInitialFilters={getInitialFilters}
-        actionLabel={'Update'}
+        actionLabel={'Upravit'}
         action={action}
          />
     </>

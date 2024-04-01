@@ -13,7 +13,7 @@ import { SearchableMultiSelect } from "../../components/SearchableMultiSelect/Se
 import { arrayLast, dump, nundef, setSearchParam, tryStrToNum, utcStrTimestampToLocalStr } from "../../utils/utils";
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
-import { ListTasksRequest } from "../../api/dtos/request";
+import { ListMyTasksRequest, ListTasksRequest } from "../../api/dtos/request";
 import { UnionToTuple } from "../../types/base";
 import { ErrorResponseState } from "../../types/types";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
@@ -108,16 +108,9 @@ const serializeOrderByObj = (ci: number, dir: 'ASC' | 'DESC') => {
   return (ci + "") + (dir === 'DESC' ? 'D' : '');
 };
 
-const validOrderByColsSet = {
-  "name": true,
-  "difficulty": true,
-  "class_range": true,
-  "creation_timestamp": true,
-  "modification_timestamp": true
-} satisfies Record<string, true>;
 
-//@ts-expect-error Object.keys does not infer properties type
-const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
+const apiValidOrderByCols = ["name", "difficulty", "class_range", "creation_timestamp", "modification_timestamp"] as const;
+const validOrderByCols = ["Název", "Obtížnost", "Rozsah tříd", "Datum a čas vytvoření", "Datum a čas změny"] as const;
 
 /*
   id: string;
@@ -130,14 +123,14 @@ const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.
   */
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
-  'name': "Name",
+  'name': "Název",
   'difficulty': "Difficulty",
-  'minClass': "Min class",
-  'maxClass': "Max class",
-  'tags': "Tags",
-  'isPublic': "Is public",
-  'creation_timestamp': "Creation timestamp",
-  'modification_timestamp': "Modification timestamp"
+  'minClass': "Min. třída",
+  'maxClass': "Max. třída",
+  'tags': "Štítky",
+  'isPublic': "Je veřejná",
+  'creation_timestamp': "Datum a čas vytvoření",
+  'modification_timestamp': "Datum a čas změny"
 };
 
 const columnAccessorToTitle = (accessor: string) => {
@@ -372,7 +365,7 @@ const MyTaskList: FC<Props> = () => {
         }
       } as const,
       {
-        title: 'Row Actions',
+        title: 'Akce',
         accessor: '#',
         draggable: false,
         resizable: false,
@@ -381,21 +374,21 @@ const MyTaskList: FC<Props> = () => {
               <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskTake}
-              title={'Take task'}
+              title={'Vyplnit úlohu'}
             >
               <PlayerPlayIconCmp />
             </ActionIconCmp>
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskDetail}
-              title={'Show my detail'}
+              title={'Zobrait detail úlohy'}
             >
               <EyeIconCmp />
             </ActionIconCmp>
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskUpdate}
-              title={'Update'}
+              title={'Upravit úlohu'}
             >
               <EditIconCmp />
             </ActionIconCmp>
@@ -403,7 +396,7 @@ const MyTaskList: FC<Props> = () => {
               data-index={_index}
               data-id={_record.id}
               onClick={deleteTask}
-              title={'Delete'}
+              title={'Smazat úlohu'}
             >
               <TrashIconCmp />
             </ActionIconCmp>
@@ -444,13 +437,17 @@ const MyTaskList: FC<Props> = () => {
       console.log('Actual fetch records');
       const difficultyRange = getNumRangeParam(searchParams, 'Difficulty');
       const classRange = getNumRangeParam(searchParams, 'Class');
-      const orderBy = searchParams.getAll('sort[]')?.map(o => {
-        const obj = orderByParamToObj(o);
-        return {
-          filter_name: validOrderByCols[obj.ci] ?? '',
-          type: obj.dir
-        };
-      }).filter(o => validOrderByColsSet[o.filter_name] ?? false) as ListTasksRequest['order_by'];
+      const orderBy:NonNullable<ListMyTasksRequest['order_by']> = [];
+      for(const rawSortPair of (searchParams.getAll('sort[]') ?? [])){
+        const obj = orderByParamToObj(rawSortPair);
+        const filterName = apiValidOrderByCols[obj.ci] ?? undefined;
+        if(filterName !== undefined){
+          orderBy.push({
+            filter_name: filterName,
+            type: obj.dir
+          });
+        }
+      }
       console.log("ORDER BY TO API");
       console.debug(orderBy);
       const response = await listMyTasks({
@@ -666,7 +663,7 @@ const MyTaskList: FC<Props> = () => {
     return (
       <Group style={{flexGrow:1}}>
         <Group ml={'xs'}>
-        <Text>Sorting: </Text>
+        <Text>Řazení: </Text>
         {sorting.value?.map((v,i) => {
           const label = validOrderByCols[v.ci];
           return (
@@ -675,13 +672,13 @@ const MyTaskList: FC<Props> = () => {
         })}
       </Group>
       <Group ml={'auto'}>
-        <ActionIconCmp title={'Filter'} hiddenFrom={'md'} onClick={filterSettingsModal[1].open} >
+        <ActionIconCmp title={'Filtrace'} hiddenFrom={'md'} onClick={filterSettingsModal[1].open} >
           <FilterSettingsIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Sorting'} onClick={orderByModal[1].open}>
+        <ActionIconCmp title={'Řazení'} onClick={orderByModal[1].open}>
           <ArrowSortIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Adjust columns'} onClick={columnsToggleSettingsModal[1].open}>
+        <ActionIconCmp title={'Nastavení sloupců'} onClick={columnsToggleSettingsModal[1].open}>
           <AdjustmentsIconCmp />
         </ActionIconCmp>
         </Group>
@@ -713,7 +710,7 @@ const MyTaskList: FC<Props> = () => {
         <Stack align={'center'}>
           <Group w={'100%'} justify={'center'}>
             <TextInput
-              label={'Name'}
+              label={'Název'}
               value={actualName}
               onChange={onNameChange}
             />
@@ -723,39 +720,39 @@ const MyTaskList: FC<Props> = () => {
               value={actualTags}
               required
               visibleFrom={'md'}
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
         <Stack align={'center'} visibleFrom={'md'}>
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
           <DateTimeRangeInputCmp
-          fromLabel={'Created from'}
-          toLabel={'Created till'}
+          fromLabel={'Vytvořeno od'}
+          toLabel={'Vytvořeno do'}
           fromValue={actualCreationRange.min}
           toValue={actualCreationRange.max}
           onChange={onCreationRangeChange}
           />
           <DateTimeRangeInputCmp
-          fromLabel={'Modified from'}
-          toLabel={'Modified till'}
+          fromLabel={'Změněno od'}
+          toLabel={'Změněno do'}
           fromValue={actualModificationRange.min}
           toValue={actualModificationRange.max}
           onChange={onModificationRangeChange}
           />
     </Stack>
         </Stack>
-        <Button w={'fit-content'} onClick={filter}>Filter</Button>
+        <Button w={'fit-content'} onClick={filter}>Filtrovat</Button>
       </Stack>
       <DataTableCmp
       setCursor={setCursor}
@@ -775,11 +772,11 @@ const MyTaskList: FC<Props> = () => {
         withCloseButton>
         <Stack>
           <Group>
-            <ActionIconCmp title={'Restore colums toggle'} onClick={resetColumnsToggle}>
+            <ActionIconCmp title={'Obnovit sloupce'} onClick={resetColumnsToggle}>
               <RestoreIconCmp />
             </ActionIconCmp>
-            <Button onClick={resetColumnsWidth}>Reset width</Button>
-            <Button onClick={resetColumnsOrder}>Reset order</Button>
+            <Button onClick={resetColumnsWidth}>Obnovit šířky</Button>
+            <Button onClick={resetColumnsOrder}>Obnovit pořadí</Button>
           </Group>
           <Stack style={{ flexWrap: 'wrap' }}
           w={'fit-content'}
@@ -818,32 +815,32 @@ const MyTaskList: FC<Props> = () => {
               onChange={setTags}
               value={actualTags}
               required
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
             <Stack w={'100%'} align={'center'}>
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
            <DateTimeRangeInputCmp
-          fromLabel={'Created from'}
-          toLabel={'Created till'}
+          fromLabel={'Vytvořeno od'}
+          toLabel={'Vytvořeno do'}
           fromValue={actualCreationRange.min}
           toValue={actualCreationRange.max}
           onChange={onCreationRangeChange}
           />
           <DateTimeRangeInputCmp
-          fromLabel={'Modified from'}
-          toLabel={'Modified till'}
+          fromLabel={'Změněno od'}
+          toLabel={'Změněno do'}
           fromValue={actualModificationRange.min}
           toValue={actualModificationRange.max}
           onChange={onModificationRangeChange}

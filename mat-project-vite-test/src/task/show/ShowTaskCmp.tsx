@@ -189,7 +189,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         <Modal.Content className={styles.reviewModalContent}>
           <Modal.Header className={styles.reviewModalHeader}>
             <div></div>
-          <Modal.Title>Review</Modal.Title>
+          <Modal.Title>Vyhodnocení úlohy</Modal.Title>
             <Modal.CloseButton className={styles.reviewModalCloseBtn} />
           </Modal.Header>
           <Modal.Body display={'flex'} className={styles.reviewModalBody}>
@@ -198,13 +198,13 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
         </Modal.Content>
         </Modal.Overlay>
       </Modal.Root>
-      <ModalCmp opened={submittedData !== undefined} onClose={onConfirmModalClose} title={'Submit task?'}>
+      <ModalCmp opened={submittedData !== undefined} onClose={onConfirmModalClose} title={'Odeslat úlohu?'}>
           <Stack>
-            <Text fw={'bold'}>Do you really want to submit this task?</Text>
-            <Text size={'xs'}>This action is irreversible.</Text>
+            <Text fw={'bold'}>Opravdu chceš odeslat uto úlohu?</Text>
+            <Text size={'xs'}>Tato akce je nevratná.</Text>
             <Group>
-              <Button onClick={onConfirmModalClose}>Cancel</Button>
-              <Button onClick={evaluateTaskCallback}>Submit</Button>
+              <Button onClick={onConfirmModalClose}>Zrušit</Button>
+              <Button onClick={evaluateTaskCallback}>Odeslat</Button>
             </Group>
           </Stack>
       </ModalCmp>

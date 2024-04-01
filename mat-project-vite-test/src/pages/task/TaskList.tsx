@@ -16,7 +16,6 @@ import { arrayLast, dump, nundef, setSearchParam, tryStrToNum } from "../../util
 import { useListRange } from "../../components/ListRange/ListRangeType";
 import { useHookstate } from "@hookstate/core";
 import { ListTasksRequest } from "../../api/dtos/request";
-import { UnionToTuple } from "../../types/base";
 import { ErrorResponseState } from "../../types/types";
 import { PERCENTAGE_PRECISION } from "../../task/review/Review";
 import { ActionIconCmp } from "../../components/ActionIcon/ActionIconCmp";
@@ -91,25 +90,19 @@ const serializeOrderByObj = (ci: number, dir: 'ASC' | 'DESC') => {
   return (ci + "") + (dir === 'DESC' ? 'D' : '');
 };
 
-const validOrderByColsSet = {
-  "name": true,
-  "difficulty": true,
-  "class_range": true,
-} satisfies Record<string, true>;
-
-//@ts-expect-error Object.keys does not infer properties type
-const validOrderByCols: UnionToTuple<keyof typeof validOrderByColsSet> = Object.keys(validOrderByColsSet);
+const apiValidOrderByCols = ["name","difficulty","class_range"] as const;
+const validOrderByCols = ["Název","Obtížnost","Rozsah tříd"] as const;
 
 
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
-  'name': "Name",
-  'difficulty': "Difficulty",
-  'minClass': "Min class",
-  'maxClass': "Max class",
-  'tags': "Tags",
-  'taskReview': "Task review",
-  'author': "Author",
+  'name': "Název",
+  'difficulty': "Obtížnost",
+  'minClass': "Min. třída",
+  'maxClass': "Max. třída",
+  'tags': "Štítky",
+  'taskReview': "Vyhodnocení",
+  'author': "Autor",
 };
 
 const columnAccessorToTitle = (accessor: string) => {
@@ -267,7 +260,7 @@ const TaskList: FC<Props> = () => {
         }
       } as const,
       {
-        title: 'Row Actions',
+        title: 'Akce',
         accessor: '#',
         draggable: false,
         resizable: false,
@@ -276,14 +269,14 @@ const TaskList: FC<Props> = () => {
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskTake}
-              title={'Take task'}
+              title={'Vyplnit úlohu'}
             >
               <PlayerPlayIconCmp />
             </ActionIconCmp>
             <ActionIconCmp
               data-id={_record.id}
               onClick={navigateToTaskDetail}
-              title={'Show detail'}
+              title={'Detail úlohy'}
             >
               <EyeIconCmp />
             </ActionIconCmp>
@@ -324,13 +317,18 @@ const TaskList: FC<Props> = () => {
       console.log('Actual fetch records');
       const difficultyRange = getNumRangeParam(searchParams, 'Difficulty');
       const classRange = getNumRangeParam(searchParams, 'Class');
-      const orderBy = searchParams.getAll('sort[]')?.map(o => {
-        const obj = orderByParamToObj(o);
-        return {
-          filter_name: validOrderByCols[obj.ci] ?? '',
-          type: obj.dir
-        };
-      }).filter(o => validOrderByColsSet[o.filter_name] ?? false) as ListTasksRequest['order_by'];
+
+      const orderBy:NonNullable<ListTasksRequest['order_by']> = [];
+      for(const rawSortPair of (searchParams.getAll('sort[]') ?? [])){
+        const obj = orderByParamToObj(rawSortPair);
+        const filterName = apiValidOrderByCols[obj.ci] ?? undefined;
+        if(filterName !== undefined){
+          orderBy.push({
+            filter_name: filterName,
+            type: obj.dir
+          });
+        }
+      }
       console.log("ORDER BY TO API");
       console.debug(orderBy);
       const response = await listTasks({
@@ -350,7 +348,7 @@ const TaskList: FC<Props> = () => {
             max: Number((classRange[1] ?? arrayLast(createInfo.sortedClasses).orderedId))
           }
         },
-        order_by: orderBy
+        order_by: (orderBy ? orderBy : undefined)
       }, listTasksControl);
       if (response.success) {
         const data = response.body.data;
@@ -489,22 +487,22 @@ const TaskList: FC<Props> = () => {
     return (
       <Group style={{flexGrow:1}}>
         <Group ml={'xs'}>
-        <Text>Sorting: </Text>
+        <Text>Řazení: </Text>
         {sorting.value?.map((v,i) => {
           const label = validOrderByCols[v.ci];
           return (
-            <PillGroup key={i} gap={'xs'}><Pill>{label}</Pill><Pill>{v.dir}</Pill></PillGroup>
+            <PillGroup key={i} gap={'xs'}><Pill>{label}</Pill><Pill>{v.dir === "ASC" ? "Vzestupně" : "Sestupně"}</Pill></PillGroup>
           );
         })}
       </Group>
       <Group ml={'auto'}>
-        <ActionIconCmp title={'Filter'} hiddenFrom={'md'} onClick={filterSettingsModal[1].open} >
+        <ActionIconCmp title={'Filtrace'} hiddenFrom={'md'} onClick={filterSettingsModal[1].open} >
           <FilterSettingsIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Sorting'} onClick={orderByModal[1].open}>
+        <ActionIconCmp title={'Řazení'} onClick={orderByModal[1].open}>
           <ArrowSortIconCmp />
         </ActionIconCmp>
-        <ActionIconCmp title={'Adjust columns'} onClick={columnsToggleSettingsModal[1].open}>
+        <ActionIconCmp title={'Nastavení sloupců'} onClick={columnsToggleSettingsModal[1].open}>
           <AdjustmentsIconCmp />
         </ActionIconCmp>
         </Group>
@@ -525,7 +523,7 @@ const TaskList: FC<Props> = () => {
         <Stack align={'center'}>
           <Group w={'100%'} justify={'center'}>
             <TextInput
-              label={'Name'}
+              label={'Název'}
               value={actualName}
               onChange={onNameChange}
             />
@@ -535,25 +533,25 @@ const TaskList: FC<Props> = () => {
               value={actualTags}
               required
               visibleFrom={'md'}
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
         <Stack visibleFrom={'md'}>
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
           />
     </Stack>
         </Stack>
-        <Button w={'fit-content'} onClick={filter}>Filter</Button>
+        <Button w={'fit-content'} onClick={filter}>Filtrovat</Button>
       </Stack>
       <DataTableCmp
       setCursor={setCursor}
@@ -575,11 +573,11 @@ const TaskList: FC<Props> = () => {
         withCloseButton>
         <Stack mih={'fit-content'} mah={'80vh'}>
           <Group mah={'30vh'}>
-            <ActionIconCmp title={'Restore colums toggle'} onClick={resetColumnsToggle}>
+            <ActionIconCmp title={'Obnovit sloupce'} onClick={resetColumnsToggle}>
               <RestoreIconCmp />
             </ActionIconCmp>
-            <Button onClick={resetColumnsWidth}>Reset width</Button>
-            <Button onClick={resetColumnsOrder}>Reset order</Button>
+            <Button onClick={resetColumnsWidth}>Obnovit šířky</Button>
+            <Button onClick={resetColumnsOrder}>Obnovit pořadí</Button>
           </Group>
           <Stack style={{ flexWrap: 'wrap' }}
           mah={'50vh'}
@@ -615,27 +613,29 @@ const TaskList: FC<Props> = () => {
       onClose={filterSettingsModal[1].close}
       withinPortal={false}
       withCloseButton>
-         <Group w={'100%'} justify={'center'}>
+         <Group w={'100%'} justify={'center'} mb={'md'}>
             <SearchableMultiSelect
               options={createInfo?.tags ?? []}
               onChange={setTags}
               value={actualTags}
               required
-              label={'Tags'}
+              label={'Štítky'}
             />
           </Group>
 
           <ListRangeCmp
-            label={'Difficulty range'}
+            label={'Rozsah obtížnosti'}
             {...actualDifficultyRange}
             options={difficultiesForCmp ?? []}
             onChange={setDifficultyRange}
+            mb={'md'}
           />
           <ListRangeCmp
-            label={'Class range'}
+            label={'Rozsah tříd'}
             {...actualClassRange}
             options={classesForCmp ?? []}
             onChange={setClassRange}
+            mb={'md'}
           />
       </ModalCmp>
     </>

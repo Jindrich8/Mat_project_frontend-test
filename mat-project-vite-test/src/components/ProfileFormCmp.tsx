@@ -72,7 +72,7 @@ const ProfileFormCmp:FC<Props> = () => {
         if(response.success){
             setAlert({
                 type: 'success',
-                success:'Profile was updated successfully.'
+                success:'Profil byl úspěšně upraven.'
             });
         }
         else if(response.isServerError){
@@ -101,7 +101,7 @@ const ProfileFormCmp:FC<Props> = () => {
 
   return (
     <Stack justify={'flex-start'}>
-    <Button ml={'auto'} onClick={toggleIsEditing}>{!state.isEditing.value ? 'Edit' : 'View'}</Button>
+    <Button ml={'auto'} onClick={toggleIsEditing}>{!state.isEditing.value ? 'Upravit' : 'Zobrazit'}</Button>
     {
     alert 
     && alert?.type !== 'formError' 
@@ -120,8 +120,8 @@ const ProfileFormCmp:FC<Props> = () => {
                   type={'name'}
                   onChange={(e) => state.name.set(e.target.value)}
                   value={state.name.get()}
-                  label="Name"
-                  placeholder="Your name"
+                  label="Jméno"
+                  placeholder="Vaše jméno"
                   mt={'md'}
                   error={alert?.formError?.name?.message}
                   readOnly={!state.isEditing.value}
@@ -133,12 +133,12 @@ const ProfileFormCmp:FC<Props> = () => {
                   value={state.email.get()}
                   label="Email"
                   mt={'md'}
-                  placeholder="your@email.com"
+                  placeholder="Váš@email.cz"
                   error={alert?.formError?.email?.message}
                   readOnly={!state.isEditing.value}
                   required
               />
-              {state.isEditing.value && <Button mt={'lg'} type="submit">Submit</Button>}
+              {state.isEditing.value && <Button mt={'lg'} type="submit">Odeslat</Button>}
               
           </form>
     </Stack>

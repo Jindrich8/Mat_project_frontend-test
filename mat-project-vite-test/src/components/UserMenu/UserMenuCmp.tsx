@@ -31,7 +31,7 @@ const UserMenuCmp: FC<Props> = React.memo(() => {
             transitionProps={{ transition: 'pop' }}
             withinPortal
         >
-            <Menu.Target aria-label="User menu">
+            <Menu.Target aria-label="Uživatelské menu">
                 <AvatarGroup display={'inline-flex'} style={{flexDirection:'column',alignItems:'center'}}>
                     <Avatar  />
                         {auth.user.value && <Text span size={'xs'}>{auth.user.value?.email}</Text>}
@@ -39,12 +39,12 @@ const UserMenuCmp: FC<Props> = React.memo(() => {
             </Menu.Target>
             <Menu.Dropdown>
                 <Menu.Item onClick={onProfile}>
-                    Profile
+                    Profil
                 </Menu.Item>
                 <Menu.Item
                     onClick={onLogOut}
                 >
-                    Logout
+                    Odhlásit se
                 </Menu.Item>
             </Menu.Dropdown>
         </Menu>
