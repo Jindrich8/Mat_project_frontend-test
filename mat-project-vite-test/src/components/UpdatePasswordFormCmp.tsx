@@ -67,7 +67,7 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
         if(response.success){
             setAlert({
                 type: 'success',
-                success:'Password was updated successfully.'
+                success:'Heslo bylo úspěšně upraveno.'
             });
         }
         else if(response.isServerError){
@@ -114,7 +114,7 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
                   type={'password'}
                   onChange={(e) => state.current_password.set(e.target.value)}
                   value={state.current_password.get()}
-                  label="Current password"
+                  label="Aktuální heslo"
                   mt={'md'}
                   error={alert?.formError?.current_password?.message}
                   required
@@ -123,7 +123,7 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
                   type={'password'}
                   onChange={(e) => state.password.set(e.target.value)}
                   value={state.password.get()}
-                  label="New password"
+                  label="Nové heslo"
                   mt={'md'}
                   error={alert?.formError?.password?.message}
                   required
@@ -132,11 +132,11 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
                   type={'password'}
                   onChange={(e) => state.confirmation_password.set(e.target.value)}
                   value={state.confirmation_password.get()}
-                  label="Confirm new password"
+                  label="Znovu nové heslo"
                   mt={'md'}
                   required
               />
-              <Button mt={'lg'} type="submit">Submit</Button>
+              <Button mt={'lg'} type="submit">Odeslat</Button>
               
           </form>
     </>
