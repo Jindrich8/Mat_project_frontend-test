@@ -64,6 +64,11 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
             password:state.password.value,
             password_confirmation:state.confirmation_password.value
         },updatePasswordControl);
+        state.set({
+            current_password:'',
+            password:'',
+            confirmation_password:'',
+        });
         if(response.success){
             setAlert({
                 type: 'success',
@@ -92,7 +97,7 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
             }
         }
     
-    },[state.confirmation_password.value, state.current_password.value, state.password.value]);
+    },[state]);
 
   return (
     <>
@@ -105,7 +110,7 @@ const UpdatePasswordFormCmp:FC<Props> = () => {
     statusText={alert.error.statusText} 
     onClose={clearAlert}
      />
-     : <Alert>
+     : <Alert withCloseButton onClose={clearAlert}>
         {alert.success}
      </Alert>)
     }

@@ -149,7 +149,7 @@ const ShowTaskCmp:FC<Props> = ({taskId,style,...baseProps}) => {
 
   return (
     <Stack className={styles.container} style={style} {...baseProps}>
-    <Box className={styles.childContainer}>
+    <Box className={styles.childContainer} ml={'lg'}>
       {takeError ? (
       <ApiErrorAlertCmp 
       status={takeError.status}

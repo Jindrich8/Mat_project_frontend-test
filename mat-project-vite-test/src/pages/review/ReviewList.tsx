@@ -255,7 +255,7 @@ const ReviewList: FC<Props> = () => {
     const response = await apiDeleteReview(id,deleteTaskReviewControl);
     if(response.success){
       setSuccessAlert({
-        message: `Task with id '${id}' deleted successfully`
+        message: `Vyhodnocení s id '${id}' bylo úspěšně smazáno.`
       });
       setPage(prev => {
         let newRecords = prev?.records;

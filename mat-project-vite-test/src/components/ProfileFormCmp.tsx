@@ -111,7 +111,7 @@ const ProfileFormCmp:FC<Props> = () => {
     statusText={alert.error.statusText} 
     onClose={clearAlert}
      />
-     : <Alert>
+     : <Alert withCloseButton onClose={clearAlert}>
         {alert.success}
      </Alert>)
     }
