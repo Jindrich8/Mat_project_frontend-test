@@ -2,6 +2,7 @@ import { UnstyledButton } from "@mantine/core";
 import React, { FC } from "react"
 import { Link } from "react-router-dom";
 import { BasicStyledWChildrenCmpProps } from "../../types/props/props";
+import styles from "./BtnLinkCmpStyle.module.css";
 
 interface Props extends BasicStyledWChildrenCmpProps {
     to: string;
@@ -9,18 +10,8 @@ interface Props extends BasicStyledWChildrenCmpProps {
 
 const BtnLinkCmp: FC<Props> = React.memo(({ to,children,...others }) => {
     return (
-        <UnstyledButton {...others} style={{padding:0}}>
-            <Link style={{
-                border:'inherit',
-                background:'inherit',
-                font:'inherit',
-                textDecoration:'inherit',
-                color:'inherit',
-                display:'inline-block',
-                height:'100%',
-                width:'100%',
-                boxSizing:'border-box'
-                }} to={to}>{children}</Link>
+        <UnstyledButton {...others} className={styles.btn}>
+            <Link className={styles.link} to={to}>{children}</Link>
         </UnstyledButton>
     );
 });

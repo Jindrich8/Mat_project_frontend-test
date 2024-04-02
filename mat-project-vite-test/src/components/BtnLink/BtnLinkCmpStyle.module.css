@@ -1,0 +1,15 @@
+.btn {
+    padding:0;
+}
+
+.link {
+    border: inherit;
+    background: inherit;
+    font: inherit;
+    text-decoration: inherit;
+    color: inherit;
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box
+}
