@@ -1,4 +1,4 @@
-# MatProjectTest
+# Frontend for System for practising the grammar of the Czech language
 This is frontend for [System for practising the grammar of the Czech language](https://github.com/Jindrich8/Mat_project_backend-test) and requires it to run.
 ## Installation
 1. Install this project and it's backend to separate folders that share same parent.
