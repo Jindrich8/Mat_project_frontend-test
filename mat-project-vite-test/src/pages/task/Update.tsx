@@ -79,12 +79,14 @@ const Update:FC<Props> = () => {
         sourceChanged,
         tags,
         isPublic,
-        classRange
+        classRange,
+        display
     }) => {
        const response = await updateTask({
             task:{
                 name:name,
                 difficulty:difficulty,
+                display:display,
                 source:sourceChanged ? source : undefined,
                 tags:tags as [string,...string[]],
                 is_public:isPublic,
