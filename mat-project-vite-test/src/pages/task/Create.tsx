@@ -109,7 +109,15 @@ const Create: FC<Props> = () => {
 
     const navigate = useNavigate();
 
-    const action = React.useCallback<UpdateTaskPageCmpProps['action']>(async({name,display,difficulty,classRange,isPublic,source,tags}) =>{
+    const action = React.useCallback<UpdateTaskPageCmpProps['action']>(async ({
+        name,
+        display, 
+        difficulty, 
+        classRange, 
+        isPublic, 
+        source, 
+        tags
+    }) => {
 
         if(!source || source.length < 1){
             return {
