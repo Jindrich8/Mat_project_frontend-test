@@ -511,11 +511,11 @@ const ReviewList: FC<Props> = () => {
   const classesForCmp = React.useMemo(() => createInfo?.sortedClasses.map(c => c.name),
     [createInfo?.sortedClasses]);
 
-  const [classRange, setClassRange] = useListRange(
+  const [classRange,classRangeErrors, setClassRange] = useListRange(
     classesForCmp ?? [],
     ...getNumRangeParam(searchParams, 'Class')
   );
-  const [difficultyRange, setDifficultyRange] = useListRange(
+  const [difficultyRange,difficultyRangeErrors, setDifficultyRange] = useListRange(
     difficultiesForCmp ?? [],
     ...getNumRangeParam(searchParams, 'Difficulty')
   );
@@ -544,8 +544,8 @@ const ReviewList: FC<Props> = () => {
   const actualDifficultyRange = {
     min: nundef(difficultyRange.min, tryStrToNum(searchParams.get('minDifficulty'), undefined)) ?? undefined,
     max: nundef(difficultyRange.max, tryStrToNum(searchParams.get('maxDifficulty'), undefined)) ?? undefined,
-    minError: difficultyRange.minError,
-    maxError: difficultyRange.maxError
+    minError: difficultyRangeErrors.minError,
+    maxError: difficultyRangeErrors.maxError
   };
 
   console.log(`Search params: ${JSON.stringify([...searchParams])}`);
@@ -553,8 +553,8 @@ const ReviewList: FC<Props> = () => {
   const actualClassRange = {
     min: nundef(classRange.min, tryStrToNum(searchParams.get('minClass'), undefined)) ?? undefined,
     max: nundef(classRange.max, tryStrToNum(searchParams.get('maxClass'), undefined)) ?? undefined,
-    minError: classRange.minError,
-    maxError: classRange.maxError
+    minError: classRangeErrors.minError,
+    maxError: classRangeErrors.maxError
   };
 
 

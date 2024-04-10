@@ -149,12 +149,14 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
             err: undefined as (string | undefined)
         },
         classRange: {
-            err: undefined as (string|undefined)
+            err: undefined as (string|undefined),
+            minError: undefined as (string|undefined),
+            maxError: undefined as (string|undefined)
         },
         isPublic: false as boolean
     });
 
-    const [classRange, setClassRange,setClassRangeError] = useListRange(classesForCmp ?? []);
+    const [classRange,classRangeErrors, setClassRange] = useListRange(classesForCmp ?? []);
 
     useEffect(() => {
         if (getInitialFilters) {
@@ -198,7 +200,9 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                             err: undefined
                         },
                         classRange: {
-                            err: undefined
+                            err: undefined,
+                            minError: undefined,
+                            maxError: undefined
                         },
                         isPublic: values.isPublic
                     });
@@ -360,7 +364,14 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
         else if (classRange.min == null || classRange.max == null) {
             state.classRange.err.set("Task class must have minimum class and maximum class");
         }
-        else if (classRange.minError === undefined && classRange.maxError === undefined) {
+        else if (
+            (classRangeErrors.minError 
+                ?? classRangeErrors.maxError 
+                ?? state.classRange.err.value
+                ?? state.classRange.minError.value
+                ?? state.classRange.maxError.value
+                ) == null
+            ) {
             setTaskError(newTaskError);
             generalError.set(newGeneralError);
            const error = await action({
@@ -381,15 +392,14 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                     const value = error.value;
                     if(value.isFormError){
                     const formError = value.error;
-                    if(formError.classRange){
-                        setClassRangeError(
-                            formError.classRange.minError ?? null,
-                            formError.classRange.maxError ?? null
-                            );
-                    }
                         state.set(prev => {
                             prev.name.err = formError.name;
-                            prev.classRange.err = formError.classRange?.error;
+                            const classRangeError = formError.classRange;
+                            prev.classRange = {
+                                err:classRangeError?.error,
+                                minError:classRangeError?.minError,
+                                maxError:classRangeError?.maxError
+                            };
                             prev.difficulty.err = formError.difficulty;
                             prev.tags.err = formError.tags;
                             prev.orientation.err = formError.display;
@@ -419,7 +429,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
         }
         setTaskError(newTaskError);
         generalError.set(newGeneralError);
-    },[action, classRange.max, classRange.maxError, classRange.min, classRange.minError, generalError, setClassRangeError, state, tags]);
+    },[action, classRange.max, classRange.min, classRangeErrors.maxError, classRangeErrors.minError, generalError, state, tags]);
 
     const onFormInvalid = React.useCallback<React.FormEventHandler<HTMLFormElement>>(async () => {
         setActiveTab('filters');
@@ -521,8 +531,7 @@ const UpdateTaskPageCmp: FC<Props> = ({ getInitialFilters, getInitialSource,acti
                                 <ListRangeCmp
                                     min={classRange.min ?? undefined}
                                     max={classRange.max ?? undefined}
-                                    minError={classRange.minError}
-                                    maxError={classRange.maxError}
+                                    {...classRangeErrors}
                                     options={classesForCmp ?? []}
                                     required
                                     error={state.classRange.err.value}

@@ -5,15 +5,41 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
     const [st,setSt] = React.useState<{
         min?:number|null,
         max?:number|null,
-        minError?:string,
-        maxError?:string
+        lastChange?:"min"|"max"
     }
     >({
         min:min,
         max:max,
-        minError:undefined,
-        maxError:undefined
     });
+
+    const errors = React.useMemo(() => {
+        const newErrors: {
+            minError?: string,
+            maxError?: string
+        } = {};
+        const { min, max, lastChange } = st;
+        if (lastChange === "min") {
+            if (min != null) {
+                if ((options[min] ?? undefined) === undefined) {
+                    newErrors.minError = 'Invalid option selected!';
+                }
+                else if (max != null && min > max) {
+                    newErrors.maxError = 'Max should be greater than or equal to min!';
+                }
+            }
+        }
+        else {
+            if (max != null) {
+                if ((options[max] ?? undefined) === undefined) {
+                    newErrors.maxError = 'Invalid option selected!';
+                }
+                else if (min != null && min > max) {
+                    newErrors.minError = 'Min should be less than or equal to max!';
+                }
+            }
+        }
+        return newErrors;
+    }, [options, st]);
 
 
 
@@ -22,9 +48,7 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
         setSt(prev => {
             const newState: typeof prev = {
                 min: prev.min,
-                max: prev.max,
-                minError: undefined,
-                maxError: undefined
+                max: prev.max
             };
             if(type === 'min'){
                 newState.min = value ?? null;
@@ -37,63 +61,9 @@ export const useListRange = (options:string[],min?:number|null,max?:number|null)
                 newState.min = other;
                 }
             }
-            if (value !== undefined) {
-                if (type === "min") {
-                    if ((options[value] ?? undefined) === undefined) {
-                        newState.minError = 'Invalid option selected!';
-                    }
-                    else if (newState.min != null && newState.max != null && newState.min > newState.max) {
-                        newState.maxError = 'Max should be greater than or equal to min!';
-                    }
-                }
-                else {
-                    if ((options[value] ?? undefined) === undefined) {
-                        newState.maxError = 'Invalid option selected!';
-                    }
-                    else if (newState.min != null && newState.max != null && newState.min > newState.max) {
-                        newState.minError = 'Min should be less than or equal to max!';
-                    }
-                }
-            }
             return newState;
         });
-    },[options]);
-
-    const setError = React.useCallback((minError?:string|null,maxError?:string|null) => {
-        setSt(prev => {
-            if(minError !== undefined){
-                prev.minError = minError ?? undefined;
-            }
-            if(maxError !== undefined){
-                prev.maxError = maxError ?? undefined;
-            }
-            return {...prev};
-        })
     },[]);
 
-return [st,setRange,setError] as const;
-}
-
-export const getListMinMaxError = (options:unknown[],min?: number, max?: number,change?:'min'|'max') => {
-    let minError = '';
-    let maxError = '';
-    if(min !== undefined && max !== undefined){
-        if(change === 'min'){
-            if((options[min] ?? undefined) === undefined){
-                minError = 'Invalid option selected!';
-            }
-            else if(max < min){
-                maxError = 'Max should be greater than or equal to min!';
-            }
-        }
-        else if(change === 'max'){
-            if((options[max] ?? undefined) === undefined){
-                minError = 'Invalid option selected!';
-            }
-            else if(max < min){
-                maxError = 'Min should be less than or equal to max!';
-            }
-        }
-    }
-    return [minError,maxError];
+return [st,errors,setRange] as const;
 }
