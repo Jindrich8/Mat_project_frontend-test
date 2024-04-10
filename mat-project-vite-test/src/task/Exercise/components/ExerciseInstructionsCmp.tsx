@@ -1,6 +1,6 @@
-import { Text } from "@mantine/core";
 import { FC } from "react"
 import { ExerciseInstructions } from "../ExerciseTypes";
+import { FormattedTextCmp } from "../../../components/FormattedText/FormattedTextCmp";
 
 interface Props {
    instructions:ExerciseInstructions
@@ -8,10 +8,8 @@ interface Props {
 
 const ExerciseInstructionsCmp:FC<Props> = ({instructions}) => {
   return (
-    <>
-        <Text>{instructions.instructions}</Text>
-    </>
-  )
+        <FormattedTextCmp text={instructions.instructions} />
+  );
 };
 
 export { ExerciseInstructionsCmp, type Props as InstructionsProps };

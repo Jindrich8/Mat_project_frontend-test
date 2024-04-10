@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button, Stack, Title, TitleOrder } from "@mantine/core";
 import React, { FC } from "react"
 import { PositiveInt } from "../../../types/primitives/PositiveInteger";
 import { addOneToOrder, isNotNullNorUndef, isNullOrUndef } from "../../../utils/utils";
@@ -6,6 +6,7 @@ import { NonNegativeInt, NonNegativeIntHelper } from "../../../types/primitives/
 import { IntHelper } from "../../../types/primitives/Integer";
 import { HorizontalTask } from "./HorizontalTask";
 import { EvaluateTaskRequest } from "../../../api/dtos/request";
+import { FormattedTextCmp } from "../../../components/FormattedText/FormattedTextCmp";
 
 interface Props {
     task: HorizontalTask,
@@ -49,7 +50,7 @@ const HorizontalCmp: FC<Props> = ({ task: taskArg, order, onSubmit }) => {
             <Box>
                 <Stack mb={'xs'} ta={'center'} align={'center'} justify={'center'}>
                     <Title order={order}>{task.name}</Title>
-                    <Text>{task.description}</Text>
+                    <FormattedTextCmp text={task.description} />
                 </Stack>
                 <Button type={'submit'} style={{ float: 'right' }}>Odeslat</Button>
             </Box>

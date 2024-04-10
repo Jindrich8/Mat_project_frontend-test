@@ -1,10 +1,11 @@
 import React, { FC } from "react"
-import { Box, Button, Stack, Text, Title, TitleOrder } from "@mantine/core";
+import { Box, Button, Stack, Title, TitleOrder } from "@mantine/core";
 import { PositiveInt, PositiveIntHelper } from "../../../types/primitives/PositiveInteger";
 import { VerticalTask } from "./VerticalTask";
 import { addOneToOrder } from "../../../utils/utils";
 import { EvaluateTaskRequest } from "../../../api/dtos/request";
 import { VerticalGroupCmp } from "../../components/VerticalGroupCmp";
+import { FormattedTextCmp } from "../../../components/FormattedText/FormattedTextCmp";
 
 interface Props {
     task: VerticalTask,
@@ -28,7 +29,7 @@ const VerticalCmp: FC<Props> = React.memo(({ task: taskArg, order, onSubmit }) =
         <>
             <Stack ta={'center'} align={'center'} justify={'center'}>
                 <Title order={order}>{task.name}</Title>
-                <Text>{task.description}</Text>
+                <FormattedTextCmp text={task.description} />
             </Stack>
             <Box mt={'lg'} component={'form'} onSubmit={onFormSubmit}>
                 <Stack>

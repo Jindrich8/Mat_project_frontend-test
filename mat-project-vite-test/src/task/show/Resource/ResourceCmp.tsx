@@ -1,4 +1,5 @@
 import { FC } from "react"
+import { FormattedTextCmp } from "../../../components/FormattedText/FormattedTextCmp";
 
 type Props = {
 content:string
@@ -6,9 +7,7 @@ content:string
 
 const ResourceCmp:FC<Props> = ({content}) => {
   return (
-    <>
-        <span>{content}</span>
-    </>
+    <FormattedTextCmp text={content} />
   )
 };
 
