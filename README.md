@@ -5,5 +5,6 @@ This is frontend for [System for practising the grammar of the Czech language](h
 This is required because frontend generates types for api (dtos) from backend schemas.
 To costumize this process edit schemas option passed to ,,run" function in [mat-project-vite-test/node_gen_dtos.js](https://github.com/Jindrich8/Mat_project_frontend-test/blob/main/mat-project-vite-test/node_gen_dtos.js).
 2. [Generate dtos on backend](https://github.com/Jindrich8/Mat_project_backend-test).
-3. Step into mat-project-vite-test
-4. Run ,,yarn dev" or ,,yarn build"
+3. Set VITE_MY_BACKEND_API_URL (.env) to correct value
+4. Step into mat-project-vite-test
+5. Run ,,yarn dev" or ,,yarn build"
