@@ -202,13 +202,28 @@ const toTitleOrder = (value:number):TitleOrder => {
 
 const nbsp = '\u00A0';
 
-const strStartAndEndWsToNbsp =(d:string) => {
-  const trimmedStart = d.trimStart();
-  const trimmedEnd = trimmedStart.trimEnd();
-  const endWsCount = trimmedStart.length-trimmedEnd.length;
+
+
+const strStartAndEndSpacesToNbsp =(d:string) => {
+
+let trimmedStart = d.trimStart();
+ const lineI = d.substring(0,d.length - trimmedStart.length).indexOf("\n");
+ if(lineI >= 0){
+  trimmedStart = d.substring(lineI);
+ }
+
+ let trimmed = trimmedStart.trimEnd();
+ const lineIndex = trimmedStart.substring(trimmed.length)
+  .lastIndexOf("\n");
+  if(lineIndex >= 0){
+    trimmed = trimmedStart.substring(0,trimmed.length+ lineIndex+1);
+  }
+
+
   const value = nbsp.repeat(d.length - trimmedStart.length)
-   + trimmedStart.substring(0,trimmedStart.length - endWsCount)
-   + nbsp.repeat(endWsCount);
+   + trimmed
+   + nbsp.repeat(trimmedStart.length-trimmed.length);
+   console.log(`trStartAndEndSpacesToNbsp('${d}') => '${value}'`);
    return value;
 }
 
@@ -221,7 +236,7 @@ export {
   arrayLast,
   appendArrayToSearchParams,
   nbsp,
-  strStartAndEndWsToNbsp,
+  strStartAndEndSpacesToNbsp,
   tryGetLastArrayValue,
   dump,
   narrowArray,

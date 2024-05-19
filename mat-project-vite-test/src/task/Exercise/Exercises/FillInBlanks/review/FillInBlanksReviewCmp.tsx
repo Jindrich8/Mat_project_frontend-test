@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import styles from "../FillInBlanksCmpStyle.module.css"
 import { ReviewContent } from "../FillInBlanks";
 import { AnswerCmp } from "./components/AnswerCmp";
-import { strStartAndEndWsToNbsp } from "../../../../../utils/utils";
+import { strStartAndEndSpacesToNbsp } from "../../../../../utils/utils";
 
 
 type Content = ReviewContent;
@@ -16,7 +16,7 @@ const FillInBlanksReviewCmp: FC<FillInBlanksReviewCmpProps> = React.memo(({ uiDa
         <span style={{display:'inline',textAlign:'left'}}>
             {uiData.map((d, i) => {
                 return (typeof d === 'string' ?
-                    <span className={styles.textCmp} key={i}>{strStartAndEndWsToNbsp(d)}</span>
+                    <span className={styles.textCmp} key={i}>{strStartAndEndSpacesToNbsp(d)}</span>
                     : (<AnswerCmp 
                         style={{verticalAlign:'middle'}} 
                         userText={d.userValue ?? undefined} 

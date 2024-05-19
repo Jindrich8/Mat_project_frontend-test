@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { ComboboxCmp } from "./components/ComboboxCmp";
 import { TxtInputCmp, TxtInputCmpProps } from "./components/TxtInputCmp";
 import styles from "../FillInBlanksCmpStyle.module.css"
-import { isNotNullNorUndef, strStartAndEndWsToNbsp } from "../../../../../utils/utils";
+import { isNotNullNorUndef, strStartAndEndSpacesToNbsp } from "../../../../../utils/utils";
 import { TakeContent } from "../FillInBlanks";
 
 type Content = TakeContent;
@@ -34,7 +34,7 @@ const FillInBlanksTakeCmp: FC<FillInBlanksTakeCmpProps> = React.memo(({ uiData,s
             >
             {uiData.map((d,i) => {
                 if (typeof d === 'string'){
-                    const value = strStartAndEndWsToNbsp(d);
+                    const value = strStartAndEndSpacesToNbsp(d);
                     return <span className={styles.textCmp} key={i}>{value}</span>;
                  } else {
                     const currentCmpIndex = cmpIndex;
