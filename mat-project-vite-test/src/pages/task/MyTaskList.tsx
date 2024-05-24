@@ -123,7 +123,7 @@ const validOrderByCols = ["Název", "Obtížnost", "Rozsah tříd", "Datum a ča
 const columnAccessorToTitleDict: Record<string, string> = {
   'id': 'ID',
   'name': "Název",
-  'difficulty': "Difficulty",
+  'difficulty': "Obtížnost",
   'minClass': "Min. třída",
   'maxClass': "Max. třída",
   'tags': "Štítky",
@@ -360,7 +360,7 @@ const MyTaskList: FC<Props> = () => {
         noWrap: true,
         render: (_record, _index) => {
           console.log('isPublic');
-          return (<Text>{_record.isPublic ? "True" : "False"}</Text>);
+          return (<Text>{_record.isPublic ? "Ano" : "Ne"}</Text>);
         }
       } as const,
       {
